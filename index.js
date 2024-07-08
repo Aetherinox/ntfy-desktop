@@ -1,11 +1,4 @@
-const
-{
-    app,
-    BrowserWindow,
-    Tray,
-    Menu,
-    MenuItem
-} = require('electron');
+const { app, BrowserWindow, Tray, Menu, MenuItem } = require('electron');
 const notifier = require('node-notifier');
 const process = require('process');
 const path = require('path');
@@ -21,7 +14,8 @@ const store = new Store(
     defaults:
     {
         instanceURL: "https://ntfy.sh/app",
-        apiToken: ""
+        apiToken: "",
+        topics: "topic1,topic2,topic3"
     }
 });
 
@@ -118,7 +112,32 @@ Menu.setApplicationMenu(Menu.buildFromTemplate([
                     if ((response !== null))
                     {
                         store.set("apiToken", response);
-                        win.loadURL(response);
+                    }
+                })
+                .catch(console.error);
+        }
+    },
+    {
+        label: "Set Topics",
+        click: function()
+        {
+            prompt(
+                {
+                    title: "Set Topics",
+                    label: 'Topics (comma separated):',
+                    value: store.get("topics"),
+                    alwaysOnTop: true,
+                    inputAttrs:
+                    {
+                        type: 'text'
+                    },
+                    type: 'input'
+                }, win)
+                .then((response) =>
+                {
+                    if ((response !== null))
+                    {
+                        store.set("topics", response);
                     }
                 })
                 .catch(console.error);
@@ -167,6 +186,8 @@ function ready()
 
         /*
             Input > Refresh Page
+
+            Binds   : CTRL + r
         */
 
         if (input.type === "keyDown" && input.control && input.key === "r") {
@@ -175,6 +196,8 @@ function ready()
 
         /*
             Input > Zoom In
+
+            Binds   : CTRL + =
         */
 
         if (input.type === "keyDown" && input.control && input.key === "=") {
@@ -183,6 +206,8 @@ function ready()
 
         /*
             Input > Zoom Out
+
+            Binds   : CTRL + -
         */
 
         if (input.type === "keyDown" && input.control && input.key === "-") {
@@ -191,6 +216,8 @@ function ready()
 
         /*
             Input > Zoom Reset
+
+            Binds   : CTRL + 0
         */
 
         if (input.type === "keyDown" && input.control && input.key === "0") {
@@ -199,6 +226,8 @@ function ready()
 
         /*
             Input > Quit
+
+            Binds   : CTRL + q
         */
 
         if (input.type === "keyDown" && input.control && input.key === "q") {
@@ -208,6 +237,8 @@ function ready()
 
         /*
             Input > Minimize to tray
+
+            Binds   : CTRL + m
         */
 
         if (input.type === "keyDown" && input.control && input.key === "m") {
@@ -315,29 +346,33 @@ function ready()
     */
 
     async function GetMessageData(uri){
-        let token_Api = store.get("apiToken");
-        let request = await fetch(uri, {
+        const cfgApiToken = store.get("apiToken");
+        let req = await fetch(uri, {
             method: 'GET',
             headers: {
                 'Accept': 'application/json',
-                Authorization: `Bearer ${token_Api}`,
+                Authorization: `Bearer ${cfgApiToken}`,
             }
         });
 
-        let json = await request.text();
-
         /*
-            ntfy json isnt valid json and is messy.
-            break up each message by splitting at newline and re-build json
+            ntfy has the option to output message results as json, however the structure of that json
+            is not properly formatted json and adds a newline to the end of each message.
 
-            filter array at the end to remove any empty array elements from newline passed from ntfy
+            bring the json results in as a string, split them at newline and then push them to a new
+            array. 
         */
 
+        const json = await req.text();
         let jsonArr = [];
-        const lines = json.split("\n");
-        for (let i = 0; i < lines.length; i++) {
-            jsonArr.push(lines[i]);
+        const entries = json.split("\n");
+        for (let i = 0; i < entries.length; i++) {
+            jsonArr.push(entries[i]);
         }
+
+        /*
+            Filter out empty entry in array which was caused by the last newline
+        */
 
         const jsonResult = jsonArr.filter(function (el) {
             return el != null && el != '';
@@ -349,20 +384,33 @@ function ready()
     /*
         Get Messages
 
-        ntfy url requires '&poll=1' otherwise the request will freeze.
+        ntfy url requires '&poll=1' otherwise the requests will freeze.
         @ref        : https://docs.ntfy.sh/subscribe/api/#poll-for-messages
     */
 
     async function GetMessages(){
-        let instanceURL = store.get("instanceURL");
-        var uri = `${instanceURL}/Server/json?since=10s&poll=1`;
-        let json = await GetMessageData(uri);
+        const cfgTopics = store.get("topics");
+        const cfgInstanceURL = store.get("instanceURL");
+        const uri = `${cfgInstanceURL}/${cfgTopics}/json?since=10s&poll=1`;
+        const json = await GetMessageData(uri);
+
+        /*
+            Loop ntfy api results.
+            only items with event = 'message' will be allowed through to display in a notification.
+        */
 
         for (let i = 0; i < json.length; i++) {
             const object = JSON.parse(json[i]);
+            const type = object.event;
+            const time = object.time;
+            const expires = object.expires;
             const message = object.message;
             const topic = object.topic;
             
+            if ( type != 'message') {
+                continue;
+            }
+
             notifier.notify({
                 title: `Topic: ${topic}`,
                 message: `${message}`
@@ -371,13 +419,6 @@ function ready()
 
         return json;
     }
-
-    /*
-        Run timer every X seconds to check for new messages
-    */
-
-    const fetchInterval = 11000;
-    setInterval(GetMessages, fetchInterval);
 
     win.on("page-title-updated", (event) =>
     {
@@ -413,6 +454,13 @@ function ready()
             win.hide();
         }
     }
+
+    /*
+        Run timer every X seconds to check for new messages
+    */
+
+    const fetchInterval = 10500;
+    setInterval(GetMessages, fetchInterval);
 }
 
 /*
