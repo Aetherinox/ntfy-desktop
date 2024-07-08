@@ -29,6 +29,7 @@
   - [What is ntfy?](#what-is-ntfy)
   - [What is ntfy-electron](#what-is-ntfy-electron)
 - [Features](#features)
+- [Key Binds](#key-binds)
 - [CLI Arguments](#cli-arguments)
 - [Build](#build)
   - [Linux](#linux)
@@ -73,6 +74,32 @@ This version of ntfy-electron is based on the initial version created by xdpirat
 # Features
 - Complete access to ntfy.sh and self-hosted instances
 - Minimize application to tray and out of taskbar
+  - Close button will minimize to tray and remove from taskbar
+  - Right-click tray icon to restore or quit
+- API access to push notifications
+- Shortcut keybinds
+
+<br />
+
+---
+
+<br />
+
+# Key Binds
+The following keybinds can be used within ntfy-electron:
+
+<br />
+
+| Key(s) | Description |
+| --- | --- |
+| `CTRL + R` | Refresh page |
+| `CTRL + Q` | Quit application |
+| `CTRL + M` | Minimize to tray |
+| `CTRL + =` | Zoom in |
+| `CTRL + -` | Zoom out |
+| `CTRL + 0` | Zoom reset |
+| `CTRL + SHIFT + I` | Developer tools |
+| `F12` | Developer tools |
 
 <br />
 
@@ -84,7 +111,6 @@ This version of ntfy-electron is based on the initial version created by xdpirat
 | Argument | Description |
 | --- | --- |
 | `--hidden` | Start ntfy-electron hidden, suitable for autostarting on login/boot |
-
 
 
 <br />
