@@ -31,6 +31,8 @@
 - [Features](#features)
 - [CLI Arguments](#cli-arguments)
 - [Build](#build)
+  - [Linux](#linux)
+  - [Windows](#windows)
 
 
 <br />
@@ -94,12 +96,25 @@ This version of ntfy-electron is based on the initial version created by xdpirat
 # Build
 To build this app, run the following commands:
 
+## Linux
 ```shell
 git clone https://github.com/Aetherinox/ntfy-electron.git
 npm install
 npm install -g electron-packager
 sudo apt install wine64
 sudo ln -s /usr/bin/wine /usr/bin/wine64
+```
+
+<br />
+
+## Windows
+To test development on a Windows machine, run the following commands.
+A build script for windows will be available later.
+
+```shell
+git clone https://github.com/Aetherinox/ntfy-electron.git
+npm install
+npm install -g electron
 ```
 
 <br />
