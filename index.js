@@ -283,10 +283,13 @@ function ready()
 
     /*
         Tray
+
+        Windows         : left-click opens app, right-click opens context menu
+        Linux           : left and right click have same functionality
     */
 
     tray = new Tray(appIconLoc);
-    tray.setToolTip("ntfy electron");
+    tray.setToolTip("ntfy Desktop");
     tray.setContextMenu(contextMenu);
     tray.on("click", function()
     {
@@ -301,6 +304,80 @@ function ready()
             win.hide();
         }
     });
+
+    /*
+        Get Message Data
+
+        Even though ntfy's permissions are open by default, provide authorization bearer for users who
+        have their permissions set to 'deny'.
+
+        API Token can be specified in app.
+    */
+
+    async function GetMessageData(uri){
+        let token_Api = store.get("apiToken");
+        let request = await fetch(uri, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+                Authorization: `Bearer ${token_Api}`,
+            }
+        });
+
+        let json = await request.text();
+
+        /*
+            ntfy json isnt valid json and is messy.
+            break up each message by splitting at newline and re-build json
+
+            filter array at the end to remove any empty array elements from newline passed from ntfy
+        */
+
+        let jsonArr = [];
+        const lines = json.split("\n");
+        for (let i = 0; i < lines.length; i++) {
+            jsonArr.push(lines[i]);
+        }
+
+        const jsonResult = jsonArr.filter(function (el) {
+            return el != null && el != '';
+        });
+
+        return jsonResult;
+    }
+
+    /*
+        Get Messages
+
+        ntfy url requires '&poll=1' otherwise the request will freeze.
+        @ref        : https://docs.ntfy.sh/subscribe/api/#poll-for-messages
+    */
+
+    async function GetMessages(){
+        let instanceURL = store.get("instanceURL");
+        var uri = `${instanceURL}/Server/json?since=10s&poll=1`;
+        let json = await GetMessageData(uri);
+
+        for (let i = 0; i < json.length; i++) {
+            const object = JSON.parse(json[i]);
+            const message = object.message;
+            const topic = object.topic;
+            
+            notifier.notify({
+                title: `Topic: ${topic}`,
+                message: `${message}`
+            });
+        }
+
+        return json;
+    }
+
+    /*
+        Run timer every X seconds to check for new messages
+    */
+
+    const fetchInterval = 11000;
+    setInterval(GetMessages, fetchInterval);
 
     win.on("page-title-updated", (event) =>
     {

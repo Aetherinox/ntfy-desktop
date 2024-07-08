@@ -78,6 +78,8 @@ This version of ntfy-desktop is based on the package ntfy-electron created by xd
   - Right-click tray icon to restore or quit
 - API access to push notifications
 - Shortcut keybinds
+- Receive push notifications from ntfy server to desktop
+  - **Notice**: This feature is VERY alpha. There are a lot of things that need to be implemented, as well as support for the various fields.
 
 <br />
 
