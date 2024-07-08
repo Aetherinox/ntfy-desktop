@@ -1,0 +1,39 @@
+{
+    "name": "@aetherinox/ntfy-electron",
+    "version": "1.0.0",
+    "description": "ntfy push notifications wrapped in electron as a web app",
+    "homepage": "https://github.com/Aetherinox/ntfy-electron",
+    "author": "Aetherinox",
+    "contributors": [
+        {
+            "name": "xdpirate",
+            "email": "1757462+xdpirate@users.noreply.github.com",
+            "url": "https://github.com/xdpirate"
+        }
+    ],
+    "publishConfig": {
+        "access": "public"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/Aetherinox/ntfy-electron.git"
+    },
+    "bugs": {
+        "url": "https://github.com/Aetherinox/ntfy-electron/issues"
+    },
+    "license": "GPLv3",
+    "keywords": [
+        "ntfy",
+        "push notifications",
+        "electron",
+        "web app"
+    ],
+    "main": "index.js",
+    "scripts": {
+      "start": "electron ."
+    },
+    "dependencies": {
+      "custom-electron-prompt": "^1.5.7",
+      "electron": "^24.1.3"
+    }
+}
