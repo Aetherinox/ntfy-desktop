@@ -1,7 +1,7 @@
 <div align="center">
 <h1>♾️ ntfy-desktop ♾️</h1>
 <br />
-<p>ntfy push notifications embedded within an electron wrapper with support for self-hosted instances</p>
+<p>ntfy.sh desktop client built with Electron which supports Windows, Linux, and MacOSX.</p>
 
 <br />
 
