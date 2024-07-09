@@ -1,12 +1,31 @@
 const { app, BrowserWindow, Tray, Menu, MenuItem } = require('electron');
+const electronShell = require('electron').shell;
 const notifier = require('node-notifier');
 const process = require('process');
 const path = require('path');
+const url = require('url');
 const Store = require('./store.js');
 
-let win, tray;
+/*
+    Declare > Package
+*/
+
+const packageJson = require('./package.json');
+const appVer = packageJson.version;
+const appName = packageJson.name;
+const appAuthor = packageJson.author;
+
+/*
+    Declare > Window
+*/
+
+let winMain, winAbout, tray;
 let winHidden = 0;
 let appIconLoc = app.getAppPath() + "/ntfy.png";
+
+/*
+    Declare > Store Values
+*/
 
 const store = new Store(
 {
@@ -43,10 +62,10 @@ Menu.setApplicationMenu(Menu.buildFromTemplate([
     submenu: [
     {
         label: "Toggle Dev Tools",
-        accelerator: process.platform === 'darwin' ? 'Alt+Cmd+I' : 'F12',
+        accelerator: process.platform === 'darwin' ? 'ALT+CMD+I' : 'CTRL+SHIFT+I',
         click: function()
         {
-            win.webContents.toggleDevTools();
+            winMain.webContents.toggleDevTools();
         }
     },
     {
@@ -54,6 +73,7 @@ Menu.setApplicationMenu(Menu.buildFromTemplate([
     },
     {
         label: "Quit",
+        accelerator: 'CTRL+Q',
         click: function()
         {
             app.isQuiting = true;
@@ -66,6 +86,7 @@ Menu.setApplicationMenu(Menu.buildFromTemplate([
     submenu: [
     {
         label: "Set Server",
+        accelerator: 'CTRL+S',
         click: function()
         {
             prompt(
@@ -74,18 +95,18 @@ Menu.setApplicationMenu(Menu.buildFromTemplate([
                     label: 'URL:',
                     value: store.get("instanceURL"),
                     alwaysOnTop: true,
+                    type: 'input',
                     inputAttrs:
                     {
                         type: 'url'
                     },
-                    type: 'input'
-                }, win)
+                }, winMain)
                 .then((response) =>
                 {
                     if ((response !== null))
                     {
                         store.set("instanceURL", response);
-                        win.loadURL(response);
+                        winMain.loadURL(response);
                     }
                 })
                 .catch(console.error);
@@ -93,6 +114,7 @@ Menu.setApplicationMenu(Menu.buildFromTemplate([
     },
     {
         label: "Set API Token",
+        accelerator: 'CTRL+T',
         click: function()
         {
             prompt(
@@ -101,12 +123,12 @@ Menu.setApplicationMenu(Menu.buildFromTemplate([
                     label: 'API Token:',
                     value: store.get("apiToken"),
                     alwaysOnTop: true,
+                    type: 'input',
                     inputAttrs:
                     {
                         type: 'text'
                     },
-                    type: 'input'
-                }, win)
+                }, winMain)
                 .then((response) =>
                 {
                     if ((response !== null))
@@ -119,6 +141,7 @@ Menu.setApplicationMenu(Menu.buildFromTemplate([
     },
     {
         label: "Set Topics",
+        accelerator: 'CTRL+SHIFT+T',
         click: function()
         {
             prompt(
@@ -127,12 +150,12 @@ Menu.setApplicationMenu(Menu.buildFromTemplate([
                     label: 'Topics (comma separated):',
                     value: store.get("topics"),
                     alwaysOnTop: true,
+                    type: 'input',
                     inputAttrs:
                     {
                         type: 'text'
                     },
-                    type: 'input'
-                }, win)
+                }, winMain)
                 .then((response) =>
                 {
                     if ((response !== null))
@@ -143,6 +166,63 @@ Menu.setApplicationMenu(Menu.buildFromTemplate([
                 .catch(console.error);
         }
     }]
+},
+{
+    id: 'help',
+    label: 'Help',
+    submenu: [
+        {
+            id: 'about',
+            label: 'About',
+            click () {
+                const aboutTitle = `About ${appName}`;
+                winAbout = new BrowserWindow({
+                    width: 550,
+                    height: 400,
+                    title: `${aboutTitle}`,
+                    parent: winMain,
+                    center: true,
+                    resizable: false,
+                    fullscreenable: false,
+                    minimizable: false,
+                    maximizable: false,
+                    modal: true,
+                    backgroundColor: "#212121",
+                    webPreferences: {
+                        nodeIntegration: true,
+                        contextIsolation: false,
+                        enableRemoteModule: true
+                    }
+                })
+
+                winAbout.loadFile(path.join(__dirname, `pages`, `about.html`)).then(() => {
+                    winAbout.webContents.executeJavaScript(`
+                        setTitle("${aboutTitle}");
+                        setAppInfo("${appName}", "${appVer}", "${appAuthor}");`,
+                        true
+                    )
+                    .then(result => {
+                    }).catch(console.error);
+                });
+
+                winAbout.webContents.on('new-window', function(e, url) {
+                    e.preventDefault();
+                    require('electron').shell.openExternal(url);
+                });
+
+                // Remove menubar from about window
+                winAbout.setMenu(null);
+            }
+        },
+        {
+            label: 'View New Releases',
+            click() {
+                electronShell.openExternal(
+                    `${packageJson.homepage}`
+                );
+            },
+        }
+    ]
 }]));
 
 /*
@@ -156,32 +236,33 @@ function ready()
         New Window
     */
 
-    win = new BrowserWindow(
+    winMain = new BrowserWindow(
     {
-        title: "ntfy electron",
+        title: "ntfy Desktop",
         width: 1280,
         height: 720,
         icon: appIconLoc,
+        backgroundColor: "#212121"
     });
 
-    win.loadURL(store.get("instanceURL"));
+    winMain.loadURL(store.get("instanceURL"));
 
-    win.on('closed', () =>
+    winMain.on('closed', () =>
     {
-        win = null;
+        winMain = null;
     });
 
-    win.webContents.on('new-window', (event, url) =>
+    winMain.webContents.on('new-window', (e, url) =>
     {
-        event.preventDefault();
-        win.loadURL(url);
+        e.preventDefault();
+        require('electron').shell.openExternal(url);
     });
 
     /*
         Event > Input
     */
 
-    win.webContents.on("before-input-event", (e, input) =>
+    winMain.webContents.on("before-input-event", (e, input) =>
     {
 
         /*
@@ -191,7 +272,7 @@ function ready()
         */
 
         if (input.type === "keyDown" && input.control && input.key === "r") {
-            win.webContents.reload();
+            winMain.webContents.reload();
         }
 
         /*
@@ -243,7 +324,7 @@ function ready()
 
         if (input.type === "keyDown" && input.control && input.key === "m") {
             winHidden = 1;
-            win.hide();
+            winMain.hide();
         }
 
         /*
@@ -256,10 +337,10 @@ function ready()
         if ( ( input.control && input.shift ) || input.key === "F12" )
         {
             if (input.type === "keyDown" && (input.key === "I" || input.key === "F12")) {
-                win.webContents.toggleDevTools();
-                win.webContents.on('devtools-opened', () =>
+                winMain.webContents.toggleDevTools();
+                winMain.webContents.on('devtools-opened', () =>
                 {
-                    win.webContents.devToolsWebContents.executeJavaScript(`
+                    winMain.webContents.devToolsWebContents.executeJavaScript(`
                             new Promise((resolve)=> {
                                 let keysPressed = {};
 
@@ -283,7 +364,7 @@ function ready()
                         `)
                         .then(() =>
                         {
-                            win.webContents.toggleDevTools();
+                            winMain.webContents.toggleDevTools();
                         });
                 });
             }
@@ -300,7 +381,7 @@ function ready()
         label: 'Show App',
         click: function()
         {
-            win.show();
+            winMain.show();
         }
     },
     {
@@ -327,12 +408,12 @@ function ready()
         if (winHidden)
         {
             winHidden = 0;
-            win.show();
+            winMain.show();
         }
         else
         {
             winHidden = 1;
-            win.hide();
+            winMain.hide();
         }
     });
 
@@ -420,7 +501,7 @@ function ready()
         return json;
     }
 
-    win.on("page-title-updated", (event) =>
+    winMain.on("page-title-updated", (event) =>
     {
         event.preventDefault();
     });
@@ -429,12 +510,12 @@ function ready()
         Close Button
     */
 
-    win.on('close', function(event)
+    winMain.on('close', function(event)
     {
         if (!app.isQuiting)
         {
             event.preventDefault();
-            win.hide();
+            winMain.hide();
         }
 
         return false;
@@ -451,7 +532,7 @@ function ready()
         if (process.argv[i] == "--hidden")
         {
             winHidden = 1;
-            win.hide();
+            winMain.hide();
         }
     }
 
