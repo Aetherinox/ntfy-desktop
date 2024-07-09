@@ -5,7 +5,7 @@
 
 <br />
 
-<img src="https://docs.ntfy.sh/static/img/pwa.png" width="630">
+<img src="https://github.com/Aetherinox/ntfy-desktop/assets/118329232/cd7dca36-e0cc-43dc-a4c9-c09e084b3cd0" width="630">
 
 <br />
 
