@@ -92,10 +92,14 @@ Menu.setApplicationMenu(Menu.buildFromTemplate([
             prompt(
                 {
                     title: "Set Server Instance",
-                    label: 'URL:',
+                    label: 'Server URL<div class="label-desc">This can either be the URL to the official ntfy.sh server, or your own self-hosted domain / ip.</div>',
+                    useHtmlLabel: true,
                     value: store.get("instanceURL"),
                     alwaysOnTop: true,
                     type: 'input',
+                    customStylesheet: path.join(__dirname, `pages`, `css`, `prompt.css`),
+                    height: 240,
+                    icon: app.getAppPath() + "/ntfy.png",
                     inputAttrs:
                     {
                         type: 'url'
@@ -109,7 +113,12 @@ Menu.setApplicationMenu(Menu.buildFromTemplate([
                         winMain.loadURL(response);
                     }
                 })
-                .catch(console.error);
+                .catch(console.error)
+                /*
+                setTimeout(function (){
+                    BrowserWindow.getFocusedWindow().webContents.openDevTools();
+                }, 5000);
+                */
         }
     },
     {
@@ -120,10 +129,14 @@ Menu.setApplicationMenu(Menu.buildFromTemplate([
             prompt(
                 {
                     title: "Set API Token",
-                    label: 'API Token:',
+                    label: 'API Token<div class="label-desc">Generate an API token within ntfy.sh and provide it below so that noficiations can be fetched.</div>',
+                    useHtmlLabel: true,
                     value: store.get("apiToken"),
                     alwaysOnTop: true,
                     type: 'input',
+                    customStylesheet: path.join(__dirname, `pages`, `css`, `prompt.css`),
+                    height: 240,
+                    icon: app.getAppPath() + "/ntfy.png",
                     inputAttrs:
                     {
                         type: 'text'
@@ -146,11 +159,15 @@ Menu.setApplicationMenu(Menu.buildFromTemplate([
         {
             prompt(
                 {
-                    title: "Set Topics",
-                    label: 'Topics (comma separated):',
+                    title: "Set Subscribed Topics",
+                    label: 'Subscribed Topics<div class="label-desc">Specify a list of topics you would like to receive push notifications for.</div>',
+                    useHtmlLabel: true,
                     value: store.get("topics"),
                     alwaysOnTop: true,
                     type: 'input',
+                    customStylesheet: path.join(__dirname, `pages`, `css`, `prompt.css`),
+                    height: 240,
+                    icon: app.getAppPath() + "/ntfy.png",
                     inputAttrs:
                     {
                         type: 'text'

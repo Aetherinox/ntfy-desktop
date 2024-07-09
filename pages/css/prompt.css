@@ -1,0 +1,112 @@
+body {
+	background-color: #212121;
+	color: #FFFFFF;
+}
+
+#form {
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+#label {
+	text-align: left;
+	padding: 0px 0px 0px 0px;
+}
+
+.label-desc {
+	padding-top: 4px;
+    padding-bottom: 7px;
+	font-size: 9pt;
+	white-space: normal;
+	color: #9f9f9f;
+}
+
+#container {
+	overflow: hidden;
+}
+
+#data,
+.keybindData {
+	background: rgb(50 50 50);
+    color: #45b79f;
+    border: 1px solid rgb(54, 54, 54);
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 7px;
+    padding-bottom: 5px;
+    width: 100%;
+    font-size: 12pt;
+    font-weight: 100;
+}
+
+#data:hover {
+	border: 1px solid rgb(85, 85, 85);
+}
+
+#data:focus {
+	outline: unset;
+	border: 1px solid rgb(85, 85, 85);
+}
+
+#buttons {
+	padding: 0px 0px 0px 0px;
+}
+
+#buttons > button, #buttons > input[type="submit"] {
+    line-height: 0.9;
+    padding: 7px 14px 7px 14px;
+}
+
+#ok:hover,
+#ok:focus,
+#custom:hover,
+#custon:focus
+#cancel:hover,
+#cancel:focus {
+	outline: rgba(60, 0, 0, 0.4) solid 2px;
+}
+
+#ok,
+#cancel,
+#custom,
+.clearButton {
+	background-color: #de2343;
+	color: #FFFFFF;
+	cursor: pointer;
+}
+
+#ok:hover, #cancel:hover, #custom:hover,
+.clearButton:hover {
+    cursor: pointer;
+    filter: brightness(1.25);
+}
+
+
+/* For Counter Prompt */
+.minus,
+.plus {
+	background: rgb(0, 0, 0);
+}
+
+/* For Select Prompt */
+option {
+	background-color: #07070C;
+}
+
+/* For Keybind Prompt */
+.clearButton:focus {
+	outline: none;
+}
+
+.clearButton:hover {
+	background-color: rgb(5, 5, 5);
+}
+
+.keybindData:hover {
+	border: 1px solid rgb(56, 0, 0);
+}
+
+.keybindData:focus {
+	outline: 3px solid #1E0919;
+	border: 1px solid rgb(56, 0, 0);
+}
