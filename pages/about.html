@@ -21,7 +21,7 @@
 		</div>
 
 		<div class="align-c mt-4">
-			<img class="img" src="https://preview.redd.it/ntfy-release-now-with-web-push-and-a-progressive-web-app-v0-803ocu5oj99b1.png?width=952&format=png&auto=webp&s=41edcef6c15dc71135017b8a20156d327f445d95" alt="icon" style="width: 230px;">
+			<img class="img" src="https://github.com/Aetherinox/ntfy-desktop/assets/118329232/f9aa382a-ec2b-4986-9d2e-608255aac56c" alt="icon" style="width: 260px;">
 		</div>
 
 		<div class="mt-3 mb-1 align-c text-white license">ntfy-desktop is licensed under GPLv3 or later.</div>
@@ -29,14 +29,18 @@
 
 		<div class="mt-4" id="images">
 			<a onclick="lnk_Github(event)" target="_blank" rel="noopener noreferrer" href="https://github.com/Aetherinox/ntfy-desktop">
-				<img class="badges" border="0" alt="Static Badge" src="https://img.shields.io/badge/View%20Repo-Github?style=for-the-badge&logo=github&logoColor=FFFFFF&color=de2343">
+				<img class="badges" border="0" alt="Badge: Github Repo" src="https://img.shields.io/badge/View%20Repo-Github?style=for-the-badge&logo=github&logoColor=FFFFFF&color=de2343">
 			</a>
-			<a onclick="lnk_Github(event)" target="_blank" rel="noopener noreferrer" href="https://aetherinox.github.io/ntfy-desktop">
-				<img class="badges" border="0" alt="Static Badge" src="https://img.shields.io/badge/View%20Docs-Github?style=for-the-badge&logo=gitbook&logoColor=FFFFFF&color=29685b">
+			<a onclick="lnk_Docs(event)" target="_blank" rel="noopener noreferrer" href="https://aetherinox.github.io/ntfy-desktop">
+				<img class="badges" border="0" alt="Badge: Docs" src="https://img.shields.io/badge/View%20Docs-Github?style=for-the-badge&logo=gitbook&logoColor=FFFFFF&color=29685b">
 			</a>
 		</div>
 
 		<script>
+			window.addEventListener('blur', function () {
+				window.close();
+			});
+
 			function lnk_Github(e) {
 				e.preventDefault();
 				require('electron').shell.openExternal('https://github.com/Aetherinox/ntfy-desktop/');
