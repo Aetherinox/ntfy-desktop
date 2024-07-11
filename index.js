@@ -1,6 +1,6 @@
 const { app, BrowserWindow, Tray, Menu, MenuItem } = require('electron');
 const electronShell = require('electron').shell;
-const notifier = require('node-notifier');
+const toasted = require('toasted-notifier');
 const process = require('process');
 const path = require('path');
 const url = require('url');
@@ -253,6 +253,11 @@ function ready()
         New Window
     */
 
+    toasted.notify({
+        title: "Title",
+        message: "Message"
+    });
+
     winMain = new BrowserWindow(
     {
         title: "ntfy Desktop",
@@ -361,21 +366,21 @@ function ready()
                             new Promise((resolve)=> {
                                 let keysPressed = {};
 
-                                addEventListener("keydown", (event) => {
-                                    if (event.key === "F12") {
+                                addEventListener("keydown", (e) => {
+                                    if (e.key === "F12") {
                                         resolve();
                                     }
                                 }, { once: true });
 
-                                addEventListener("keydown", (event) => {
-                                    keysPressed[event.key] = true;
-                                    if (keysPressed['Control'] && keysPressed['Shift'] && event.key == 'I') {
+                                addEventListener("keydown", (e) => {
+                                    keysPressed[e.key] = true;
+                                    if (keysPressed['Control'] && keysPressed['Shift'] && e.key == 'I') {
                                         resolve();
                                     }
                                 });
 
-                                addEventListener('keyup', (event) => {
-                                    delete keysPressed[event.key];
+                                addEventListener('keyup', (e) => {
+                                    delete keysPressed[e.key];
                                 });
                             })
                         `)
@@ -509,7 +514,7 @@ function ready()
                 continue;
             }
 
-            notifier.notify({
+            toasted.notify({
                 title: `Topic: ${topic}`,
                 message: `${message}`
             });
@@ -518,20 +523,20 @@ function ready()
         return json;
     }
 
-    winMain.on("page-title-updated", (event) =>
+    winMain.on("page-title-updated", (e) =>
     {
-        event.preventDefault();
+        e.preventDefault();
     });
 
     /*
         Close Button
     */
 
-    winMain.on('close', function(event)
+    winMain.on('close', function(e)
     {
         if (!app.isQuiting)
         {
-            event.preventDefault();
+            e.preventDefault();
             winMain.hide();
         }
 

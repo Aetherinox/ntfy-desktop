@@ -38,6 +38,6 @@
     "dependencies": {
         "custom-electron-prompt": "^1.5.7",
         "electron": "^24.1.3",
-        "node-notifier": "^10.0.1"
+        "toasted-notifier": "^10.0.1"
     }
 }
