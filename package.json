@@ -14,6 +14,9 @@
     "publishConfig": {
         "access": "public"
     },
+    "build": {
+        "appId": "com.ntfydesktop.id"
+    },
     "repository": {
         "type": "git",
         "url": "git+https://github.com/Aetherinox/ntfy-electron.git"
