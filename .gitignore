@@ -1,6 +1,96 @@
-node_modules
-build
-.vscode
-.jshintrc
-.directory
-*.txt
+# ----------------------------------------
+# Ignore everything
+# ----------------------------------------
+/*
+
+# ----------------------------------------
+# [WL]: Git Base Folders/Files
+# ----------------------------------------
+!/.github
+!/.gitea
+!*README.md
+!*LICENSE.md
+!*LICENSE
+!*CHANGELOG.md
+!*CONTRIBUTE.md
+!*CONTRIBUTING.md
+!*CODE_OF_CONDUCT.md
+!*DECISION_FLOW.md
+
+# ----------------------------------------
+# [WL]: Electron
+# ----------------------------------------
+!/electron
+
+# ----------------------------------------
+# [WL]: Test Folder
+# ----------------------------------------
+!/Tests
+!/test
+!/example
+
+# ----------------------------------------
+# [WL]: Manifest Folders
+# ----------------------------------------
+!/Manifest
+
+# ----------------------------------------
+# [WL]: Tools Folders
+# ----------------------------------------
+!/Tools
+
+# ----------------------------------------
+# [WL]: Dist
+# ----------------------------------------
+!/dist
+
+# ----------------------------------------
+# [WL]: assets
+# ----------------------------------------
+!/assets
+
+# ----------------------------------------
+# [WL]: Gitignore File
+# ----------------------------------------
+!.gitignore
+
+# ----------------------------------------
+# [WL]: Docs Folder
+# ----------------------------------------
+!/docs
+
+# ----------------------------------------
+# [WL]: Source Folder
+# ----------------------------------------
+!/src
+!/lib
+!/notifiers
+
+# ----------------------------------------
+# [WL]: Dist Folder
+# ----------------------------------------
+!/dist
+!/vendor
+
+# ----------------------------------------
+# [WL]: Base Files
+# ----------------------------------------
+!*.prettierrc
+!*.prettierignore
+!*.eslintrc
+!*.npmignore
+!*.all-contributorsrc
+!*.editorconfig
+!*ntfy.js
+!*index.js
+!*manifest.json
+!*package.json
+!*package-lock.json
+!*rollup.config.js
+!*rollup.config.mjs
+!*tsconfig.json
+!*versions.json
+!sign.bat
+!*SHA*.asc
+!*SHA*.sig
+!*styles.css

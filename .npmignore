@@ -1,0 +1,15 @@
+.husky/
+.github/
+example/
+Docs/
+test
+*.md
+.eslintrc
+.travis.yml
+.prettierrc
+.prettierignore
+
+
+
+
+
