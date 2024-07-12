@@ -20,19 +20,18 @@
 
 <br />
 
-- [Submitting Bugs](#submitting-bugs)
-- [Contributing](#contributing)
-  - [Pull requests eligible for review](#pull-requests-eligible-for-review)
-  - [Conventional Commit Specification](#conventional-commit-specification)
-    - [Types](#types)
-      - [Example 1:](#example-1)
-      - [Example 2:](#example-2)
-  - [References](#references)
-  - [Code Styling](#code-styling)
-  - [Spaces Instead Of Tabs](#spaces-instead-of-tabs)
-  - [Commenting](#commenting)
-  - [Casing](#casing)
-
+-   [Submitting Bugs](#submitting-bugs)
+-   [Contributing](#contributing)
+    -   [Pull requests eligible for review](#pull-requests-eligible-for-review)
+    -   [Conventional Commit Specification](#conventional-commit-specification)
+        -   [Types](#types)
+            -   [Example 1:](#example-1)
+            -   [Example 2:](#example-2)
+    -   [References](#references)
+    -   [Code Styling](#code-styling)
+    -   [Spaces Instead Of Tabs](#spaces-instead-of-tabs)
+    -   [Commenting](#commenting)
+    -   [Casing](#casing)
 
 ---
 
@@ -42,9 +41,9 @@
 
 Please ensure that when you submit bugs; you are detailed.
 
-* Explain the issue
-* Describe how the function should operate, and what you are experiencing instead.
-* Provide possible options for a resolution or insight
+-   Explain the issue
+-   Describe how the function should operate, and what you are experiencing instead.
+-   Provide possible options for a resolution or insight
 
 <br />
 
@@ -58,17 +57,17 @@ The source is here for everyone to collectively share and colaborate on. If you 
 
 Unless you are fixing a known bug, we strongly recommend discussing it with the core team via a GitHub issue before getting started to ensure your work does not conflict with future plans.
 
-All contributions are made via pull requests. To make a pull request, you will need a GitHub account; if you are unclear on this process, see [GitHub's documentation on forking and pull requests](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request-from-a-fork). Pull requests should be targeted at the master branch. 
+All contributions are made via pull requests. To make a pull request, you will need a GitHub account; if you are unclear on this process, see [GitHub's documentation on forking and pull requests](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request-from-a-fork). Pull requests should be targeted at the master branch.
 
 <br />
 
 ### Pull requests eligible for review
 
-- Follow the repository's code formatting conventions (see below);
-- Include tests that prove that the change works as intended and does not add regressions;
-- Document the changes in the code and/or the project's documentation;
-- Pass the CI pipeline;
-- Include a proper git commit message following the [Conventional Commit Specification](https://conventionalcommits.org/en/v1.0.0/#specification).
+-   Follow the repository's code formatting conventions (see below);
+-   Include tests that prove that the change works as intended and does not add regressions;
+-   Document the changes in the code and/or the project's documentation;
+-   Pass the CI pipeline;
+-   Include a proper git commit message following the [Conventional Commit Specification](https://conventionalcommits.org/en/v1.0.0/#specification).
 
 <br />
 
@@ -95,23 +94,24 @@ When commiting your changes, we require you to follow the Conventional Commit Sp
 ```
 
 #### Types
-| Type | Description |
-| --- | --- |
-| `feat` | Introduces a new feature |
-| `fix` | A bug fix for the end user |
-| `docs` | A change to the website or Markdown documents |
-| `build` | The commit alters the build process. E.g: creating a new build task, updating the release script, editing Makefile. |
-| `test` | Adds missing tests, refactoring tests; no production code change. Usually changes the suite of automated tests for the product. |
-| `perf` | Improves performance of algorithms or general execution time of the product, but does not fundamentally change an existing feature. |
-| `style` | Updates or reformats the style of the source code, but does not otherwise change the product implementation. Changes that do not affect the meaning of the code (white-space, formatting, missing semi-colons, etc) |
-| `refactor` | A change to production code that leads to no behavior difference, e.g. splitting files, renaming internal variables, improving code style, etc. |
-| `change` | Changes the implementation of an existing feature. |
-| `chore` | Includes a technical or preventative maintenance task that is necessary for managing the product or the repository, but is not tied to any specific feature. E.g. updating dependencies. These are usually done for maintanence purposes. |
-| `ci` | Changes related to Continuous Integration (usually `yml` and other configuration files). |
-| `misc` | Anything else that doesn't change production code, yet is not ci, test or chore. |
-| `revert` | Revert to a previous commit |
-| `remove` | Removes a feature from the product. Typically features are deprecated first for a period of time before being removed. Removing a feature from the product may be considered a breaking change that will require a major version number increment. |
-| `deprecate` | Deprecates existing functionality, but does not remove it from the product. |
+
+| Type        | Description                                                                                                                                                                                                                                        |
+| ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `feat`      | Introduces a new feature                                                                                                                                                                                                                           |
+| `fix`       | A bug fix for the end user                                                                                                                                                                                                                         |
+| `docs`      | A change to the website or Markdown documents                                                                                                                                                                                                      |
+| `build`     | The commit alters the build process. E.g: creating a new build task, updating the release script, editing Makefile.                                                                                                                                |
+| `test`      | Adds missing tests, refactoring tests; no production code change. Usually changes the suite of automated tests for the product.                                                                                                                    |
+| `perf`      | Improves performance of algorithms or general execution time of the product, but does not fundamentally change an existing feature.                                                                                                                |
+| `style`     | Updates or reformats the style of the source code, but does not otherwise change the product implementation. Changes that do not affect the meaning of the code (white-space, formatting, missing semi-colons, etc)                                |
+| `refactor`  | A change to production code that leads to no behavior difference, e.g. splitting files, renaming internal variables, improving code style, etc.                                                                                                    |
+| `change`    | Changes the implementation of an existing feature.                                                                                                                                                                                                 |
+| `chore`     | Includes a technical or preventative maintenance task that is necessary for managing the product or the repository, but is not tied to any specific feature. E.g. updating dependencies. These are usually done for maintanence purposes.          |
+| `ci`        | Changes related to Continuous Integration (usually `yml` and other configuration files).                                                                                                                                                           |
+| `misc`      | Anything else that doesn't change production code, yet is not ci, test or chore.                                                                                                                                                                   |
+| `revert`    | Revert to a previous commit                                                                                                                                                                                                                        |
+| `remove`    | Removes a feature from the product. Typically features are deprecated first for a period of time before being removed. Removing a feature from the product may be considered a breaking change that will require a major version number increment. |
+| `deprecate` | Deprecates existing functionality, but does not remove it from the product.                                                                                                                                                                        |
 
 <br />
 
@@ -131,6 +131,7 @@ feat(core): allow overriding of webpack config
 <br />
 
 ##### Example 2:
+
 ```
 <type>(<scope>): <short summary>
   │       │             │
@@ -149,6 +150,7 @@ feat(core): allow overriding of webpack config
 <br />
 
 ### References
+
 If you are pushing a commit which addresses a submitted issue, reference your issue in the description of your commit. You may also optionally add the major issue to the end of your commit title.
 
 References should be on their own line, following the word `Ref` or `Refs`
@@ -163,6 +165,7 @@ Description:    The description of your commit
 <br />
 
 ### Code Styling
+
 This repo utilizes [prettier](https://npmjs.com/package/prettier) and [eslint](https://npmjs.com/package/eslint) for formatting. Prior to a pull request being approved; ensure you lint your code with the following settings for prettier:
 
 ```json
@@ -187,11 +190,13 @@ singleAttributePerLine: false
 <br />
 
 ### Spaces Instead Of Tabs
+
 When writing your code, set your IDE to utilize **spaces**, with a configured tab size of `4 characters`.
 
 <br />
 
 ### Commenting
+
 Comment your code. If someone else comes along, they should be able to do a quick glance and have an idea of what is going on. Plus it helps novice readers to better understand the process.
 
 You may use block style commenting, or single lines:
@@ -229,6 +234,7 @@ test(`Return false if platform is not Darwin`, () => {
 <br />
 
 ### Casing
+
 When writing your code, ensure you stick to `camelCase`
 
 ```javascript

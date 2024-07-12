@@ -1,5 +1,8 @@
 {
-    "extends": "semistandard",
+    "plugins": ["prettier"],
+    "extends": [
+      "semistandard"
+    ],
     "env": {
         "node": true,
         "jest": true
@@ -7,8 +10,28 @@
     "rules": {
         "space-before-function-paren": 0,
         "no-control-regex": 0,
+        "no-console": 1,
+        "no-var": 2,
+        "prefer-const": 1,
         "no-prototype-builtins": 0,
+        "no-useless-escape": 1,
         "comma-dangle": 0,
-        "indent": "off"
+        "keyword-spacing": ["error", { "before": true, "after": true }],
+        "comma-spacing": ["error", { "before": false, "after": true }],
+        "indent": 0,
+        "prefer-spread": 1,
+        "no-mixed-operators": 1,
+        "prettier/prettier": 1,
+        "camelcase": ["error", {
+            "allow": ["^UNSAFE_"],
+            "properties": "never",
+            "ignoreGlobals": true
+        }],
+        "quotes": [
+            "error", "single", {
+                "avoidEscape": true,
+                "allowTemplateLiterals": true
+            }
+        ],
     }
 }

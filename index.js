@@ -1,9 +1,8 @@
-const { app, BrowserWindow, Tray, Menu, MenuItem } = require('electron');
+const { app, BrowserWindow, Tray, Menu } = require('electron');
 const electronShell = require('electron').shell;
 const toasted = require('toasted-notifier');
 const process = require('process');
 const path = require('path');
-const url = require('url');
 const Store = require('./store.js');
 
 /*
@@ -21,20 +20,18 @@ const appAuthor = packageJson.author;
 
 let winMain, winAbout, tray;
 let winHidden = 0;
-let appIconLoc = app.getAppPath() + "/ntfy.png";
+let appIconLoc = app.getAppPath() + '/ntfy.png';
 
 /*
     Declare > Store Values
 */
 
-const store = new Store(
-{
+const store = new Store({
     configName: 'prefs',
-    defaults:
-    {
-        instanceURL: "https://ntfy.sh/app",
-        apiToken: "",
-        topics: "topic1,topic2,topic3"
+    defaults: {
+        instanceURL: 'https://ntfy.sh/app',
+        apiToken: '',
+        topics: 'topic1,topic2,topic3'
     }
 });
 
@@ -44,7 +41,7 @@ const store = new Store(
     @docs   : https://araxeus.github.io/custom-electron-prompt/
 */
 
-const prompt = require("custom-electron-prompt");
+const prompt = require('custom-electron-prompt');
 
 /*
     Debug > Print args
@@ -56,226 +53,218 @@ console.log(process.argv);
     App > Top Menu
 */
 
-Menu.setApplicationMenu(Menu.buildFromTemplate([
-{
-    label: 'App',
-    submenu: [
-    {
-        label: "Toggle Dev Tools",
-        accelerator: process.platform === 'darwin' ? 'ALT+CMD+I' : 'CTRL+SHIFT+I',
-        click: function()
+Menu.setApplicationMenu(
+    Menu.buildFromTemplate([
         {
-            winMain.webContents.toggleDevTools();
-        }
-    },
-    {
-        type: 'separator'
-    },
-    {
-        label: "Quit",
-        accelerator: 'CTRL+Q',
-        click: function()
-        {
-            app.isQuiting = true;
-            app.quit();
-        }
-    }, ]
-},
-{
-    label: 'Configure',
-    submenu: [
-    {
-        label: "Set Server",
-        accelerator: 'CTRL+S',
-        click: function()
-        {
-            prompt(
+            label: 'App',
+            submenu: [
                 {
-                    title: "Set Server Instance",
-                    label: 'Server URL<div class="label-desc">This can either be the URL to the official ntfy.sh server, or your own self-hosted domain / ip.</div>',
-                    useHtmlLabel: true,
-                    value: store.get("instanceURL"),
-                    alwaysOnTop: true,
-                    type: 'input',
-                    customStylesheet: path.join(__dirname, `pages`, `css`, `prompt.css`),
-                    height: 240,
-                    icon: app.getAppPath() + "/ntfy.png",
-                    inputAttrs:
-                    {
-                        type: 'url'
-                    },
-                }, winMain)
-                .then((response) =>
-                {
-                    if ((response !== null))
-                    {
-                        store.set("instanceURL", response);
-                        winMain.loadURL(response);
+                    label: 'Toggle Dev Tools',
+                    accelerator: process.platform === 'darwin' ? 'ALT+CMD+I' : 'CTRL+SHIFT+I',
+                    click: function () {
+                        winMain.webContents.toggleDevTools();
                     }
-                })
-                .catch(console.error)
-                /*
+                },
+                {
+                    type: 'separator'
+                },
+                {
+                    label: 'Quit',
+                    accelerator: 'CTRL+Q',
+                    click: function () {
+                        app.isQuiting = true;
+                        app.quit();
+                    }
+                }
+            ]
+        },
+        {
+            label: 'Configure',
+            submenu: [
+                {
+                    label: 'Set Server',
+                    accelerator: 'CTRL+S',
+                    click: function () {
+                        prompt(
+                            {
+                                title: 'Set Server Instance',
+                                label: 'Server URL<div class="label-desc">This can either be the URL to the official ntfy.sh server, or your own self-hosted domain / ip.</div>',
+                                useHtmlLabel: true,
+                                value: store.get('instanceURL'),
+                                alwaysOnTop: true,
+                                type: 'input',
+                                customStylesheet: path.join(__dirname, `pages`, `css`, `prompt.css`),
+                                height: 240,
+                                icon: app.getAppPath() + '/ntfy.png',
+                                inputAttrs: {
+                                    type: 'url'
+                                }
+                            },
+                            winMain
+                        )
+                            .then((response) => {
+                                if (response !== null) {
+                                    store.set('instanceURL', response);
+                                    winMain.loadURL(response);
+                                }
+                            })
+                            .catch(console.error);
+                        /*
                 setTimeout(function (){
                     BrowserWindow.getFocusedWindow().webContents.openDevTools();
                 }, 5000);
                 */
-        }
-    },
-    {
-        label: "Set API Token",
-        accelerator: 'CTRL+T',
-        click: function()
-        {
-            prompt(
-                {
-                    title: "Set API Token",
-                    label: 'API Token<div class="label-desc">Generate an API token within ntfy.sh and provide it below so that noficiations can be fetched.</div>',
-                    useHtmlLabel: true,
-                    value: store.get("apiToken"),
-                    alwaysOnTop: true,
-                    type: 'input',
-                    customStylesheet: path.join(__dirname, `pages`, `css`, `prompt.css`),
-                    height: 240,
-                    icon: app.getAppPath() + "/ntfy.png",
-                    inputAttrs:
-                    {
-                        type: 'text'
-                    },
-                }, winMain)
-                .then((response) =>
-                {
-                    if ((response !== null))
-                    {
-                        store.set("apiToken", response);
                     }
-                })
-                .catch(console.error);
-        }
-    },
-    {
-        label: "Set Topics",
-        accelerator: 'CTRL+SHIFT+T',
-        click: function()
-        {
-            prompt(
+                },
                 {
-                    title: "Set Subscribed Topics",
-                    label: 'Subscribed Topics<div class="label-desc">Specify a list of topics you would like to receive push notifications for.</div>',
-                    useHtmlLabel: true,
-                    value: store.get("topics"),
-                    alwaysOnTop: true,
-                    type: 'input',
-                    customStylesheet: path.join(__dirname, `pages`, `css`, `prompt.css`),
-                    height: 240,
-                    icon: app.getAppPath() + "/ntfy.png",
-                    inputAttrs:
-                    {
-                        type: 'text'
-                    },
-                }, winMain)
-                .then((response) =>
+                    label: 'Set API Token',
+                    accelerator: 'CTRL+T',
+                    click: function () {
+                        prompt(
+                            {
+                                title: 'Set API Token',
+                                label: 'API Token<div class="label-desc">Generate an API token within ntfy.sh and provide it below so that noficiations can be fetched.</div>',
+                                useHtmlLabel: true,
+                                value: store.get('apiToken'),
+                                alwaysOnTop: true,
+                                type: 'input',
+                                customStylesheet: path.join(__dirname, `pages`, `css`, `prompt.css`),
+                                height: 240,
+                                icon: app.getAppPath() + '/ntfy.png',
+                                inputAttrs: {
+                                    type: 'text'
+                                }
+                            },
+                            winMain
+                        )
+                            .then((response) => {
+                                if (response !== null) {
+                                    store.set('apiToken', response);
+                                }
+                            })
+                            .catch(console.error);
+                    }
+                },
                 {
-                    if ((response !== null))
-                    {
-                        store.set("topics", response);
+                    label: 'Set Topics',
+                    accelerator: 'CTRL+SHIFT+T',
+                    click: function () {
+                        prompt(
+                            {
+                                title: 'Set Subscribed Topics',
+                                label: 'Subscribed Topics<div class="label-desc">Specify a list of topics you would like to receive push notifications for.</div>',
+                                useHtmlLabel: true,
+                                value: store.get('topics'),
+                                alwaysOnTop: true,
+                                type: 'input',
+                                customStylesheet: path.join(__dirname, `pages`, `css`, `prompt.css`),
+                                height: 240,
+                                icon: app.getAppPath() + '/ntfy.png',
+                                inputAttrs: {
+                                    type: 'text'
+                                }
+                            },
+                            winMain
+                        )
+                            .then((response) => {
+                                if (response !== null) {
+                                    store.set('topics', response);
+                                }
+                            })
+                            .catch(console.error);
                     }
-                })
-                .catch(console.error);
-        }
-    }]
-},
-{
-    id: 'help',
-    label: 'Help',
-    submenu: [
-        {
-            id: 'about',
-            label: 'About',
-            click () {
-                const aboutTitle = `About ${appName}`;
-                winAbout = new BrowserWindow({
-                    width: 550,
-                    height: 400,
-                    title: `${aboutTitle}`,
-                    parent: winMain,
-                    center: true,
-                    resizable: false,
-                    fullscreenable: false,
-                    minimizable: false,
-                    maximizable: false,
-                    modal: true,
-                    backgroundColor: "#212121",
-                    webPreferences: {
-                        nodeIntegration: true,
-                        contextIsolation: false,
-                        enableRemoteModule: true
-                    }
-                })
-
-                winAbout.loadFile(path.join(__dirname, `pages`, `about.html`)).then(() => {
-                    winAbout.webContents.executeJavaScript(`
-                        setTitle("${aboutTitle}");
-                        setAppInfo("${appName}", "${appVer}", "${appAuthor}");`,
-                        true
-                    )
-                    .then(result => {
-                    }).catch(console.error);
-                });
-
-                winAbout.webContents.on('new-window', function(e, url) {
-                    e.preventDefault();
-                    require('electron').shell.openExternal(url);
-                });
-
-                // Remove menubar from about window
-                winAbout.setMenu(null);
-            }
+                }
+            ]
         },
         {
-            label: 'View New Releases',
-            click() {
-                electronShell.openExternal(
-                    `${packageJson.homepage}`
-                );
-            },
+            id: 'help',
+            label: 'Help',
+            submenu: [
+                {
+                    id: 'about',
+                    label: 'About',
+                    click() {
+                        const aboutTitle = `About ${appName}`;
+                        winAbout = new BrowserWindow({
+                            width: 550,
+                            height: 400,
+                            title: `${aboutTitle}`,
+                            parent: winMain,
+                            center: true,
+                            resizable: false,
+                            fullscreenable: false,
+                            minimizable: false,
+                            maximizable: false,
+                            modal: true,
+                            backgroundColor: '#212121',
+                            webPreferences: {
+                                nodeIntegration: true,
+                                contextIsolation: false,
+                                enableRemoteModule: true
+                            }
+                        });
+
+                        winAbout.loadFile(path.join(__dirname, `pages`, `about.html`)).then(() => {
+                            winAbout.webContents
+                                .executeJavaScript(
+                                    `
+                        setTitle("${aboutTitle}");
+                        setAppInfo("${appName}", "${appVer}", "${appAuthor}");`,
+                                    true
+                                )
+                                .then((result) => {})
+                                .catch(console.error);
+                        });
+
+                        winAbout.webContents.on('new-window', function (e, url) {
+                            e.preventDefault();
+                            require('electron').shell.openExternal(url);
+                        });
+
+                        // Remove menubar from about window
+                        winAbout.setMenu(null);
+                    }
+                },
+                {
+                    label: 'View New Releases',
+                    click() {
+                        electronShell.openExternal(`${packageJson.homepage}`);
+                    }
+                }
+            ]
         }
-    ]
-}]));
+    ])
+);
 
 /*
     App > Ready
 */
 
-function ready()
-{
-
+function ready() {
     /*
         New Window
     */
 
     toasted.notify({
-        title: "Title",
-        message: "Message"
+        title: 'Title',
+        message: 'Message'
     });
 
-    winMain = new BrowserWindow(
-    {
-        title: "ntfy Desktop",
+    winMain = new BrowserWindow({
+        title: 'ntfy Desktop',
         width: 1280,
         height: 720,
         icon: appIconLoc,
-        backgroundColor: "#212121"
+        backgroundColor: '#212121'
     });
 
-    winMain.loadURL(store.get("instanceURL"));
+    winMain.loadURL(store.get('instanceURL'));
 
-    winMain.on('closed', () =>
-    {
+    winMain.on('closed', () => {
         winMain = null;
     });
 
-    winMain.webContents.on('new-window', (e, url) =>
-    {
+    winMain.webContents.on('new-window', (e, url) => {
         e.preventDefault();
         require('electron').shell.openExternal(url);
     });
@@ -284,16 +273,14 @@ function ready()
         Event > Input
     */
 
-    winMain.webContents.on("before-input-event", (e, input) =>
-    {
-
+    winMain.webContents.on('before-input-event', (e, input) => {
         /*
             Input > Refresh Page
 
             Binds   : CTRL + r
         */
 
-        if (input.type === "keyDown" && input.control && input.key === "r") {
+        if (input.type === 'keyDown' && input.control && input.key === 'r') {
             winMain.webContents.reload();
         }
 
@@ -303,8 +290,8 @@ function ready()
             Binds   : CTRL + =
         */
 
-        if (input.type === "keyDown" && input.control && input.key === "=") {
-            mainWindow.webContents.zoomFactor += 0.1;
+        if (input.type === 'keyDown' && input.control && input.key === '=') {
+            winMain.webContents.zoomFactor += 0.1;
         }
 
         /*
@@ -313,8 +300,8 @@ function ready()
             Binds   : CTRL + -
         */
 
-        if (input.type === "keyDown" && input.control && input.key === "-") {
-            mainWindow.webContents.zoomFactor -= 0.1;
+        if (input.type === 'keyDown' && input.control && input.key === '-') {
+            winMain.webContents.zoomFactor -= 0.1;
         }
 
         /*
@@ -323,8 +310,8 @@ function ready()
             Binds   : CTRL + 0
         */
 
-        if (input.type === "keyDown" && input.control && input.key === "0") {
-            mainWindow.webContents.zoomFactor = 1;
+        if (input.type === 'keyDown' && input.control && input.key === '0') {
+            winMain.webContents.zoomFactor = 1;
         }
 
         /*
@@ -333,7 +320,7 @@ function ready()
             Binds   : CTRL + q
         */
 
-        if (input.type === "keyDown" && input.control && input.key === "q") {
+        if (input.type === 'keyDown' && input.control && input.key === 'q') {
             app.isQuiting = true;
             app.quit();
         }
@@ -344,7 +331,7 @@ function ready()
             Binds   : CTRL + m
         */
 
-        if (input.type === "keyDown" && input.control && input.key === "m") {
+        if (input.type === 'keyDown' && input.control && input.key === 'm') {
             winHidden = 1;
             winMain.hide();
         }
@@ -356,13 +343,13 @@ function ready()
                       F12
         */
 
-        if ( ( input.control && input.shift ) || input.key === "F12" )
-        {
-            if (input.type === "keyDown" && (input.key === "I" || input.key === "F12")) {
+        if ((input.control && input.shift) || input.key === 'F12') {
+            if (input.type === 'keyDown' && (input.key === 'I' || input.key === 'F12')) {
                 winMain.webContents.toggleDevTools();
-                winMain.webContents.on('devtools-opened', () =>
-                {
-                    winMain.webContents.devToolsWebContents.executeJavaScript(`
+                winMain.webContents.on('devtools-opened', () => {
+                    winMain.webContents.devToolsWebContents
+                        .executeJavaScript(
+                            `
                             new Promise((resolve)=> {
                                 let keysPressed = {};
 
@@ -383,15 +370,14 @@ function ready()
                                     delete keysPressed[e.key];
                                 });
                             })
-                        `)
-                        .then(() =>
-                        {
+                        `
+                        )
+                        .then(() => {
                             winMain.webContents.toggleDevTools();
                         });
                 });
             }
         }
-
     });
 
     /*
@@ -399,21 +385,20 @@ function ready()
     */
 
     var contextMenu = Menu.buildFromTemplate([
-    {
-        label: 'Show App',
-        click: function()
         {
-            winMain.show();
-        }
-    },
-    {
-        label: 'Quit',
-        click: function()
+            label: 'Show App',
+            click: function () {
+                winMain.show();
+            }
+        },
         {
-            app.isQuiting = true;
-            app.quit();
+            label: 'Quit',
+            click: function () {
+                app.isQuiting = true;
+                app.quit();
+            }
         }
-    }]);
+    ]);
 
     /*
         Tray
@@ -423,17 +408,13 @@ function ready()
     */
 
     tray = new Tray(appIconLoc);
-    tray.setToolTip("ntfy Desktop");
+    tray.setToolTip('ntfy Desktop');
     tray.setContextMenu(contextMenu);
-    tray.on("click", function()
-    {
-        if (winHidden)
-        {
+    tray.on('click', function () {
+        if (winHidden) {
             winHidden = 0;
             winMain.show();
-        }
-        else
-        {
+        } else {
             winHidden = 1;
             winMain.hide();
         }
@@ -448,13 +429,13 @@ function ready()
         API Token can be specified in app.
     */
 
-    async function GetMessageData(uri){
-        const cfgApiToken = store.get("apiToken");
+    async function GetMessageData(uri) {
+        const cfgApiToken = store.get('apiToken');
         let req = await fetch(uri, {
             method: 'GET',
             headers: {
                 'Accept': 'application/json',
-                Authorization: `Bearer ${cfgApiToken}`,
+                Authorization: `Bearer ${cfgApiToken}`
             }
         });
 
@@ -463,12 +444,12 @@ function ready()
             is not properly formatted json and adds a newline to the end of each message.
 
             bring the json results in as a string, split them at newline and then push them to a new
-            array. 
+            array.
         */
 
         const json = await req.text();
         let jsonArr = [];
-        const entries = json.split("\n");
+        const entries = json.split('\n');
         for (let i = 0; i < entries.length; i++) {
             jsonArr.push(entries[i]);
         }
@@ -491,9 +472,9 @@ function ready()
         @ref        : https://docs.ntfy.sh/subscribe/api/#poll-for-messages
     */
 
-    async function GetMessages(){
-        const cfgTopics = store.get("topics");
-        const cfgInstanceURL = store.get("instanceURL");
+    async function GetMessages() {
+        const cfgTopics = store.get('topics');
+        const cfgInstanceURL = store.get('instanceURL');
         const uri = `${cfgInstanceURL}/${cfgTopics}/json?since=10s&poll=1`;
         const json = await GetMessageData(uri);
 
@@ -509,8 +490,8 @@ function ready()
             const expires = object.expires;
             const message = object.message;
             const topic = object.topic;
-            
-            if ( type != 'message') {
+
+            if (type != 'message') {
                 continue;
             }
 
@@ -523,8 +504,7 @@ function ready()
         return json;
     }
 
-    winMain.on("page-title-updated", (e) =>
-    {
+    winMain.on('page-title-updated', (e) => {
         e.preventDefault();
     });
 
@@ -532,10 +512,8 @@ function ready()
         Close Button
     */
 
-    winMain.on('close', function(e)
-    {
-        if (!app.isQuiting)
-        {
+    winMain.on('close', function (e) {
+        if (!app.isQuiting) {
             e.preventDefault();
             winMain.hide();
         }
@@ -549,10 +527,8 @@ function ready()
         --hidden        : automatically hide window
     */
 
-    for (i = 0; i < process.argv.length; i++)
-    {
-        if (process.argv[i] == "--hidden")
-        {
+    for (let i = 0; i < process.argv.length; i++) {
+        if (process.argv[i] === '--hidden') {
             winHidden = 1;
             winMain.hide();
         }
