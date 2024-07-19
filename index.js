@@ -61,25 +61,6 @@ const prompt = require('custom-electron-prompt');
 console.log(process.argv);
 
 /*
-    App > Top Menu
-*/
-
-function menu_AddDev(menu) {
-    let menu_devTools = new MenuItem(
-    {
-        label: 'Toggle Dev Tools',
-        accelerator: process.platform === 'darwin' ? 'ALT+CMD+I' : 'CTRL+SHIFT+I',
-        click: () => {
-            winMain.webContents.toggleDevTools();
-        }
-    },
-    {
-        type: 'separator'
-    })
-    menu.insert(2, menu_devTools)
-}
-
-/*
     Menu > Main
 
     Entries for the top interface menu
@@ -296,6 +277,7 @@ Menu.setApplicationMenu(header_menu);
 */
 
 function ready() {
+
     /*
         New Window
     */
@@ -308,11 +290,54 @@ function ready() {
         backgroundColor: '#212121'
     });
 
+    /*
+        Load default url to main window
+    */
+
     winMain.loadURL(store.get('instanceURL'));
+
+    /*
+        Event > Page Title Update
+    */
+
+    winMain.on('page-title-updated', (e) => {
+        e.preventDefault();
+    });
+
+    /*
+        Event > Close
+
+        if --quit cli argument specified, app will completely quit when close pressed.
+        otherwise; app will hide
+    */
+
+    winMain.on('close', function (e) {
+        if (!app.isQuiting) {
+            e.preventDefault();
+            if (bQuitOnClose == 1) {
+                app.isQuiting = true;
+                app.quit();
+            } else {
+                winMain.hide();
+            }
+        }
+
+        return false;
+    });
+
+    /*
+        Event > Closed
+    */
 
     winMain.on('closed', () => {
         winMain = null;
     });
+
+    /*
+        Event > New Window
+
+        buttons leading to external websites should open in user browser
+    */
 
     winMain.webContents.on('new-window', (e, url) => {
         e.preventDefault();
@@ -324,10 +349,9 @@ function ready() {
     */
 
     winMain.webContents.on('before-input-event', (e, input) => {
-        /*
-            Input > Refresh Page
 
-            Binds   : CTRL + r
+        /*
+            Input > Refresh Page (CTRL + r)
         */
 
         if (input.type === 'keyDown' && input.control && input.key === 'r') {
@@ -335,9 +359,7 @@ function ready() {
         }
 
         /*
-            Input > Zoom In
-
-            Binds   : CTRL + =
+            Input > Zoom In (CTRL + =)
         */
 
         if (input.type === 'keyDown' && input.control && input.key === '=') {
@@ -345,9 +367,7 @@ function ready() {
         }
 
         /*
-            Input > Zoom Out
-
-            Binds   : CTRL + -
+            Input > Zoom Out (CTRL + -)
         */
 
         if (input.type === 'keyDown' && input.control && input.key === '-') {
@@ -355,9 +375,7 @@ function ready() {
         }
 
         /*
-            Input > Zoom Reset
-
-            Binds   : CTRL + 0
+            Input > Zoom Reset (CTRL + 0)
         */
 
         if (input.type === 'keyDown' && input.control && input.key === '0') {
@@ -365,9 +383,7 @@ function ready() {
         }
 
         /*
-            Input > Quit
-
-            Binds   : CTRL + q
+            Input > Quit (CTRL + q)
         */
 
         if (input.type === 'keyDown' && input.control && input.key === 'q') {
@@ -376,9 +392,7 @@ function ready() {
         }
 
         /*
-            Input > Minimize to tray
-
-            Binds   : CTRL + m
+            Input > Minimize to tray (CTRL + m)
         */
 
         if (input.type === 'keyDown' && input.control && input.key === 'm') {
@@ -387,10 +401,7 @@ function ready() {
         }
 
         /*
-            Input > Dev Tools
-
-            Binds   : CTRL + SHIFT + I
-                      F12
+            Input > Dev Tools (CTRL + SHIFT + I || F12)
         */
 
         if ((input.control && input.shift) || input.key === 'F12') {
@@ -553,31 +564,6 @@ function ready() {
 
         return json;
     }
-
-    winMain.on('page-title-updated', (e) => {
-        e.preventDefault();
-    });
-
-    /*
-        Close Button
-
-        if --quit cli argument specified, app will completely quit when close pressed.
-        otherwise; app will hide
-    */
-
-    winMain.on('close', function (e) {
-        if (!app.isQuiting) {
-            e.preventDefault();
-            if (bQuitOnClose == 1) {
-                app.isQuiting = true;
-                app.quit();
-            } else {
-                winMain.hide();
-            }
-        }
-
-        return false;
-    });
 
     /*
         Loop args
