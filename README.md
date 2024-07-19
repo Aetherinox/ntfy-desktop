@@ -1,7 +1,11 @@
 <div align="center">
 <h1>♾️ ntfy-desktop ♾️</h1>
 <br />
-<p>ntfy.sh desktop client built with Electron which supports Windows, Linux, and MacOSX.</p>
+<p>
+
+Official app at https://github.com/xdpirate/ntfy-electron
+
+</p>
 
 <br />
 
@@ -115,7 +119,7 @@ The following keybinds can be used within ntfy-desktop:
 | Argument | Description |
 | --- | --- |
 | `--hidden` | Start ntfy-desktop hidden, suitable for autostarting on login/boot |
-
+| `--dev` | Start ntfy-desktop with developer tools |
 
 <br />
 
