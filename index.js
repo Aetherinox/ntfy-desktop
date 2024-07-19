@@ -1,4 +1,4 @@
-const { app, BrowserWindow, Tray, Menu } = require('electron');
+const { app, BrowserWindow, Tray, Menu, MenuItem } = require('electron');
 const electronShell = require('electron').shell;
 const toasted = require('toasted-notifier');
 const process = require('process');
@@ -19,8 +19,14 @@ const appAuthor = packageJson.author;
 */
 
 let winMain, winAbout, tray;
-let winHidden = 0;
 let appIconLoc = app.getAppPath() + '/ntfy.png';
+
+/*
+    CLI State
+*/
+
+let bwinHidden = 0;
+let bDevTools = 0;
 
 /*
     Declare > Store Values
@@ -53,188 +59,232 @@ console.log(process.argv);
     App > Top Menu
 */
 
-Menu.setApplicationMenu(
-    Menu.buildFromTemplate([
-        {
-            label: 'App',
-            submenu: [
-                {
-                    label: 'Toggle Dev Tools',
-                    accelerator: process.platform === 'darwin' ? 'ALT+CMD+I' : 'CTRL+SHIFT+I',
-                    click: function () {
-                        winMain.webContents.toggleDevTools();
-                    }
-                },
-                {
-                    type: 'separator'
-                },
-                {
-                    label: 'Quit',
-                    accelerator: 'CTRL+Q',
-                    click: function () {
-                        app.isQuiting = true;
-                        app.quit();
-                    }
-                }
-            ]
-        },
-        {
-            label: 'Configure',
-            submenu: [
-                {
-                    label: 'Set Server',
-                    accelerator: 'CTRL+S',
-                    click: function () {
-                        prompt(
-                            {
-                                title: 'Set Server Instance',
-                                label: 'Server URL<div class="label-desc">This can either be the URL to the official ntfy.sh server, or your own self-hosted domain / ip.</div>',
-                                useHtmlLabel: true,
-                                value: store.get('instanceURL'),
-                                alwaysOnTop: true,
-                                type: 'input',
-                                customStylesheet: path.join(__dirname, `pages`, `css`, `prompt.css`),
-                                height: 240,
-                                icon: app.getAppPath() + '/ntfy.png',
-                                inputAttrs: {
-                                    type: 'url'
-                                }
-                            },
-                            winMain
-                        )
-                            .then((response) => {
-                                if (response !== null) {
-                                    store.set('instanceURL', response);
-                                    winMain.loadURL(response);
-                                }
-                            })
-                            .catch(console.error);
-                        /*
-                setTimeout(function (){
-                    BrowserWindow.getFocusedWindow().webContents.openDevTools();
-                }, 5000);
-                */
-                    }
-                },
-                {
-                    label: 'Set API Token',
-                    accelerator: 'CTRL+T',
-                    click: function () {
-                        prompt(
-                            {
-                                title: 'Set API Token',
-                                label: 'API Token<div class="label-desc">Generate an API token within ntfy.sh and provide it below so that noficiations can be fetched.</div>',
-                                useHtmlLabel: true,
-                                value: store.get('apiToken'),
-                                alwaysOnTop: true,
-                                type: 'input',
-                                customStylesheet: path.join(__dirname, `pages`, `css`, `prompt.css`),
-                                height: 240,
-                                icon: app.getAppPath() + '/ntfy.png',
-                                inputAttrs: {
-                                    type: 'text'
-                                }
-                            },
-                            winMain
-                        )
-                            .then((response) => {
-                                if (response !== null) {
-                                    store.set('apiToken', response);
-                                }
-                            })
-                            .catch(console.error);
-                    }
-                },
-                {
-                    label: 'Set Topics',
-                    accelerator: 'CTRL+SHIFT+T',
-                    click: function () {
-                        prompt(
-                            {
-                                title: 'Set Subscribed Topics',
-                                label: 'Subscribed Topics<div class="label-desc">Specify a list of topics you would like to receive push notifications for.</div>',
-                                useHtmlLabel: true,
-                                value: store.get('topics'),
-                                alwaysOnTop: true,
-                                type: 'input',
-                                customStylesheet: path.join(__dirname, `pages`, `css`, `prompt.css`),
-                                height: 240,
-                                icon: app.getAppPath() + '/ntfy.png',
-                                inputAttrs: {
-                                    type: 'text'
-                                }
-                            },
-                            winMain
-                        )
-                            .then((response) => {
-                                if (response !== null) {
-                                    store.set('topics', response);
-                                }
-                            })
-                            .catch(console.error);
-                    }
-                }
-            ]
-        },
-        {
-            id: 'help',
-            label: 'Help',
-            submenu: [
-                {
-                    id: 'about',
-                    label: 'About',
-                    click() {
-                        const aboutTitle = `About ${appName}`;
-                        winAbout = new BrowserWindow({
-                            width: 480,
-                            height: 440,
-                            title: `${aboutTitle}`,
-                            parent: winMain,
-                            center: true,
-                            resizable: false,
-                            fullscreenable: false,
-                            minimizable: false,
-                            maximizable: false,
-                            modal: true,
-                            backgroundColor: '#212121',
-                            webPreferences: {
-                                nodeIntegration: true,
-                                contextIsolation: false,
-                                enableRemoteModule: true
-                            }
-                        });
-
-                        winAbout.loadFile(path.join(__dirname, `pages`, `about.html`)).then(() => {
-                            winAbout.webContents
-                                .executeJavaScript(
-                                    `
-                        setTitle("${aboutTitle}");
-                        setAppInfo("${appName}", "${appVer}", "${appAuthor}");`,
-                                    true
-                                )
-                                .then((result) => {})
-                                .catch(console.error);
-                        });
-
-                        winAbout.webContents.on('new-window', function (e, url) {
-                            e.preventDefault();
-                            require('electron').shell.openExternal(url);
-                        });
-
-                        // Remove menubar from about window
-                        winAbout.setMenu(null);
-                    }
-                },
-                {
-                    label: 'View New Releases',
-                    click() {
-                        electronShell.openExternal(`${packageJson.homepage}`);
-                    }
-                }
-            ]
+function menu_AddDev(menu) {
+    let menu_devTools = new MenuItem(
+    {
+        label: 'Toggle Dev Tools',
+        accelerator: process.platform === 'darwin' ? 'ALT+CMD+I' : 'CTRL+SHIFT+I',
+        click: () => {
+            winMain.webContents.toggleDevTools();
         }
-    ])
-);
+    },
+    {
+        type: 'separator'
+    })
+    menu.insert(2, menu_devTools)
+}
+
+/*
+    Menu > Main
+
+    Entries for the top interface menu
+
+    App | Configure | Help
+*/
+
+const menu_Main = [
+    {
+        label: 'App',
+        id: 'app',
+        submenu: [
+            {
+                label: 'Quit',
+                accelerator: 'CTRL+Q',
+                click: function () {
+                    app.isQuiting = true;
+                    app.quit();
+                }
+            }
+        ]
+    },
+    {
+        label: 'Configure',
+        id: 'configure',
+        submenu: [
+            {
+                label: 'Set Server',
+                accelerator: 'CTRL+S',
+                click: function () {
+                    prompt(
+                        {
+                            title: 'Set Server Instance',
+                            label: 'Server URL<div class="label-desc">This can either be the URL to the official ntfy.sh server, or your own self-hosted domain / ip.</div>',
+                            useHtmlLabel: true,
+                            value: store.get('instanceURL'),
+                            alwaysOnTop: true,
+                            type: 'input',
+                            customStylesheet: path.join(__dirname, `pages`, `css`, `prompt.css`),
+                            height: 240,
+                            icon: app.getAppPath() + '/ntfy.png',
+                            inputAttrs: {
+                                type: 'url'
+                            }
+                        },
+                        winMain
+                    )
+                        .then((response) => {
+                            if (response !== null) {
+                                store.set('instanceURL', response);
+                                winMain.loadURL(response);
+                            }
+                        })
+                        .catch(console.error);
+                    /*
+            setTimeout(function (){
+                BrowserWindow.getFocusedWindow().webContents.openDevTools();
+            }, 5000);
+            */
+                }
+            },
+            {
+                label: 'Set API Token',
+                accelerator: 'CTRL+T',
+                click: function () {
+                    prompt(
+                        {
+                            title: 'Set API Token',
+                            label: 'API Token<div class="label-desc">Generate an API token within ntfy.sh and provide it below so that noficiations can be fetched.</div>',
+                            useHtmlLabel: true,
+                            value: store.get('apiToken'),
+                            alwaysOnTop: true,
+                            type: 'input',
+                            customStylesheet: path.join(__dirname, `pages`, `css`, `prompt.css`),
+                            height: 240,
+                            icon: app.getAppPath() + '/ntfy.png',
+                            inputAttrs: {
+                                type: 'text'
+                            }
+                        },
+                        winMain
+                    )
+                        .then((response) => {
+                            if (response !== null) {
+                                store.set('apiToken', response);
+                            }
+                        })
+                        .catch(console.error);
+                }
+            },
+            {
+                label: 'Set Topics',
+                accelerator: 'CTRL+SHIFT+T',
+                click: function () {
+                    prompt(
+                        {
+                            title: 'Set Subscribed Topics',
+                            label: 'Subscribed Topics<div class="label-desc">Specify a list of topics you would like to receive push notifications for.</div>',
+                            useHtmlLabel: true,
+                            value: store.get('topics'),
+                            alwaysOnTop: true,
+                            type: 'input',
+                            customStylesheet: path.join(__dirname, `pages`, `css`, `prompt.css`),
+                            height: 240,
+                            icon: app.getAppPath() + '/ntfy.png',
+                            inputAttrs: {
+                                type: 'text'
+                            }
+                        },
+                        winMain
+                    )
+                        .then((response) => {
+                            if (response !== null) {
+                                store.set('topics', response);
+                            }
+                        })
+                        .catch(console.error);
+                }
+            }
+        ]
+    },
+    {
+        label: 'Help',
+        id: 'help',
+        submenu: [
+            {
+                id: 'about',
+                label: 'About',
+                click() {
+                    const aboutTitle = `About ${appName}`;
+                    winAbout = new BrowserWindow({
+                        width: 480,
+                        height: 440,
+                        title: `${aboutTitle}`,
+                        parent: winMain,
+                        center: true,
+                        resizable: false,
+                        fullscreenable: false,
+                        minimizable: false,
+                        maximizable: false,
+                        modal: true,
+                        backgroundColor: '#212121',
+                        webPreferences: {
+                            nodeIntegration: true,
+                            contextIsolation: false,
+                            enableRemoteModule: true
+                        }
+                    });
+
+                    winAbout.loadFile(path.join(__dirname, `pages`, `about.html`)).then(() => {
+                        winAbout.webContents
+                            .executeJavaScript(
+                                `
+                    setTitle("${aboutTitle}");
+                    setAppInfo("${appName}", "${appVer}", "${appAuthor}");`,
+                                true
+                            )
+                            .then((result) => {})
+                            .catch(console.error);
+                    });
+
+                    winAbout.webContents.on('new-window', function (e, url) {
+                        e.preventDefault();
+                        require('electron').shell.openExternal(url);
+                    });
+
+                    // Remove menubar from about window
+                    winAbout.setMenu(null);
+                }
+            },
+            {
+                label: 'View New Releases',
+                click() {
+                    electronShell.openExternal(`${packageJson.homepage}`);
+                }
+            }
+        ]
+    }];
+
+/*
+    Main Menu > Build
+*/
+
+const header_menu = Menu.buildFromTemplate(menu_Main);
+
+/*
+    Main Menu > Developer Tools
+    slides in top position of 'App' menu
+
+    App | Configure | Help
+*/
+
+if (bDevTools == 1) {
+    let menuItem = header_menu.getMenuItemById('app')
+
+    menuItem.submenu.insert(0, new MenuItem(
+    {
+        label: 'Toggle Dev Tools',
+        accelerator: process.platform === 'darwin' ? 'ALT+CMD+I' : 'CTRL+SHIFT+I',
+        click: () => {
+            winMain.webContents.toggleDevTools();
+        }
+    }))
+}
+
+/*
+    Main Menu > Set
+*/
+
+Menu.setApplicationMenu(header_menu);
 
 /*
     App > Ready
@@ -327,7 +377,7 @@ function ready() {
         */
 
         if (input.type === 'keyDown' && input.control && input.key === 'm') {
-            winHidden = 1;
+            bwinHidden = 1;
             winMain.hide();
         }
 
@@ -406,11 +456,11 @@ function ready() {
     tray.setToolTip('ntfy Desktop');
     tray.setContextMenu(contextMenu);
     tray.on('click', function () {
-        if (winHidden) {
-            winHidden = 0;
+        if (bwinHidden) {
+            bwinHidden = 0;
             winMain.show();
         } else {
-            winHidden = 1;
+            bwinHidden = 1;
             winMain.hide();
         }
     });
@@ -524,8 +574,10 @@ function ready() {
 
     for (let i = 0; i < process.argv.length; i++) {
         if (process.argv[i] === '--hidden') {
-            winHidden = 1;
+            bwinHidden = 1;
             winMain.hide();
+        } else if (process.argv[i] === '--dev') {
+            bDevTools = 1;
         }
     }
 
