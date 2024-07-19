@@ -23,10 +23,15 @@ let appIconLoc = app.getAppPath() + '/ntfy.png';
 
 /*
     CLI State
+
+    bWinHidden      --hidden    app closes to tray on start
+    bDevTools       --dev       dev tools added to menu
+    bQuitOnClose    --quit      when pressing top-right close button, app exits instead of going to tray
 */
 
-let bwinHidden = 0;
+let bWinHidden = 0;
 let bDevTools = 0;
+let bQuitOnClose = 0;
 
 /*
     Declare > Store Values
@@ -377,7 +382,7 @@ function ready() {
         */
 
         if (input.type === 'keyDown' && input.control && input.key === 'm') {
-            bwinHidden = 1;
+            bWinHidden = 1;
             winMain.hide();
         }
 
@@ -429,7 +434,7 @@ function ready() {
         Tray > Context Menu
     */
 
-    var contextMenu = Menu.buildFromTemplate([
+    const contextMenu = Menu.buildFromTemplate([
         {
             label: 'Show App',
             click: function () {
@@ -456,11 +461,11 @@ function ready() {
     tray.setToolTip('ntfy Desktop');
     tray.setContextMenu(contextMenu);
     tray.on('click', function () {
-        if (bwinHidden) {
-            bwinHidden = 0;
+        if (bWinHidden) {
+            bWinHidden = 0;
             winMain.show();
         } else {
-            bwinHidden = 1;
+            bWinHidden = 1;
             winMain.hide();
         }
     });
@@ -555,12 +560,20 @@ function ready() {
 
     /*
         Close Button
+
+        if --quit cli argument specified, app will completely quit when close pressed.
+        otherwise; app will hide
     */
 
     winMain.on('close', function (e) {
         if (!app.isQuiting) {
             e.preventDefault();
-            winMain.hide();
+            if (bQuitOnClose == 1) {
+                app.isQuiting = true;
+                app.quit();
+            } else {
+                winMain.hide();
+            }
         }
 
         return false;
@@ -574,10 +587,12 @@ function ready() {
 
     for (let i = 0; i < process.argv.length; i++) {
         if (process.argv[i] === '--hidden') {
-            bwinHidden = 1;
+            bWinHidden = 1;
             winMain.hide();
         } else if (process.argv[i] === '--dev') {
             bDevTools = 1;
+        } else if (process.argv[i] === '--quit') {
+            bQuitOnClose = 1;
         }
     }
 
