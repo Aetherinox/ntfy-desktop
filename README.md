@@ -120,6 +120,9 @@ The following keybinds can be used within ntfy-desktop:
 | --- | --- |
 | `--hidden` | Start ntfy-desktop hidden, suitable for autostarting on login/boot |
 | `--dev` | Start ntfy-desktop with developer tools |
+| `--hotkey` | Start ntfy-desktop with hotkeys enabled |
+| `--tray` | Clicking close on ntfy minimizes to tray instead of closing app |
+
 
 <br />
 
