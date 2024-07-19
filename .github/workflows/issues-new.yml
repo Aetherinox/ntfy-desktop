@@ -11,8 +11,8 @@
 #     - roadmap
 # ---------------------------------------------------------------------------------------
 
-name: "🎫 Issue › New › Assignment"
-run-name: "🎫 Issue › New › Assignment - ${{ github.event.issue.number }}: ${{ github.event.issue.title }}"
+name: "🎫 Issue › New"
+run-name: "🎫 Issue › New › ${{ github.event.issue.number }}: ${{ github.event.issue.title }}"
 
 # ---------------------------------------------------------------------------------------
 #   triggers
@@ -758,7 +758,7 @@ jobs:
             let HE_message =
             `
             💡 It appears you might need help, please check the resources below for documentation that might assist with your issue:
-            - [Noxenv Documentation](https://aetherinox.github.io/noxenv)
+            - [Snippet Bundle Documentation](https://aetherinox.github.io/obsidian-dataview-snippets)
 
             ---
 
