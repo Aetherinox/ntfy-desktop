@@ -245,11 +245,6 @@ function ready() {
         New Window
     */
 
-    toasted.notify({
-        title: 'Title',
-        message: 'Message'
-    });
-
     winMain = new BrowserWindow({
         title: 'ntfy Desktop',
         width: 1280,
