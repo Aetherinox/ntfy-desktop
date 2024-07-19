@@ -119,10 +119,9 @@ The following keybinds can be used within ntfy-desktop:
 | Argument | Description |
 | --- | --- |
 | `--hidden` | Start ntfy-desktop hidden, suitable for autostarting on login/boot |
-| `--dev` | Start ntfy-desktop with developer tools |
 | `--hotkey` | Start ntfy-desktop with hotkeys enabled |
-| `--tray` | Clicking close on ntfy minimizes to tray instead of closing app |
-
+| `--quit` | Clicking top-right close button will completely exit app instead of minimize to tray |
+| `--dev` | Start ntfy-desktop with developer tools |
 
 <br />
 
