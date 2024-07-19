@@ -186,8 +186,8 @@ Menu.setApplicationMenu(
                     click() {
                         const aboutTitle = `About ${appName}`;
                         winAbout = new BrowserWindow({
-                            width: 550,
-                            height: 400,
+                            width: 480,
+                            height: 440,
                             title: `${aboutTitle}`,
                             parent: winMain,
                             center: true,

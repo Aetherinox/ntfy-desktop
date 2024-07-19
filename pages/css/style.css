@@ -119,17 +119,16 @@ a {
 
 .banner-title {
     font-size: 16pt;
+    font-weight: 100;
     flex-grow: 1;
+}
+
+.banner-version {
+    font-size: 9pt;
 }
 
 .banner-heading {
     font-size: 13pt;
-}
-
-.license {
-    padding-left: 40px;
-    padding-right: 40px;
-    font-size: 9pt;
 }
 
 img:hover {
@@ -152,8 +151,23 @@ img.img {
 .author {
     padding-left: 40px;
     padding-right: 40px;
-    font-size: 10pt;
-    color: #237ff7;
+    font-size: 11pt;
+    font-weight: 100;
+    color: #FFFFFF !important;
+}
+
+.derived {
+    padding-left: 40px;
+    padding-right: 40px;
+    font-size: 8pt;
+    color: #a5a5a5 !important;
+}
+
+.license {
+    padding-left: 40px;
+    padding-right: 40px;
+    font-size: 8pt;
+    color: #a5a5a5 !important;
 }
 
 .badges {
@@ -162,7 +176,7 @@ img.img {
     margin-right: auto;
     padding-left: 2px;
     padding-right: 2px;
-    height: 30px; 
+    height: 30px;
 }
 
 #images {
