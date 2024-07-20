@@ -86,7 +86,7 @@ This version of ntfy-desktop is based on the package ntfy-electron created by xd
 # Features
 - Usable with ntfy.sh and self-hosted instances
 - Two modes for minimizing app, configure in settings
-  - [1] Close button exists app completely, sits in taskbar and tray
+  - [1] Close button exits app completely, sits in taskbar and tray
   - [2] Close button sends app to tray. Right-click tray icon to quit / show app
 - Shortcut keybinds
   - Option to disable
