@@ -66,7 +66,6 @@ let statusMessage;
 
 const _Instance = 'https://ntfy.sh/app';
 const _Datetime = 'YYYY-MM-DD hh:mm a';
-const _Interval = 5;
 const _Pollrate = 5;
 
 /*
