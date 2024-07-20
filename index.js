@@ -3,6 +3,7 @@ const electronShell = require('electron').shell;
 const toasted = require('toasted-notifier');
 const process = require('process');
 const path = require('path');
+const moment = require('moment');
 const Store = require('./store.js');
 
 /*
@@ -694,12 +695,19 @@ function ready() {
             }
 
             /*
+                convert unix timestamp into human readable
+            */
+
+            const dateHuman = moment.unix(time).format('YYYY-MM-DD hh:mm a');
+
+            /*
                 @ref    : https://github.com/Aetherinox/toasted-notifier
             */
 
             toasted.notify({
-                title: `Topic: ${topic}`,
+                title: `${topic} - ${dateHuman}`,
                 message: `${message}`,
+                actions: ['Acknowledge'],
                 persistent: (store.get('bPersistentNoti') === 0 ? false : true),
                 sticky: (store.get('bPersistentNoti') === 0 ? false : true)
             });
