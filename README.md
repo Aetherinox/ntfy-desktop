@@ -3,7 +3,9 @@
 <br />
 <p>
 
-ntfy.sh desktop client built with Electron which supports Windows, Linux, and MacOSX.
+ntfy.sh desktop client built with Electron which supports Windows, Linux, and MacOSX. Client allows you to receive push notifications to your desktop without being owned in your browser.
+<br />
+<br />
 Official app at https://github.com/xdpirate/ntfy-electron
 
 </p>
