@@ -3,6 +3,7 @@
 <br />
 <p>
 
+ntfy.sh desktop client built with Electron which supports Windows, Linux, and MacOSX.
 Official app at https://github.com/xdpirate/ntfy-electron
 
 </p>
@@ -20,7 +21,12 @@ Official app at https://github.com/xdpirate/ntfy-electron
 <div align="center">
 
 <!-- prettier-ignore-start -->
-[![Version][badge-version-gh]][link-version-gh] [![Build Status][badge-build]][link-build] [![Downloads][badge-downloads-gh]][link-downloads-gh] [![Size][badge-size-gh]][badge-size-gh] [![Last Commit][badge-commit]][badge-commit] [![Contributors][badge-all-contributors]](#contributors-)
+[![Version][badge-version-gh]][link-version-gh]
+[![Build Status][badge-build]][link-build]
+[![Downloads][badge-downloads-gh]][link-downloads-gh]
+[![Size][badge-size-gh]][badge-size-gh]
+[![Last Commit][badge-commit]][badge-commit]
+[![Contributors][badge-all-contributors]](#contributors-)
 <!-- prettier-ignore-end -->
 
 </div>
@@ -78,14 +84,17 @@ This version of ntfy-desktop is based on the package ntfy-electron created by xd
 <br />
 
 # Features
-- Complete access to ntfy.sh and self-hosted instances
-- Minimize application to tray and out of taskbar
-  - Close button will minimize to tray and remove from taskbar
-  - Right-click tray icon to restore or quit
-- API access to push notifications
+- Usable with ntfy.sh and self-hosted instances
+- Two modes for minimizing app, configure in settings
+  - [1] Close button exists app completely, sits in taskbar and tray
+  - [2] Close button sends app to tray. Right-click tray icon to quit / show app
 - Shortcut keybinds
+  - Option to disable
 - Receive push notifications from ntfy server to desktop
-  - **Notice**: This feature is VERY alpha. There are a lot of things that need to be implemented, as well as support for the various fields.
+  - Advanced setting to adjust polling rate
+  - Datetime format setting
+  - Optional persistent notifications
+  - Topic filtering
 
 <br />
 
