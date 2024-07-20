@@ -246,8 +246,10 @@ async function GetMessages() {
         if (!msgHistory.includes(id)) {
             toasted.notify({
                 title: `${topic} - ${dateHuman}`,
+                subtitle: `${dateHuman}`,
                 message: `${message}`,
-                actions: ['Acknowledge'],
+                sound: 'Pop',
+                open: store.get('instanceURL'),
                 persistent: (store.get('bPersistentNoti') === 0 ? false : true),
                 sticky: (store.get('bPersistentNoti') === 0 ? false : true)
             });
