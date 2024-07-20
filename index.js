@@ -54,7 +54,8 @@ const store = new Store({
         topics: 'topic1,topic2,topic3',
         bHotkeys: 0,
         bDevTools: 0,
-        bQuitOnClose: 0
+        bQuitOnClose: 0,
+        bPersistentNoti: 0
     }
 });
 
@@ -257,6 +258,43 @@ const menu_Main = [
                     .catch((response) => {
                         console.error
                     })
+                }
+            },
+            {
+                label: 'Notifications',
+                accelerator: 'CTRL+SHIFT+N',
+                click: function () {
+                    prompt(
+                        {
+                            title: 'Notifications',
+                            label: '<div class="label-desc">Determines how notifications will behave</div>',
+                            useHtmlLabel: true,
+                            alwaysOnTop: true,
+                            type: 'multiInput',
+                            resizable: false,
+                            customStylesheet: path.join(__dirname, `pages`, `css`, `prompt.css`),
+                            height: 230,
+                            icon: app.getAppPath() + '/ntfy.png',
+                            multiInputOptions:
+                                [
+                                    {
+                                        label: 'Stay on screen until dismissed',
+                                        selectOptions: { 0: 'Disabled', 1: 'Enabled' },
+					                    value: store.get('bPersistentNoti'),
+                                    }
+                                ]
+                        },
+                        winMain
+                    )
+                    .then((response) => {
+                        if (response !== null) {
+                            store.set('bPersistentNoti', response[0])
+                        }
+                    })
+                    .catch((response) => {
+                        console.error
+                    })
+
                 }
             }
         ]
@@ -654,9 +692,15 @@ function ready() {
                 continue;
             }
 
+            /*
+                @ref    : https://github.com/Aetherinox/toasted-notifier
+            */
+
             toasted.notify({
                 title: `Topic: ${topic}`,
-                message: `${message}`
+                message: `${message}`,
+                persistent: (store.get('bPersistentNoti') === 0 ? false : true),
+                sticky: (store.get('bPersistentNoti') === 0 ? false : true)
             });
         }
 
