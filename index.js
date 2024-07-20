@@ -36,6 +36,13 @@ let bHotkeysEnabled = 0;
 let bQuitOnClose = 0;
 
 /*
+    Declare > Status
+*/
+
+let statusHasError = false;
+let statusMessage;
+
+/*
     Declare > Fallback
 
     fallback values in case a user does something unforseen to cause an index error
@@ -163,19 +170,19 @@ const menu_Main = [
                 }
             },
             {
-                label: 'Self-hosting',
-                accelerator: 'CTRL+S',
+                label: 'URL',
+                accelerator: 'CTRL+U',
                 click: function () {
                     prompt(
                         {
                             title: 'Set Server Instance',
-                            label: 'Server URL<div class="label-desc">This can either be the URL to the official ntfy.sh server, or your own self-hosted domain / ip.</div>',
+                            label: 'Server URL<div class="label-desc">This can either be the URL to the official ntfy.sh server, or your own self-hosted domain / ip.<br><br>Remove everything to set back to official ntfy.sh server.</div>',
                             useHtmlLabel: true,
                             value: store.get('instanceURL'),
                             alwaysOnTop: true,
                             type: 'input',
                             customStylesheet: path.join(__dirname, `pages`, `css`, `prompt.css`),
-                            height: 240,
+                            height: 280,
                             icon: app.getAppPath() + '/ntfy.png',
                             inputAttrs: {
                                 type: 'url'
@@ -185,8 +192,9 @@ const menu_Main = [
                     )
                     .then((response) => {
                         if (response !== null) {
-                            store.set('instanceURL', response)
-                            winMain.loadURL(response)
+                            const newUrl = (response === "" ? _Instance : response)
+                            store.set('instanceURL', newUrl)
+                            winMain.loadURL(newUrl)
                         }
                     })
                     .catch((response) => {
@@ -207,7 +215,7 @@ const menu_Main = [
                     prompt(
                         {
                             title: 'Set API Token',
-                            label: 'API Token<div class="label-desc">Generate an API token within ntfy.sh  or your self-hosted instance and provide it below so that noficiations can be fetched.</div>',
+                            label: 'API Token<div class="label-desc">Generate an API token within ntfy.sh  or your self-hosted instance and provide it below to receive desktop push notifications.</div>',
                             useHtmlLabel: true,
                             value: store.get('apiToken'),
                             alwaysOnTop: true,
@@ -430,6 +438,9 @@ function ready() {
 
     if (typeof (store.get('instanceURL')) !== 'string') {
         store.set('instanceURL', _Instance);
+
+        statusHasError = true;
+        statusMessage = `Invalid instance URL specified; defaulting to ${_Instance}`;
     }
 
     winMain.loadURL(store.get('instanceURL'))
@@ -481,6 +492,39 @@ function ready() {
         e.preventDefault();
         require('electron').shell.openExternal(url);
     });
+
+    /*
+        Display footer div on website if something has gone wrong.
+        user shouldn't see this unless its something serious
+    */
+
+    if (statusHasError === true ) {
+        winMain.webContents.on('did-finish-load', (e, url)=>{
+        winMain.webContents
+            .executeJavaScript(
+            `
+                const div = document.createElement("div");
+                div.style.position = "sticky";
+                div.style.height = "36px";
+                div.style.width = "100%";
+                div.style.zIndex = "3000";
+                div.style.overflow = "hidden";
+                div.style.marginTop = "-36px";
+                div.style.padding = "7px";
+                div.style.paddingLeft = "20px";
+                div.style.paddingRight = "20px";
+                div.style.backgroundColor = "rgb(151 63 63)";
+
+                const closeSpan = document.createElement("span");
+                closeSpan.setAttribute("class","sr-only");
+                closeSpan.textContent = '${statusMessage}';
+
+                div.appendChild(closeSpan);
+                document.body.appendChild(div);
+            `
+            )
+        });
+    }
 
     /*
         Event > Input
