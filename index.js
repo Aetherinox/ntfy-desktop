@@ -22,7 +22,7 @@ let winMain, winAbout, tray;
 let appIconLoc = app.getAppPath() + '/ntfy.png';
 
 /*
-    CLI State
+    Declare > CLI State
 
     bWinHidden      --hidden    app closes to tray on start
     bDevTools       --dev       dev tools added to menu
@@ -31,7 +31,16 @@ let appIconLoc = app.getAppPath() + '/ntfy.png';
 
 let bWinHidden = 0;
 let bDevTools = 0;
+let bHotkeysEnabled = 0;
 let bQuitOnClose = 0;
+
+/*
+    Declare > Fallback
+
+    fallback values in case a user does something unforseen to cause an index error
+*/
+
+const _Instance = 'https://ntfy.sh/app';
 
 /*
     Declare > Store Values
@@ -42,12 +51,15 @@ const store = new Store({
     defaults: {
         instanceURL: 'https://ntfy.sh/app',
         apiToken: '',
-        topics: 'topic1,topic2,topic3'
+        topics: 'topic1,topic2,topic3',
+        bHotkeys: 0,
+        bDevTools: 0,
+        bQuitOnClose: 0
     }
 });
 
 /*
-    Req > Prompt
+    Declare > Prompt
 
     @docs   : https://araxeus.github.io/custom-electron-prompt/
 */
@@ -70,7 +82,7 @@ console.log(process.argv);
 
 const menu_Main = [
     {
-        label: 'App',
+        label: '&App',
         id: 'app',
         submenu: [
             {
@@ -84,11 +96,71 @@ const menu_Main = [
         ]
     },
     {
-        label: 'Configure',
+        label: '&Configure',
         id: 'configure',
         submenu: [
             {
-                label: 'Set Server',
+                label: 'General',
+                accelerator: 'CTRL+G',
+                click: function () {
+                    prompt(
+                        {
+                            title: 'General Settings',
+                            label: 'General Settings<div class="label-desc">Change the overall functionality of the app.</div>',
+                            useHtmlLabel: true,
+                            alwaysOnTop: true,
+                            type: 'multiInput',
+                            resizable: false,
+                            customStylesheet: path.join(__dirname, `pages`, `css`, `prompt.css`),
+                            height: 400,
+                            icon: app.getAppPath() + '/ntfy.png',
+                            multiInputOptions:
+                                [
+                                    {
+                                        label: 'Developer tools in App menu',
+                                        selectOptions: { 0: 'Disabled', 1: 'Enabled' },
+					                    value: store.get('bDevTools'),
+                                    },
+                                    {
+                                        label: 'Allow usage of hotkeys to navigate',
+                                        selectOptions: { 0: 'Disabled', 1: 'Enabled' },
+					                    value: store.get('bHotkeys'),
+                                    },
+                                    {
+                                        label: 'Quit app instead of send-to-tray for close button',
+                                        selectOptions: { 0: 'Disabled', 1: 'Enabled' },
+					                    value: store.get('bQuitOnClose'),
+                                    },
+                                ],
+                        },
+                        winMain
+                    )
+                    .then((response) => {
+                        if (response !== null) {
+                            // do not update dev tools if value hasn't changed
+                            if ( store.get('bDevTools') !== response[0])
+                            {
+                                store.set('bDevTools', response[0])
+                                activeDevTools()
+                            }
+
+                            store.set('bHotkeys', response[1])
+                            store.set('bQuitOnClose', response[2])
+                        }
+                    })
+                    .catch((response) => {
+                        console.error
+                    })
+
+                    /*
+                    setTimeout(function (){
+                        BrowserWindow.getFocusedWindow().webContents.openDevTools();
+                    }, 3000);
+                    */
+                }
+            },
+            {
+                label: 'Self-hosting',
                 accelerator: 'CTRL+S',
                 click: function () {
                     prompt(
@@ -108,34 +180,37 @@ const menu_Main = [
                         },
                         winMain
                     )
-                        .then((response) => {
-                            if (response !== null) {
-                                store.set('instanceURL', response);
-                                winMain.loadURL(response);
-                            }
-                        })
-                        .catch(console.error);
+                    .then((response) => {
+                        if (response !== null) {
+                            store.set('instanceURL', response)
+                            winMain.loadURL(response)
+                        }
+                    })
+                    .catch((response) => {
+                        console.error
+                    })
+
                     /*
-            setTimeout(function (){
-                BrowserWindow.getFocusedWindow().webContents.openDevTools();
-            }, 5000);
-            */
+                    setTimeout(function (){
+                        BrowserWindow.getFocusedWindow().webContents.openDevTools();
+                    }, 3000);
+                    */
                 }
             },
             {
-                label: 'Set API Token',
+                label: 'API Token',
                 accelerator: 'CTRL+T',
                 click: function () {
                     prompt(
                         {
                             title: 'Set API Token',
-                            label: 'API Token<div class="label-desc">Generate an API token within ntfy.sh and provide it below so that noficiations can be fetched.</div>',
+                            label: 'API Token<div class="label-desc">Generate an API token within ntfy.sh  or your self-hosted instance and provide it below so that noficiations can be fetched.</div>',
                             useHtmlLabel: true,
                             value: store.get('apiToken'),
                             alwaysOnTop: true,
                             type: 'input',
                             customStylesheet: path.join(__dirname, `pages`, `css`, `prompt.css`),
-                            height: 240,
+                            height: 260,
                             icon: app.getAppPath() + '/ntfy.png',
                             inputAttrs: {
                                 type: 'text'
@@ -143,28 +218,30 @@ const menu_Main = [
                         },
                         winMain
                     )
-                        .then((response) => {
-                            if (response !== null) {
-                                store.set('apiToken', response);
-                            }
-                        })
-                        .catch(console.error);
+                    .then((response) => {
+                        if (response !== null) {
+                            store.set('apiToken', response);
+                        }
+                    })
+                    .catch((response) => {
+                        console.error
+                    })
                 }
             },
             {
-                label: 'Set Topics',
+                label: 'Topics',
                 accelerator: 'CTRL+SHIFT+T',
                 click: function () {
                     prompt(
                         {
                             title: 'Set Subscribed Topics',
-                            label: 'Subscribed Topics<div class="label-desc">Specify a list of topics you would like to receive push notifications for.</div>',
+                            label: 'Subscribed Topics<div class="label-desc">Specify a list of topics you would like to receive push notifications for, separated by commas.<br><br>Ex: Meetings,Personal,Urgent</div>',
                             useHtmlLabel: true,
                             value: store.get('topics'),
                             alwaysOnTop: true,
                             type: 'input',
                             customStylesheet: path.join(__dirname, `pages`, `css`, `prompt.css`),
-                            height: 240,
+                            height: 290,
                             icon: app.getAppPath() + '/ntfy.png',
                             inputAttrs: {
                                 type: 'text'
@@ -172,18 +249,20 @@ const menu_Main = [
                         },
                         winMain
                     )
-                        .then((response) => {
-                            if (response !== null) {
-                                store.set('topics', response);
-                            }
-                        })
-                        .catch(console.error);
+                    .then((response) => {
+                        if (response !== null) {
+                            store.set('topics', response);
+                        }
+                    })
+                    .catch((response) => {
+                        console.error
+                    })
                 }
             }
         ]
     },
     {
-        label: 'Help',
+        label: '&Help',
         id: 'help',
         submenu: [
             {
@@ -214,8 +293,8 @@ const menu_Main = [
                         winAbout.webContents
                             .executeJavaScript(
                                 `
-                    setTitle("${aboutTitle}");
-                    setAppInfo("${appName}", "${appVer}", "${appAuthor}");`,
+                    setTitle('${aboutTitle}');
+                    setAppInfo('${appName}', '${appVer}', '${appAuthor}');`,
                                 true
                             )
                             .then((result) => {})
@@ -250,20 +329,31 @@ const header_menu = Menu.buildFromTemplate(menu_Main);
     Main Menu > Developer Tools
     slides in top position of 'App' menu
 
+    when user disables dev console, must re-build menu, otherwise dev tools will stick
+
     App | Configure | Help
 */
 
-if (bDevTools == 1) {
-    let menuItem = header_menu.getMenuItemById('app')
+function activeDevTools() {
+    const header_menu = Menu.buildFromTemplate(menu_Main);
+    Menu.setApplicationMenu(header_menu);
 
-    menuItem.submenu.insert(0, new MenuItem(
-    {
-        label: 'Toggle Dev Tools',
-        accelerator: process.platform === 'darwin' ? 'ALT+CMD+I' : 'CTRL+SHIFT+I',
-        click: () => {
-            winMain.webContents.toggleDevTools();
-        }
-    }))
+    if (bDevTools == 1 || store.get('bDevTools') == 1) {
+        let menuItem = header_menu.getMenuItemById('app')
+
+        menuItem.submenu.insert(0, new MenuItem(
+        {
+            label: 'Toggle Dev Tools',
+            accelerator: process.platform === 'darwin' ? 'ALT+CMD+I' : 'CTRL+SHIFT+I',
+            click: () => {
+                winMain.webContents.toggleDevTools();
+            }
+        },
+        {
+            type: 'separator'
+        },
+        ))
+    }
 }
 
 /*
@@ -292,9 +382,16 @@ function ready() {
 
     /*
         Load default url to main window
+
+        since the user has settings they can modify; add check instanceUrl to ensure it is a valid string.
+        otherwise app will return invalid index and stop loading.
     */
 
-    winMain.loadURL(store.get('instanceURL'));
+    if (typeof (store.get('instanceURL')) !== 'string') {
+        store.set('instanceURL', _Instance);
+    }
+
+    winMain.loadURL(store.get('instanceURL'))
 
     /*
         Event > Page Title Update
@@ -314,7 +411,7 @@ function ready() {
     winMain.on('close', function (e) {
         if (!app.isQuiting) {
             e.preventDefault();
-            if (bQuitOnClose == 1) {
+            if (bQuitOnClose == 1 || store.get('bQuitOnClose') == 1) {
                 app.isQuiting = true;
                 app.quit();
             } else {
@@ -354,7 +451,7 @@ function ready() {
             Input > Refresh Page (CTRL + r)
         */
 
-        if (input.type === 'keyDown' && input.control && input.key === 'r') {
+        if ((bHotkeysEnabled == 1 || store.get('bHotkeys') == 1) && input.type === 'keyDown' && input.control && input.key === 'r') {
             winMain.webContents.reload();
         }
 
@@ -362,7 +459,7 @@ function ready() {
             Input > Zoom In (CTRL + =)
         */
 
-        if (input.type === 'keyDown' && input.control && input.key === '=') {
+        if ((bHotkeysEnabled == 1 || store.get('bHotkeys') == 1) && input.type === 'keyDown' && input.control && input.key === '=') {
             winMain.webContents.zoomFactor += 0.1;
         }
 
@@ -370,7 +467,7 @@ function ready() {
             Input > Zoom Out (CTRL + -)
         */
 
-        if (input.type === 'keyDown' && input.control && input.key === '-') {
+        if ((bHotkeysEnabled == 1 || store.get('bHotkeys') == 1) && input.type === 'keyDown' && input.control && input.key === '-') {
             winMain.webContents.zoomFactor -= 0.1;
         }
 
@@ -378,7 +475,7 @@ function ready() {
             Input > Zoom Reset (CTRL + 0)
         */
 
-        if (input.type === 'keyDown' && input.control && input.key === '0') {
+        if ((bHotkeysEnabled == 1 || store.get('bHotkeys') == 1) && input.type === 'keyDown' && input.control && input.key === '0') {
             winMain.webContents.zoomFactor = 1;
         }
 
@@ -386,7 +483,7 @@ function ready() {
             Input > Quit (CTRL + q)
         */
 
-        if (input.type === 'keyDown' && input.control && input.key === 'q') {
+        if ((bHotkeysEnabled == 1 || store.get('bHotkeys') == 1) && input.type === 'keyDown' && input.control && input.key === 'q') {
             app.isQuiting = true;
             app.quit();
         }
@@ -395,7 +492,7 @@ function ready() {
             Input > Minimize to tray (CTRL + m)
         */
 
-        if (input.type === 'keyDown' && input.control && input.key === 'm') {
+        if ((bHotkeysEnabled == 1 || store.get('bHotkeys') == 1) && input.type === 'keyDown' && input.control && input.key === 'm') {
             bWinHidden = 1;
             winMain.hide();
         }
@@ -404,7 +501,7 @@ function ready() {
             Input > Dev Tools (CTRL + SHIFT + I || F12)
         */
 
-        if ((input.control && input.shift) || input.key === 'F12') {
+        if (((bHotkeysEnabled == 1 || store.get('bHotkeys') == 1) && input.control && input.shift) || input.key === 'F12') {
             if (input.type === 'keyDown' && (input.key === 'I' || input.key === 'F12')) {
                 winMain.webContents.toggleDevTools();
                 winMain.webContents.on('devtools-opened', () => {
@@ -414,13 +511,13 @@ function ready() {
                             new Promise((resolve)=> {
                                 let keysPressed = {};
 
-                                addEventListener("keydown", (e) => {
-                                    if (e.key === "F12") {
+                                addEventListener('keydown', (e) => {
+                                    if (e.key === 'F12') {
                                         resolve();
                                     }
                                 }, { once: true });
 
-                                addEventListener("keydown", (e) => {
+                                addEventListener('keydown', (e) => {
                                     keysPressed[e.key] = true;
                                     if (keysPressed['Control'] && keysPressed['Shift'] && e.key == 'I') {
                                         resolve();
@@ -569,6 +666,8 @@ function ready() {
         Loop args
 
         --hidden        : automatically hide window
+        --dev           : enable developer tools
+        --quit          : quit app when close button pressed
     */
 
     for (let i = 0; i < process.argv.length; i++) {
@@ -577,8 +676,11 @@ function ready() {
             winMain.hide();
         } else if (process.argv[i] === '--dev') {
             bDevTools = 1;
+            activeDevTools()
         } else if (process.argv[i] === '--quit') {
             bQuitOnClose = 1;
+        } else if (process.argv[i] === '--hotkeys') {
+            bHotkeysEnabled = 1;
         }
     }
 
