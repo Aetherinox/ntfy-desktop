@@ -671,7 +671,12 @@ function ready() {
         @ref        : https://docs.ntfy.sh/subscribe/api/#poll-for-messages
     */
 
+    const msgHistory = [];
+
     async function GetMessages() {
+
+        console.log(`CHECKING FOR NEW MESSAGES`);
+
         const cfgTopics = store.get('topics');
         const cfgInstanceURL = store.get('instanceURL');
         const uri = `${cfgInstanceURL}/${cfgTopics}/json?since=${_Interval}s&poll=1`;
@@ -682,13 +687,21 @@ function ready() {
             only items with event = 'message' will be allowed through to display in a notification.
         */
 
+        console.log(`---------------------------------------------------------`);
+        console.log(`History ............... ${msgHistory}`);
+        console.log(`Messages .............. ${JSON.stringify(json)}`);
+        console.log(`---------------------------------------------------------\n`);
+
         for (let i = 0; i < json.length; i++) {
             const object = JSON.parse(json[i]);
+            const id = object.id;
             const type = object.event;
             const time = object.time;
             const expires = object.expires;
             const message = object.message;
             const topic = object.topic;
+
+            console.log(`Messages .............. ${type}:${id} found`);
 
             if (type != 'message') {
                 continue;
@@ -704,14 +717,25 @@ function ready() {
                 @ref    : https://github.com/Aetherinox/toasted-notifier
             */
 
-            toasted.notify({
-                title: `${topic} - ${dateHuman}`,
-                message: `${message}`,
-                actions: ['Acknowledge'],
-                persistent: (store.get('bPersistentNoti') === 0 ? false : true),
-                sticky: (store.get('bPersistentNoti') === 0 ? false : true)
-            });
+            const msgStatus = msgHistory.includes(id) === true ? 'already sent, skipping' : 'pending send';
+            console.log(`Messages .............. ${type}:${id} ${msgStatus}`);
+
+            if (!msgHistory.includes(id)) {
+                toasted.notify({
+                    title: `${topic} - ${dateHuman}`,
+                    message: `${message}`,
+                    actions: ['Acknowledge'],
+                    persistent: (store.get('bPersistentNoti') === 0 ? false : true),
+                    sticky: (store.get('bPersistentNoti') === 0 ? false : true)
+                });
+
+                msgHistory.push(id);
+            }
+
+            console.log(`Messages .............. ${type}:${id} sent`);
         }
+
+        console.log(`\n\n`);
 
         return json;
     }
@@ -744,6 +768,7 @@ function ready() {
 
     const fetchInterval = (_Interval * 1000) + 600;
     setInterval(GetMessages, fetchInterval);
+
     activeDevTools()
 }
 
