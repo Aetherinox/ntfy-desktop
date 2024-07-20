@@ -14,13 +14,13 @@ const packageJson = require('./package.json');
 const appVer = packageJson.version;
 const appName = packageJson.name;
 const appAuthor = packageJson.author;
+const appIcon = app.getAppPath() + '/ntfy.png';
 
 /*
     Declare > Window
 */
 
 let winMain, winAbout, tray;
-let appIconLoc = app.getAppPath() + '/ntfy.png';
 
 /*
     Declare > CLI State
@@ -40,6 +40,7 @@ let bQuitOnClose = 0;
 */
 
 let statusHasError = false;
+let statusBadURL = false;
 let statusMessage;
 
 /*
@@ -71,6 +72,25 @@ const store = new Store({
 });
 
 /*
+    Validate instance url
+*/
+
+function validateUrl(uri, tries, delay) {
+    return new Promise((success, reject) => {
+        (function rec(i) {
+            fetch(uri, {mode: 'no-cors'}).then((r) => {
+                success(r); // success: resolve promise
+            }).catch( err => {
+                if (tries === 0) // num of tries reached
+                    return reject(err);
+
+                setTimeout(() => rec(--tries), delay ) // retry
+            }); // retries exceeded
+        })(tries);
+    });
+}
+
+/*
     Declare > Prompt
 
     @docs   : https://araxeus.github.io/custom-electron-prompt/
@@ -93,297 +113,335 @@ console.log(process.argv);
 */
 
 const menu_Main = [
-    {
-        label: '&App',
-        id: 'app',
-        submenu: [
-            {
-                label: 'Quit',
-                accelerator: (bHotkeysEnabled == 1 || store.get('bHotkeys') == 1) ? 'CTRL+Q' : '',
-                click: function () {
-                    app.isQuiting = true;
-                    app.quit();
-                }
+{
+    label: '&App',
+    id: 'app',
+    submenu: [
+        {
+            label: 'Quit',
+            accelerator: (bHotkeysEnabled == 1 || store.get('bHotkeys') == 1) ? 'CTRL+Q' : '',
+            click: function () {
+                app.isQuiting = true;
+                app.quit();
             }
-        ]
-    },
-    {
-        label: '&Configure',
-        id: 'configure',
-        submenu: [
-            {
-                label: 'General',
-                accelerator: (bHotkeysEnabled == 1 || store.get('bHotkeys') == 1) ? 'CTRL+G' : '',
-                click: function () {
-                    prompt(
-                        {
-                            title: 'General Settings',
-                            label: 'General Settings<div class="label-desc">Change the overall functionality of the app.</div>',
-                            useHtmlLabel: true,
-                            alwaysOnTop: true,
-                            type: 'multiInput',
-                            resizable: false,
-                            customStylesheet: path.join(__dirname, `pages`, `css`, `prompt.css`),
-                            height: 400,
-                            icon: app.getAppPath() + '/ntfy.png',
-                            multiInputOptions:
-                                [
-                                    {
-                                        label: 'Developer tools in app menu',
-                                        selectOptions: { 0: 'Disabled', 1: 'Enabled' },
-					                    value: store.get('bDevTools'),
-                                    },
-                                    {
-                                        label: 'Allow usage of hotkeys to navigate',
-                                        selectOptions: { 0: 'Disabled', 1: 'Enabled' },
-					                    value: store.get('bHotkeys'),
-                                    },
-                                    {
-                                        label: 'Quit app instead of send-to-tray for close button',
-                                        selectOptions: { 0: 'Disabled', 1: 'Enabled' },
-					                    value: store.get('bQuitOnClose'),
-                                    },
-                                ],
-                        },
-                        winMain
-                    )
-                    .then((response) => {
-                        if (response !== null) {
-                            // do not update dev tools if value hasn't changed
-                            if ( store.get('bDevTools') !== response[0])
-                            {
-                                store.set('bDevTools', response[0])
-                                activeDevTools()
-                            }
-
-                            store.set('bHotkeys', response[1])
-                            store.set('bQuitOnClose', response[2])
-                        }
-                    })
-                    .catch((response) => {
-                        console.error
-                    })
-
-                    /*
-                    setTimeout(function (){
-                        BrowserWindow.getFocusedWindow().webContents.openDevTools();
-                    }, 3000);
-                    */
-                }
-            },
-            {
-                label: 'URL',
-                accelerator: (bHotkeysEnabled == 1 || store.get('bHotkeys') == 1) ? 'CTRL+U' : '',
-                click: function () {
-                    prompt(
-                        {
-                            title: 'Set Server Instance',
-                            label: 'Server URL<div class="label-desc">This can either be the URL to the official ntfy.sh server, or your own self-hosted domain / ip.<br><br>Remove everything to set back to official ntfy.sh server.</div>',
-                            useHtmlLabel: true,
-                            value: store.get('instanceURL'),
-                            alwaysOnTop: true,
-                            type: 'input',
-                            customStylesheet: path.join(__dirname, `pages`, `css`, `prompt.css`),
-                            height: 280,
-                            icon: app.getAppPath() + '/ntfy.png',
-                            inputAttrs: {
-                                type: 'url'
-                            }
-                        },
-                        winMain
-                    )
-                    .then((response) => {
-                        if (response !== null) {
-                            const newUrl = (response === "" ? _Instance : response)
-                            store.set('instanceURL', newUrl)
-                            winMain.loadURL(newUrl)
-                        }
-                    })
-                    .catch((response) => {
-                        console.error
-                    })
-
-                    /*
-                    setTimeout(function (){
-                        BrowserWindow.getFocusedWindow().webContents.openDevTools();
-                    }, 3000);
-                    */
-                }
-            },
-            {
-                label: 'API Token',
-                accelerator: (bHotkeysEnabled == 1 || store.get('bHotkeys') == 1) ? 'CTRL+T' : '',
-                click: function () {
-                    prompt(
-                        {
-                            title: 'Set API Token',
-                            label: 'API Token<div class="label-desc">Generate an API token within ntfy.sh  or your self-hosted instance and provide it below to receive desktop push notifications.</div>',
-                            useHtmlLabel: true,
-                            value: store.get('apiToken'),
-                            alwaysOnTop: true,
-                            type: 'input',
-                            customStylesheet: path.join(__dirname, `pages`, `css`, `prompt.css`),
-                            height: 260,
-                            icon: app.getAppPath() + '/ntfy.png',
-                            inputAttrs: {
-                                type: 'text'
-                            }
-                        },
-                        winMain
-                    )
-                    .then((response) => {
-                        if (response !== null) {
-                            store.set('apiToken', response);
-                        }
-                    })
-                    .catch((response) => {
-                        console.error
-                    })
-                }
-            },
-            {
-                label: 'Topics',
-                accelerator: (bHotkeysEnabled == 1 || store.get('bHotkeys') == 1) ? 'CTRL+SHIFT+T' : '',
-                click: function () {
-                    prompt(
-                        {
-                            title: 'Set Subscribed Topics',
-                            label: 'Subscribed Topics<div class="label-desc">Specify a list of topics you would like to receive push notifications for, separated by commas.<br><br>Ex: Meetings,Personal,Urgent</div>',
-                            useHtmlLabel: true,
-                            value: store.get('topics'),
-                            alwaysOnTop: true,
-                            type: 'input',
-                            customStylesheet: path.join(__dirname, `pages`, `css`, `prompt.css`),
-                            height: 290,
-                            icon: app.getAppPath() + '/ntfy.png',
-                            inputAttrs: {
-                                type: 'text'
-                            }
-                        },
-                        winMain
-                    )
-                    .then((response) => {
-                        if (response !== null) {
-                            store.set('topics', response);
-                        }
-                    })
-                    .catch((response) => {
-                        console.error
-                    })
-                }
-            },
-            {
-                label: 'Notifications',
-                accelerator: (bHotkeysEnabled == 1 || store.get('bHotkeys') == 1) ? 'CTRL+N' : '',
-                click: function () {
-                    prompt(
-                        {
-                            title: 'Notifications',
-                            label: 'Notifications Settings<div class="label-desc">Determines how notifications will behave</div>',
-                            useHtmlLabel: true,
-                            alwaysOnTop: true,
-                            type: 'multiInput',
-                            resizable: false,
-                            customStylesheet: path.join(__dirname, `pages`, `css`, `prompt.css`),
-                            height: 300,
-                            icon: app.getAppPath() + '/ntfy.png',
-                            multiInputOptions:
-                                [
-                                    {
-                                        label: 'Stay on screen until dismissed',
-                                        selectOptions: { 0: 'Disabled', 1: 'Enabled' },
-					                    value: store.get('bPersistentNoti'),
-                                    },
-                                    {
-                                        label: 'Datetime format for notification title',
-					                    value: store.get('datetime') || _Datetime,
-                                        inputAttrs:
-                                        {
-                                            placeholder: 'YYYY-MM-DD hh:mm a',
-                                            required: true
-                                        }
-                                    }
-                                ]
-                        },
-                        winMain
-                    )
-                    .then((response) => {
-                        if (response !== null) {
-                            store.set('bPersistentNoti', response[0])
-                        }
-                    })
-                    .catch((response) => {
-                        console.error
-                    })
-
-                    /*
-                    setTimeout(function (){
-                        BrowserWindow.getFocusedWindow().webContents.openDevTools();
-                    }, 3000);
-                    */
-
-                }
-            }
-        ]
-    },
-    {
-        label: '&Help',
-        id: 'help',
-        submenu: [
-            {
-                id: 'about',
-                label: 'About',
-                click() {
-                    const aboutTitle = `About`;
-                    winAbout = new BrowserWindow({
-                        width: 480,
-                        height: 440,
-                        title: `${aboutTitle}`,
-                        icon: app.getAppPath() + '/ntfy.png',
-                        parent: winMain,
-                        center: true,
+        }
+    ]
+},
+{
+    label: '&Configure',
+    id: 'configure',
+    submenu: [
+        {
+            label: 'General',
+            accelerator: (bHotkeysEnabled == 1 || store.get('bHotkeys') == 1) ? 'CTRL+G' : '',
+            click: function () {
+                prompt(
+                    {
+                        title: 'General Settings',
+                        label: 'General Settings<div class="label-desc">Change the overall functionality of the app.</div>',
+                        useHtmlLabel: true,
+                        alwaysOnTop: true,
+                        type: 'multiInput',
                         resizable: false,
-                        fullscreenable: false,
-                        minimizable: false,
-                        maximizable: false,
-                        modal: true,
-                        backgroundColor: '#212121',
-                        webPreferences: {
-                            nodeIntegration: true,
-                            contextIsolation: false,
-                            enableRemoteModule: true
+                        customStylesheet: path.join(__dirname, `pages`, `css`, `prompt.css`),
+                        height: 400,
+                        icon: appIcon,
+                        multiInputOptions:
+                            [
+                                {
+                                    label: 'Developer tools in app menu',
+                                    selectOptions: { 0: 'Disabled', 1: 'Enabled' },
+                                    value: store.get('bDevTools'),
+                                },
+                                {
+                                    label: 'Allow usage of hotkeys to navigate',
+                                    selectOptions: { 0: 'Disabled', 1: 'Enabled' },
+                                    value: store.get('bHotkeys'),
+                                },
+                                {
+                                    label: 'Quit app instead of send-to-tray for close button',
+                                    selectOptions: { 0: 'Disabled', 1: 'Enabled' },
+                                    value: store.get('bQuitOnClose'),
+                                },
+                            ],
+                    },
+                    winMain
+                )
+                .then((response) => {
+                    if (response !== null) {
+                        // do not update dev tools if value hasn't changed
+                        if ( store.get('bDevTools') !== response[0])
+                        {
+                            store.set('bDevTools', response[0]);
+                            activeDevTools();
                         }
-                    });
 
-                    winAbout.loadFile(path.join(__dirname, `pages`, `about.html`)).then(() => {
-                        winAbout.webContents
-                            .executeJavaScript(
-                                `
-                    setTitle('${aboutTitle}');
-                    setAppInfo('${appName}', '${appVer}', '${appAuthor}');`,
-                                true
-                            )
-                            .then((result) => {})
-                            .catch(console.error);
-                    });
+                        store.set('bHotkeys', response[1]);
+                        store.set('bQuitOnClose', response[2]);
+                    }
+                })
+                .catch((response) => {
+                    console.error
+                })
 
-                    winAbout.webContents.on('new-window', function (e, url) {
-                        e.preventDefault();
-                        require('electron').shell.openExternal(url);
-                    });
-
-                    // Remove menubar from about window
-                    winAbout.setMenu(null);
-                }
-            },
-            {
-                label: 'View New Releases',
-                click() {
-                    electronShell.openExternal(`${packageJson.homepage}`);
-                }
+                /*
+                setTimeout(function (){
+                    BrowserWindow.getFocusedWindow().webContents.openDevTools();
+                }, 3000);
+                */
             }
-        ]
-    }];
+        },
+        {
+            label: 'URL',
+            accelerator: (bHotkeysEnabled == 1 || store.get('bHotkeys') == 1) ? 'CTRL+U' : '',
+            click: function () {
+                prompt(
+                    {
+                        title: 'Set Server Instance',
+                        label: 'Server URL<div class="label-desc">This can either be the URL to the official ntfy.sh server, or your own self-hosted domain / ip.<br><br>Remove everything to set back to official ntfy.sh server.</div>',
+                        useHtmlLabel: true,
+                        value: store.get('instanceURL'),
+                        alwaysOnTop: true,
+                        type: 'input',
+                        customStylesheet: path.join(__dirname, `pages`, `css`, `prompt.css`),
+                        height: 280,
+                        icon: appIcon,
+                        inputAttrs: {
+                            type: 'url'
+                        }
+                    },
+                    winMain
+                )
+                .then((response) => {
+                    if (response !== null) {
+                        const newUrl = (response === "" ? _Instance : response);
+                        store.set('instanceURL', newUrl);
+
+                        /*
+                            Validate URL.
+                            Invalid URLs should not perform polling.
+                            load default _Instance url
+                        */
+
+                        validateUrl(store.get('instanceURL'), 3, 1000).then( item => {
+                            statusBadURL = false;
+                            console.log(`Successfully resolved `+ store.get('instanceURL'));
+                            winMain.loadURL(store.get('instanceURL'));
+                        }).catch( err => {
+                            statusBadURL = true;
+                            const msg = `Failed to resolve `+ store.get('instanceURL') + ` - defaulting to ${_Instance}`;
+                            statusMessage = `${msg}`;
+                            console.error(`${msg}`);
+                            store.set('instanceURL', _Instance);
+                            winMain.loadURL(_Instance);
+                        });
+                    }
+                })
+                .catch((response) => {
+                    console.error
+                })
+
+                /*
+                setTimeout(function (){
+                    BrowserWindow.getFocusedWindow().webContents.openDevTools();
+                }, 3000);
+                */
+            }
+        },
+        {
+            label: 'API Token',
+            accelerator: (bHotkeysEnabled == 1 || store.get('bHotkeys') == 1) ? 'CTRL+T' : '',
+            click: function () {
+                prompt(
+                    {
+                        title: 'Set API Token',
+                        label: 'API Token<div class="label-desc">Generate an API token within ntfy.sh  or your self-hosted instance and provide it below to receive desktop push notifications.</div>',
+                        useHtmlLabel: true,
+                        value: store.get('apiToken'),
+                        alwaysOnTop: true,
+                        type: 'input',
+                        customStylesheet: path.join(__dirname, `pages`, `css`, `prompt.css`),
+                        height: 260,
+                        icon: appIcon,
+                        inputAttrs: {
+                            type: 'text'
+                        }
+                    },
+                    winMain
+                )
+                .then((response) => {
+                    if (response !== null) {
+                        store.set('apiToken', response);
+                    }
+                })
+                .catch((response) => {
+                    console.error
+                })
+            }
+        },
+        {
+            label: 'Topics',
+            accelerator: (bHotkeysEnabled == 1 || store.get('bHotkeys') == 1) ? 'CTRL+SHIFT+T' : '',
+            click: function () {
+                prompt(
+                    {
+                        title: 'Set Subscribed Topics',
+                        label: 'Subscribed Topics<div class="label-desc">Specify a list of topics you would like to receive push notifications for, separated by commas.<br><br>Ex: Meetings,Personal,Urgent</div>',
+                        useHtmlLabel: true,
+                        value: store.get('topics'),
+                        alwaysOnTop: true,
+                        type: 'input',
+                        customStylesheet: path.join(__dirname, `pages`, `css`, `prompt.css`),
+                        height: 290,
+                        icon: appIcon,
+                        inputAttrs: {
+                            type: 'text'
+                        }
+                    },
+                    winMain
+                )
+                .then((response) => {
+                    if (response !== null) {
+                        store.set('topics', response);
+                    }
+                })
+                .catch((response) => {
+                    console.error
+                })
+            }
+        },
+        {
+            label: 'Notifications',
+            accelerator: (bHotkeysEnabled == 1 || store.get('bHotkeys') == 1) ? 'CTRL+N' : '',
+            click: function () {
+                prompt(
+                    {
+                        title: 'Notifications',
+                        label: 'Notification Settings<div class="label-desc">Determines how notifications will behave</div>',
+                        useHtmlLabel: true,
+                        alwaysOnTop: true,
+                        type: 'multiInput',
+                        resizable: false,
+                        customStylesheet: path.join(__dirname, `pages`, `css`, `prompt.css`),
+                        height: 320,
+                        icon: appIcon,
+                        multiInputOptions:
+                            [
+                                {
+                                    label: 'Stay on screen until dismissed',
+                                    selectOptions: { 0: 'Disabled', 1: 'Enabled' },
+                                    value: store.get('bPersistentNoti'),
+                                },
+                                {
+                                    label: 'Datetime format for notification title',
+                                    value: store.get('datetime') || _Datetime,
+                                    inputAttrs:
+                                    {
+                                        placeholder: 'YYYY-MM-DD hh:mm a',
+                                        required: true
+                                    }
+                                }
+                            ]
+                    },
+                    winMain
+                )
+                .then((response) => {
+                    if (response !== null) {
+                        store.set('bPersistentNoti', response[0])
+                    }
+                })
+                .catch((response) => {
+                    console.error
+                })
+
+                /*
+                setTimeout(function (){
+                    BrowserWindow.getFocusedWindow().webContents.openDevTools();
+                }, 3000);
+                */
+
+            }
+        }
+    ]
+},
+{
+    label: '&Help',
+    id: 'help',
+    submenu: [
+        {
+            id: 'about',
+            label: 'About',
+            click() {
+                const aboutTitle = `About`;
+                winAbout = new BrowserWindow({
+                    width: 480,
+                    height: 440,
+                    title: `${aboutTitle}`,
+                    icon: appIcon,
+                    parent: winMain,
+                    center: true,
+                    resizable: false,
+                    fullscreenable: false,
+                    minimizable: false,
+                    maximizable: false,
+                    modal: true,
+                    backgroundColor: '#212121',
+                    webPreferences: {
+                        nodeIntegration: true,
+                        contextIsolation: false,
+                        enableRemoteModule: true
+                    }
+                });
+
+                winAbout.loadFile(path.join(__dirname, `pages`, `about.html`)).then(() => {
+                    winAbout.webContents
+                        .executeJavaScript(
+                            `
+                setTitle('${aboutTitle}');
+                setAppInfo('${appName}', '${appVer}', '${appAuthor}');`,
+                            true
+                        )
+                        .then((result) => {})
+                        .catch(console.error);
+                });
+
+                winAbout.webContents.on('new-window', function (e, url) {
+                    e.preventDefault();
+                    require('electron').shell.openExternal(url);
+                });
+
+                // Remove menubar from about window
+                winAbout.setMenu(null);
+            }
+        },
+        {
+            label: 'View New Releases',
+            click() {
+                electronShell.openExternal(`${packageJson.homepage}`);
+            }
+        }
+    ]
+}];
+
+/*
+    Tray > Context Menu
+*/
+
+const contextMenu = Menu.buildFromTemplate([
+    {
+        label: 'Show App',
+        click: function () {
+            winMain.show();
+        }
+    },
+    {
+        label: 'Quit',
+        click: function () {
+            app.isQuiting = true;
+            app.quit();
+        }
+    }
+]);
 
 /*
     Main Menu > Developer Tools
@@ -411,8 +469,7 @@ function activeDevTools() {
         },
         {
             type: 'separator'
-        },
-        ))
+        }))
     }
 }
 
@@ -434,17 +491,17 @@ function ready() {
     */
 
     winMain = new BrowserWindow({
-        title: 'ntfy Desktop',
+        title: `${appName}`,
         width: 1280,
         height: 720,
-        icon: appIconLoc,
+        icon: appIcon,
         backgroundColor: '#212121'
     });
 
     /*
         Load default url to main window
 
-        since the user has settings they can modify; add check instanceUrl to ensure it is a valid string.
+        since the user has settings they can modify; add check to instanceUrl and ensure it is a valid string.
         otherwise app will return invalid index and stop loading.
     */
 
@@ -455,7 +512,24 @@ function ready() {
         statusMessage = `Invalid instance URL specified; defaulting to ${_Instance}`;
     }
 
-    winMain.loadURL(store.get('instanceURL'))
+    /*
+        Validate URL.
+        Invalid URLs should not perform polling.
+        load default _Instance url
+    */
+
+    validateUrl(store.get('instanceURL'), 3, 1000).then( item => {
+        statusBadURL = false;
+        console.log(`Successfully resolved `+ store.get('instanceURL'));
+        winMain.loadURL(store.get('instanceURL'));
+    }).catch( err => {
+        statusBadURL = true;
+        const msg = `Failed to resolve `+ store.get('instanceURL') + ` - defaulting to ${_Instance}`;
+        statusMessage = `${msg}`;
+        console.error(`${msg}`);
+        store.set('instanceURL', _Instance);
+        winMain.loadURL(_Instance);
+    });
 
     /*
         Event > Page Title Update
@@ -510,33 +584,35 @@ function ready() {
         user shouldn't see this unless its something serious
     */
 
-    if (statusHasError === true ) {
-        winMain.webContents.on('did-finish-load', (e, url)=>{
-        winMain.webContents
-            .executeJavaScript(
-            `
-                const div = document.createElement("div");
-                div.style.position = "sticky";
-                div.style.height = "36px";
-                div.style.width = "100%";
-                div.style.zIndex = "3000";
-                div.style.overflow = "hidden";
-                div.style.marginTop = "-36px";
-                div.style.padding = "7px";
-                div.style.paddingLeft = "20px";
-                div.style.paddingRight = "20px";
-                div.style.backgroundColor = "rgb(151 63 63)";
+    winMain.webContents.on('did-finish-load', (e, url)=> {
+        if ((statusHasError === true || statusBadURL == true) && statusMessage !== '') {
+            winMain.webContents
+                .executeJavaScript(
+                `
+                    const div = document.createElement("div");
+                    div.style.position = "sticky";
+                    div.style.height = "34px";
+                    div.style.width = "100%";
+                    div.style.zIndex = "3000";
+                    div.style.overflow = "hidden";
+                    div.style.marginTop = "-34px";
+                    div.style.padding = "7px";
+                    div.style.paddingLeft = "20px";
+                    div.style.paddingRight = "20px";
+                    div.style.backgroundColor = "rgb(151 63 63)";
+                    div.style.textAlign = "center";
+                    div.style.fontSize = "13px";
 
-                const closeSpan = document.createElement("span");
-                closeSpan.setAttribute("class","sr-only");
-                closeSpan.textContent = '${statusMessage}';
+                    const span = document.createElement("span");
+                    span.setAttribute("class","ntfy-notify error");
+                    span.textContent = '${statusMessage}';
 
-                div.appendChild(closeSpan);
-                document.body.appendChild(div);
-            `
-            )
-        });
-    }
+                    div.appendChild(span);
+                    document.body.appendChild(div);
+                `)
+            }
+        }
+    );
 
     /*
         Event > Input
@@ -636,34 +712,14 @@ function ready() {
     });
 
     /*
-        Tray > Context Menu
-    */
-
-    const contextMenu = Menu.buildFromTemplate([
-        {
-            label: 'Show App',
-            click: function () {
-                winMain.show();
-            }
-        },
-        {
-            label: 'Quit',
-            click: function () {
-                app.isQuiting = true;
-                app.quit();
-            }
-        }
-    ]);
-
-    /*
         Tray
 
         Windows         : left-click opens app, right-click opens context menu
         Linux           : left and right click have same functionality
     */
 
-    tray = new Tray(appIconLoc);
-    tray.setToolTip('ntfy Desktop');
+    tray = new Tray(appIcon);
+    tray.setToolTip(`${appName}`);
     tray.setContextMenu(contextMenu);
     tray.on('click', function () {
         if (bWinHidden) {
@@ -733,6 +789,16 @@ function ready() {
         const cfgTopics = store.get('topics');
         const cfgInstanceURL = store.get('instanceURL');
         const uri = `${cfgInstanceURL}/${cfgTopics}/json?since=${_Interval}s&poll=1`;
+
+        /*
+            Bad URL detected, skip polling
+        */
+
+        if ( statusBadURL == true ) {
+            console.error(`Invalid instance URL specified, skipping polling`);
+            return;
+        }
+
         const json = await GetMessageData(uri);
 
         console.log(`CHECKING FOR NEW MESSAGES`);
