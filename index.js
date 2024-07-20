@@ -675,12 +675,16 @@ function ready() {
 
     async function GetMessages() {
 
-        console.log(`CHECKING FOR NEW MESSAGES`);
-
         const cfgTopics = store.get('topics');
         const cfgInstanceURL = store.get('instanceURL');
         const uri = `${cfgInstanceURL}/${cfgTopics}/json?since=${_Interval}s&poll=1`;
         const json = await GetMessageData(uri);
+
+        console.log(`CHECKING FOR NEW MESSAGES`);
+        console.log(`---------------------------------------------------------`);
+        console.log(`InstanceURL ........... ${cfgInstanceURL}`);
+        console.log(`Query ................. ${uri}`);
+        console.log(`Topics ................ ${cfgTopics}`);
 
         /*
             Loop ntfy api results.
