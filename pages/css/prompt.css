@@ -13,10 +13,17 @@ body {
 	padding: 0px 0px 0px 0px;
 }
 
+#data-container > label
+{
+    text-align: left !important;
+    font-size: 9pt;
+    padding-bottom: 3px;
+}
+
 .label-desc {
 	padding-top: 4px;
     padding-bottom: 7px;
-	font-size: 9pt;
+	font-size: 9.8pt;
 	white-space: normal;
 	color: #9f9f9f;
 }
@@ -66,11 +73,17 @@ body {
 	outline: rgba(60, 0, 0, 0.4) solid 2px;
 }
 
-#ok,
 #cancel,
+.clearButton {
+	background-color: #b82355;
+	color: #FFFFFF;
+	cursor: pointer;
+}
+
+#ok,
 #custom,
 .clearButton {
-	background-color: #de2343;
+	background-color: #286256;
 	color: #FFFFFF;
 	cursor: pointer;
 }
@@ -86,6 +99,11 @@ body {
 .minus,
 .plus {
 	background: rgb(0, 0, 0);
+}
+
+select:hover
+{
+    cursor: pointer;
 }
 
 /* For Select Prompt */
