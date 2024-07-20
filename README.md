@@ -108,6 +108,11 @@ The following keybinds can be used within ntfy-desktop:
 | `CTRL + 0` | Zoom reset |
 | `CTRL + SHIFT + I` | Developer tools |
 | `F12` | Developer tools |
+| `CTRL + G` | Show General settings window |
+| `CTRL + U` | Show URL settings window |
+| `CTRL + T` | Show API Token settings window |
+| `CTRL + SHIFT + T` | Show Topics settings window |
+| `CTRL + N` | Show Notifications settings window |
 
 <br />
 
