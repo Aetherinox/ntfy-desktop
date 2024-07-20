@@ -69,7 +69,7 @@
     },
     "dependencies": {
         "custom-electron-prompt": "^1.5.7",
-        "electron": "^31.2.1",
+        "electron": "^30.3.0",
         "toasted-notifier": "^10.0.2",
         "semver": "^7.3.5",
         "uuid": "^10.0.0"
