@@ -117,7 +117,7 @@ const menu_Main = [
                             multiInputOptions:
                                 [
                                     {
-                                        label: 'Developer tools in App menu',
+                                        label: 'Developer tools in app menu',
                                         selectOptions: { 0: 'Disabled', 1: 'Enabled' },
 					                    value: store.get('bDevTools'),
                                     },
@@ -269,11 +269,12 @@ const menu_Main = [
                 id: 'about',
                 label: 'About',
                 click() {
-                    const aboutTitle = `About ${appName}`;
+                    const aboutTitle = `About`;
                     winAbout = new BrowserWindow({
                         width: 480,
                         height: 440,
                         title: `${aboutTitle}`,
+                        icon: app.getAppPath() + '/ntfy.png',
                         parent: winMain,
                         center: true,
                         resizable: false,
