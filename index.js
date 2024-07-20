@@ -788,7 +788,16 @@ function ready() {
 
         const cfgTopics = store.get('topics');
         const cfgInstanceURL = store.get('instanceURL');
-        const uri = `${cfgInstanceURL}/${cfgTopics}/json?since=${_Interval}s&poll=1`;
+        let uri = `${cfgInstanceURL}/${cfgTopics}/json?since=${_Interval}s&poll=1`;
+
+        /*
+            For the official ntfy.sh API, url must be changed internally
+                https://ntfy.sh/app/ -> https://ntfy.sh/
+        */
+
+        if (uri.includes('ntfy.sh/app')) {
+            uri = uri.replace("ntfy.sh/app", 'ntfy.sh');
+        }
 
         /*
             Bad URL detected, skip polling
