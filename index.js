@@ -51,7 +51,7 @@ const _Interval = 5;
 const store = new Store({
     configName: 'prefs',
     defaults: {
-        instanceURL: 'https://ntfy.sh/app',
+        instanceURL: _Instance,
         apiToken: '',
         topics: 'topic1,topic2,topic3',
         bHotkeys: 0,
@@ -714,11 +714,15 @@ function ready() {
             const dateHuman = moment.unix(time).format('YYYY-MM-DD hh:mm a');
 
             /*
-                @ref    : https://github.com/Aetherinox/toasted-notifier
+                debugging to console to show the status of messages
             */
 
             const msgStatus = msgHistory.includes(id) === true ? 'already sent, skipping' : 'pending send';
             console.log(`Messages .............. ${type}:${id} ${msgStatus}`);
+
+            /*
+                @ref    : https://github.com/Aetherinox/toasted-notifier
+            */
 
             if (!msgHistory.includes(id)) {
                 toasted.notify({
@@ -768,6 +772,11 @@ function ready() {
 
     const fetchInterval = (_Interval * 1000) + 600;
     setInterval(GetMessages, fetchInterval);
+
+    /*
+        Check stored setting for developer tools and set state when
+        app launches
+    */
 
     activeDevTools()
 }
