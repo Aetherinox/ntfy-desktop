@@ -40,9 +40,10 @@ let winMain, winAbout, timerPollrate, tray;
 /*
     Declare > CLI State
 
-    bWinHidden      --hidden    app closes to tray on start
-    bDevTools       --dev       dev tools added to menu
-    bQuitOnClose    --quit      when pressing top-right close button, app exits instead of going to tray
+    bWinHidden          --hidden        app closes to tray on start
+    bDevTools           --dev           dev tools added to menu
+    bHotkeysEnabled     --hotkeys       keyboard shortcuts added to menu
+    bQuitOnClose        --quit          when pressing top-right close button, app exits instead of going to tray
 */
 
 let bWinHidden = 0;
@@ -216,9 +217,8 @@ async function GetMessages() {
 
         console.log(`Messages .............. ${type}:${id} found`);
 
-        if (type != 'message') {
+        if (type != 'message')
             continue;
-        }
 
         /*
             convert unix timestamp into human readable
@@ -614,6 +614,13 @@ const contextMenu = Menu.buildFromTemplate([
 ]);
 
 /*
+    Main Menu > Set
+*/
+
+const header_menu = Menu.buildFromTemplate(menu_Main);
+Menu.setApplicationMenu(header_menu);
+
+/*
     Main Menu > Developer Tools
     slides in top position of 'App' menu
 
@@ -642,13 +649,6 @@ function activeDevTools() {
         }))
     }
 }
-
-/*
-    Main Menu > Set
-*/
-
-const header_menu = Menu.buildFromTemplate(menu_Main);
-Menu.setApplicationMenu(header_menu);
 
 /*
     App > Ready
@@ -927,8 +927,7 @@ function ready() {
         Run timer every X seconds to check for new messages
     */
 
-    const cfgPollrate = (store.get('pollrate') || _Pollrate);
-    const fetchInterval = (cfgPollrate * 1000) + 600;
+    const fetchInterval = ((store.get('pollrate') || _Pollrate) * 1000) + 600;
     timerPollrate = setInterval(GetMessages, fetchInterval);
 
     /*
