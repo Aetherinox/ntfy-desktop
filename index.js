@@ -167,6 +167,12 @@ async function GetMessages() {
     const cfgPollrate = store.get('pollrate') || _Pollrate;
     const cfgTopics = store.get('topics');
     const cfgInstanceURL = store.get('instanceURL');
+
+    if (cfgInstanceURL === '' || cfgInstanceURL === null) {
+        console.log(`URL Missing, skipping GetMessages(): ${uri}`);
+        return;
+    }
+
     let uri = `${cfgInstanceURL}/${cfgTopics}/json?since=${cfgPollrate}s&poll=1`;
     console.log(`URL: ${uri}`);
 
@@ -353,7 +359,7 @@ const menu_Main = [
                         title: 'Set Server Instance',
                         label: 'Server URL<div class="label-desc">This can either be the URL to the official ntfy.sh server, or your own self-hosted domain / ip.<br><br>Remove everything to set back to official ntfy.sh server.</div>',
                         useHtmlLabel: true,
-                        value: store.get('instanceURL'),
+                        value: store.get('instanceURL') || _Instance,
                         alwaysOnTop: true,
                         type: 'input',
                         customStylesheet: path.join(__dirname, `pages`, `css`, `prompt.css`),
@@ -675,7 +681,7 @@ function ready() {
         otherwise app will return invalid index and stop loading.
     */
 
-    if (typeof (store.get('instanceURL')) !== 'string') {
+    if (typeof (store.get('instanceURL')) !== 'string' || store.get('instanceURL') === '' || store.get('instanceURL') === null ) {
         store.set('instanceURL', _Instance);
 
         statusHasError = true;
