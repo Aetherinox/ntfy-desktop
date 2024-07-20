@@ -49,6 +49,7 @@ let statusMessage;
 */
 
 const _Instance = 'https://ntfy.sh/app';
+const _Datetime = 'YYYY-MM-DD hh:mm a';
 const _Interval = 5;
 
 /*
@@ -64,7 +65,8 @@ const store = new Store({
         bHotkeys: 0,
         bDevTools: 0,
         bQuitOnClose: 0,
-        bPersistentNoti: 0
+        bPersistentNoti: 0,
+        datetime: _Datetime
     }
 });
 
@@ -97,7 +99,7 @@ const menu_Main = [
         submenu: [
             {
                 label: 'Quit',
-                accelerator: 'CTRL+Q',
+                accelerator: (bHotkeysEnabled == 1 || store.get('bHotkeys') == 1) ? 'CTRL+Q' : '',
                 click: function () {
                     app.isQuiting = true;
                     app.quit();
@@ -111,7 +113,7 @@ const menu_Main = [
         submenu: [
             {
                 label: 'General',
-                accelerator: 'CTRL+G',
+                accelerator: (bHotkeysEnabled == 1 || store.get('bHotkeys') == 1) ? 'CTRL+G' : '',
                 click: function () {
                     prompt(
                         {
@@ -171,7 +173,7 @@ const menu_Main = [
             },
             {
                 label: 'URL',
-                accelerator: 'CTRL+U',
+                accelerator: (bHotkeysEnabled == 1 || store.get('bHotkeys') == 1) ? 'CTRL+U' : '',
                 click: function () {
                     prompt(
                         {
@@ -210,7 +212,7 @@ const menu_Main = [
             },
             {
                 label: 'API Token',
-                accelerator: 'CTRL+T',
+                accelerator: (bHotkeysEnabled == 1 || store.get('bHotkeys') == 1) ? 'CTRL+T' : '',
                 click: function () {
                     prompt(
                         {
@@ -241,7 +243,7 @@ const menu_Main = [
             },
             {
                 label: 'Topics',
-                accelerator: 'CTRL+SHIFT+T',
+                accelerator: (bHotkeysEnabled == 1 || store.get('bHotkeys') == 1) ? 'CTRL+SHIFT+T' : '',
                 click: function () {
                     prompt(
                         {
@@ -272,18 +274,18 @@ const menu_Main = [
             },
             {
                 label: 'Notifications',
-                accelerator: 'CTRL+SHIFT+N',
+                accelerator: (bHotkeysEnabled == 1 || store.get('bHotkeys') == 1) ? 'CTRL+N' : '',
                 click: function () {
                     prompt(
                         {
                             title: 'Notifications',
-                            label: '<div class="label-desc">Determines how notifications will behave</div>',
+                            label: 'Notifications Settings<div class="label-desc">Determines how notifications will behave</div>',
                             useHtmlLabel: true,
                             alwaysOnTop: true,
                             type: 'multiInput',
                             resizable: false,
                             customStylesheet: path.join(__dirname, `pages`, `css`, `prompt.css`),
-                            height: 230,
+                            height: 300,
                             icon: app.getAppPath() + '/ntfy.png',
                             multiInputOptions:
                                 [
@@ -291,6 +293,15 @@ const menu_Main = [
                                         label: 'Stay on screen until dismissed',
                                         selectOptions: { 0: 'Disabled', 1: 'Enabled' },
 					                    value: store.get('bPersistentNoti'),
+                                    },
+                                    {
+                                        label: 'Datetime format for notification title',
+					                    value: store.get('datetime') || _Datetime,
+                                        inputAttrs:
+                                        {
+                                            placeholder: 'YYYY-MM-DD hh:mm a',
+                                            required: true
+                                        }
                                     }
                                 ]
                         },
@@ -304,6 +315,12 @@ const menu_Main = [
                     .catch((response) => {
                         console.error
                     })
+
+                    /*
+                    setTimeout(function (){
+                        BrowserWindow.getFocusedWindow().webContents.openDevTools();
+                    }, 3000);
+                    */
 
                 }
             }
@@ -369,12 +386,6 @@ const menu_Main = [
     }];
 
 /*
-    Main Menu > Build
-*/
-
-const header_menu = Menu.buildFromTemplate(menu_Main);
-
-/*
     Main Menu > Developer Tools
     slides in top position of 'App' menu
 
@@ -409,6 +420,7 @@ function activeDevTools() {
     Main Menu > Set
 */
 
+const header_menu = Menu.buildFromTemplate(menu_Main);
 Menu.setApplicationMenu(header_menu);
 
 /*
@@ -716,7 +728,6 @@ function ready() {
     */
 
     const msgHistory = [];
-
     async function GetMessages() {
 
         const cfgTopics = store.get('topics');
