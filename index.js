@@ -7,6 +7,21 @@ const moment = require('moment');
 const Store = require('./store.js');
 
 /*
+    Declare > Prompt
+
+    @docs   : https://araxeus.github.io/custom-electron-prompt/
+*/
+
+const prompt = require('custom-electron-prompt');
+
+/*
+    Debug > Print args
+*/
+
+console.log(process.argv);
+
+
+/*
     Declare > Package
 */
 
@@ -20,7 +35,7 @@ const appIcon = app.getAppPath() + '/ntfy.png';
     Declare > Window
 */
 
-let winMain, winAbout, tray;
+let winMain, winAbout, timerPollrate, tray;
 
 /*
     Declare > CLI State
@@ -52,9 +67,13 @@ let statusMessage;
 const _Instance = 'https://ntfy.sh/app';
 const _Datetime = 'YYYY-MM-DD hh:mm a';
 const _Interval = 5;
+const _Pollrate = 5;
 
 /*
     Declare > Store Values
+
+    @note   : defaults will not be set until the first time a user edits any of their settings.
+              storage: AppData\Roaming\ntfy-desktop
 */
 
 const store = new Store({
@@ -91,18 +110,153 @@ function validateUrl(uri, tries, delay) {
 }
 
 /*
-    Declare > Prompt
+    Get Message Data
 
-    @docs   : https://araxeus.github.io/custom-electron-prompt/
+    Even though ntfy's permissions are open by default, provide authorization bearer for users who
+    have their permissions set to 'deny'.
+
+    API Token can be specified in app.
 */
 
-const prompt = require('custom-electron-prompt');
+async function GetMessageData(uri) {
+    const cfgApiToken = store.get('apiToken');
+    let req = await fetch(uri, {
+        method: 'GET',
+        headers: {
+            'Accept': 'application/json',
+            Authorization: `Bearer ${cfgApiToken}`
+        }
+    });
+
+    /*
+        ntfy has the option to output message results as json, however the structure of that json
+        is not properly formatted json and adds a newline to the end of each message.
+
+        bring the json results in as a string, split them at newline and then push them to a new
+        array.
+    */
+
+    const json = await req.text();
+    let jsonArr = [];
+    const entries = json.split('\n');
+    for (let i = 0; i < entries.length; i++) {
+        jsonArr.push(entries[i]);
+    }
+
+    /*
+        Filter out empty entry in array which was caused by the last newline
+    */
+
+    const jsonResult = jsonArr.filter(function (el) {
+        return el != null && el != '';
+    });
+
+    return jsonResult;
+}
 
 /*
-    Debug > Print args
+    Get Messages
+
+    ntfy url requires '&poll=1' otherwise the requests will freeze.
+    @ref        : https://docs.ntfy.sh/subscribe/api/#poll-for-messages
 */
 
-console.log(process.argv);
+const msgHistory = [];
+async function GetMessages() {
+
+    const cfgPollrate = store.get('pollrate') || _Pollrate;
+    const cfgTopics = store.get('topics');
+    const cfgInstanceURL = store.get('instanceURL');
+    let uri = `${cfgInstanceURL}/${cfgTopics}/json?since=${cfgPollrate}s&poll=1`;
+    console.log(`URL: ${uri}`);
+
+    /*
+        For the official ntfy.sh API, url must be changed internally
+            https://ntfy.sh/app/ -> https://ntfy.sh/
+    */
+
+    if (uri.includes('ntfy.sh/app')) {
+        uri = uri.replace("ntfy.sh/app", 'ntfy.sh');
+    }
+
+    /*
+        Bad URL detected, skip polling
+    */
+
+    if ( statusBadURL == true ) {
+        console.error(`Invalid instance URL specified, skipping polling`);
+        return;
+    }
+
+    const json = await GetMessageData(uri);
+
+    console.log(`CHECKING FOR NEW MESSAGES`);
+    console.log(`---------------------------------------------------------`);
+    console.log(`InstanceURL ........... ${cfgInstanceURL}`);
+    console.log(`Query ................. ${uri}`);
+    console.log(`Topics ................ ${cfgTopics}`);
+
+    /*
+        Loop ntfy api results.
+        only items with event = 'message' will be allowed through to display in a notification.
+    */
+
+    console.log(`---------------------------------------------------------`);
+    console.log(`History ............... ${msgHistory}`);
+    console.log(`Messages .............. ${JSON.stringify(json)}`);
+    console.log(`---------------------------------------------------------\n`);
+
+    for (let i = 0; i < json.length; i++) {
+        const object = JSON.parse(json[i]);
+        const id = object.id;
+        const type = object.event;
+        const time = object.time;
+        const expires = object.expires;
+        const message = object.message;
+        const topic = object.topic;
+
+        console.log(`Messages .............. ${type}:${id} found`);
+
+        if (type != 'message') {
+            continue;
+        }
+
+        /*
+            convert unix timestamp into human readable
+        */
+
+        const dateHuman = moment.unix(time).format(store.get('datetime' || _Datetime));
+
+        /*
+            debugging to console to show the status of messages
+        */
+
+        const msgStatus = msgHistory.includes(id) === true ? 'already sent, skipping' : 'pending send';
+        console.log(`Messages .............. ${type}:${id} ${msgStatus}`);
+
+        /*
+            @ref    : https://github.com/Aetherinox/toasted-notifier
+        */
+
+        if (!msgHistory.includes(id)) {
+            toasted.notify({
+                title: `${topic} - ${dateHuman}`,
+                message: `${message}`,
+                actions: ['Acknowledge'],
+                persistent: (store.get('bPersistentNoti') === 0 ? false : true),
+                sticky: (store.get('bPersistentNoti') === 0 ? false : true)
+            });
+
+            msgHistory.push(id);
+        }
+
+        console.log(`Messages .............. ${type}:${id} sent`);
+    }
+
+    console.log(`\n\n`);
+
+    return json;
+}
 
 /*
     Menu > Main
@@ -323,7 +477,7 @@ const menu_Main = [
                         type: 'multiInput',
                         resizable: false,
                         customStylesheet: path.join(__dirname, `pages`, `css`, `prompt.css`),
-                        height: 320,
+                        height: 400,
                         icon: appIcon,
                         multiInputOptions:
                             [
@@ -337,8 +491,18 @@ const menu_Main = [
                                     value: store.get('datetime') || _Datetime,
                                     inputAttrs:
                                     {
-                                        placeholder: 'YYYY-MM-DD hh:mm a',
+                                        placeholder: `${_Datetime}`,
                                         required: true
+                                    }
+                                },
+                                {
+                                    label: 'Polling rate / fetch messages (seconds)',
+                                    value: store.get('pollrate') || _Pollrate,
+                                    inputAttrs: {
+                                        type: 'number',
+                                        required: true,
+                                        min: 5,
+                                        step: 1
                                     }
                                 }
                             ]
@@ -348,6 +512,13 @@ const menu_Main = [
                 .then((response) => {
                     if (response !== null) {
                         store.set('bPersistentNoti', response[0])
+                        store.set('datetime', response[1])
+                        store.set('pollrate', response[2])
+
+                        const cfgPollrate = (store.get('pollrate') || _Pollrate);
+                        const fetchInterval = (cfgPollrate * 1000) + 600;
+                        clearInterval(timerPollrate);
+                        timerPollrate = setInterval(GetMessages, fetchInterval);
                     }
                 })
                 .catch((response) => {
@@ -732,153 +903,6 @@ function ready() {
     });
 
     /*
-        Get Message Data
-
-        Even though ntfy's permissions are open by default, provide authorization bearer for users who
-        have their permissions set to 'deny'.
-
-        API Token can be specified in app.
-    */
-
-    async function GetMessageData(uri) {
-        const cfgApiToken = store.get('apiToken');
-        let req = await fetch(uri, {
-            method: 'GET',
-            headers: {
-                'Accept': 'application/json',
-                Authorization: `Bearer ${cfgApiToken}`
-            }
-        });
-
-        /*
-            ntfy has the option to output message results as json, however the structure of that json
-            is not properly formatted json and adds a newline to the end of each message.
-
-            bring the json results in as a string, split them at newline and then push them to a new
-            array.
-        */
-
-        const json = await req.text();
-        let jsonArr = [];
-        const entries = json.split('\n');
-        for (let i = 0; i < entries.length; i++) {
-            jsonArr.push(entries[i]);
-        }
-
-        /*
-            Filter out empty entry in array which was caused by the last newline
-        */
-
-        const jsonResult = jsonArr.filter(function (el) {
-            return el != null && el != '';
-        });
-
-        return jsonResult;
-    }
-
-    /*
-        Get Messages
-
-        ntfy url requires '&poll=1' otherwise the requests will freeze.
-        @ref        : https://docs.ntfy.sh/subscribe/api/#poll-for-messages
-    */
-
-    const msgHistory = [];
-    async function GetMessages() {
-
-        const cfgTopics = store.get('topics');
-        const cfgInstanceURL = store.get('instanceURL');
-        let uri = `${cfgInstanceURL}/${cfgTopics}/json?since=${_Interval}s&poll=1`;
-
-        /*
-            For the official ntfy.sh API, url must be changed internally
-                https://ntfy.sh/app/ -> https://ntfy.sh/
-        */
-
-        if (uri.includes('ntfy.sh/app')) {
-            uri = uri.replace("ntfy.sh/app", 'ntfy.sh');
-        }
-
-        /*
-            Bad URL detected, skip polling
-        */
-
-        if ( statusBadURL == true ) {
-            console.error(`Invalid instance URL specified, skipping polling`);
-            return;
-        }
-
-        const json = await GetMessageData(uri);
-
-        console.log(`CHECKING FOR NEW MESSAGES`);
-        console.log(`---------------------------------------------------------`);
-        console.log(`InstanceURL ........... ${cfgInstanceURL}`);
-        console.log(`Query ................. ${uri}`);
-        console.log(`Topics ................ ${cfgTopics}`);
-
-        /*
-            Loop ntfy api results.
-            only items with event = 'message' will be allowed through to display in a notification.
-        */
-
-        console.log(`---------------------------------------------------------`);
-        console.log(`History ............... ${msgHistory}`);
-        console.log(`Messages .............. ${JSON.stringify(json)}`);
-        console.log(`---------------------------------------------------------\n`);
-
-        for (let i = 0; i < json.length; i++) {
-            const object = JSON.parse(json[i]);
-            const id = object.id;
-            const type = object.event;
-            const time = object.time;
-            const expires = object.expires;
-            const message = object.message;
-            const topic = object.topic;
-
-            console.log(`Messages .............. ${type}:${id} found`);
-
-            if (type != 'message') {
-                continue;
-            }
-
-            /*
-                convert unix timestamp into human readable
-            */
-
-            const dateHuman = moment.unix(time).format('YYYY-MM-DD hh:mm a');
-
-            /*
-                debugging to console to show the status of messages
-            */
-
-            const msgStatus = msgHistory.includes(id) === true ? 'already sent, skipping' : 'pending send';
-            console.log(`Messages .............. ${type}:${id} ${msgStatus}`);
-
-            /*
-                @ref    : https://github.com/Aetherinox/toasted-notifier
-            */
-
-            if (!msgHistory.includes(id)) {
-                toasted.notify({
-                    title: `${topic} - ${dateHuman}`,
-                    message: `${message}`,
-                    actions: ['Acknowledge'],
-                    persistent: (store.get('bPersistentNoti') === 0 ? false : true),
-                    sticky: (store.get('bPersistentNoti') === 0 ? false : true)
-                });
-
-                msgHistory.push(id);
-            }
-
-            console.log(`Messages .............. ${type}:${id} sent`);
-        }
-
-        console.log(`\n\n`);
-
-        return json;
-    }
-
-    /*
         Loop args
 
         --hidden        : automatically hide window
@@ -904,8 +928,9 @@ function ready() {
         Run timer every X seconds to check for new messages
     */
 
-    const fetchInterval = (_Interval * 1000) + 600;
-    setInterval(GetMessages, fetchInterval);
+    const cfgPollrate = (store.get('pollrate') || _Pollrate);
+    const fetchInterval = (cfgPollrate * 1000) + 600;
+    timerPollrate = setInterval(GetMessages, fetchInterval);
 
     /*
         Check stored setting for developer tools and set state when
