@@ -41,6 +41,7 @@ let bQuitOnClose = 0;
 */
 
 const _Instance = 'https://ntfy.sh/app';
+const _Interval = 5;
 
 /*
     Declare > Store Values
@@ -672,7 +673,7 @@ function ready() {
     async function GetMessages() {
         const cfgTopics = store.get('topics');
         const cfgInstanceURL = store.get('instanceURL');
-        const uri = `${cfgInstanceURL}/${cfgTopics}/json?since=10s&poll=1`;
+        const uri = `${cfgInstanceURL}/${cfgTopics}/json?since=${_Interval}s&poll=1`;
         const json = await GetMessageData(uri);
 
         /*
@@ -733,7 +734,7 @@ function ready() {
         Run timer every X seconds to check for new messages
     */
 
-    const fetchInterval = 10500;
+    const fetchInterval = (_Interval * 1000) + 600;
     setInterval(GetMessages, fetchInterval);
 }
 
