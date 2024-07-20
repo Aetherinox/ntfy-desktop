@@ -744,6 +744,7 @@ function ready() {
 
     const fetchInterval = (_Interval * 1000) + 600;
     setInterval(GetMessages, fetchInterval);
+    activeDevTools()
 }
 
 /*
