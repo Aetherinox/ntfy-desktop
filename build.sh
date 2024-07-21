@@ -11,7 +11,7 @@ dir_dist=dist
 #   define: misc
 # #
 
-bDeleteBuild='false'
+bDeleteBuild=true
 Copyright='Copyright (c) 2024'
 FileDescription='ntfy desktop client with Electron wrapper'
 ProductName='ntfy desktop'
@@ -47,7 +47,10 @@ mkdir -p "${dir_dist}"
         echo -e "Building Windows-${i}"
         electron-packager . ntfy-electron --asar --platform="win32" --arch="$i" --icon="ntfy.ico" --overwrite --ignore="${IgnorePattern}" --prune=true --out=${dir_build} --appCopyright="${Copyright}" --win32metadata.FileDescription="${FileDescription}" --win32metadata.ProductName="${ProductName}" --win32metadata.OriginalFilename="${OriginalFilename}" --win32metadata.CompanyName="${CompanyName}"
         zip -r -q -9 "${dir_dist}/ntfy-electron-windows-$i.zip" "${dir_build}/ntfy-electron-win32-$i"
-        rm -r "${dir_build}/ntfy-electron-win32-$i"
+
+        if [ "$bDeleteBuild" = true ] ; then
+            rm -r "${dir_build}/ntfy-electron-win32-$i"
+        fi
     done
 
 # #
@@ -59,7 +62,10 @@ mkdir -p "${dir_dist}"
         echo -e "Building Linux-${i}"
         electron-packager . ntfy-electron --asar --platform="linux" --arch="$i" --icon="ntfy.png" --overwrite --ignore="${IgnorePattern}" --prune=true --out=${dir_build} --appCopyright="${Copyright}" --win32metadata.FileDescription="${FileDescription}" --win32metadata.ProductName="${ProductName}" --win32metadata.OriginalFilename="${OriginalFilename}" --win32metadata.CompanyName="${CompanyName}"
         zip -r -q -9 "${dir_dist}/ntfy-electron-linux-$i.zip" "${dir_build}/ntfy-electron-linux-$i"
-        rm -r "${dir_build}/ntfy-electron-linux-$i"
+
+        if [ "$bDeleteBuild" = true ] ; then
+            rm -r "${dir_build}/ntfy-electron-linux-$i"
+        fi
     done
 
 # #
@@ -71,5 +77,8 @@ mkdir -p "${dir_dist}"
         echo -e "Building MacOS-${i}"
         electron-packager . ntfy-electron --asar --platform="darwin" --arch="$i" --icon="ntfy.icns" --overwrite --ignore="${IgnorePattern}" --prune=true --out=${dir_build} --appCopyright="${Copyright}" --win32metadata.FileDescription="${FileDescription}" --win32metadata.ProductName="${ProductName}" --win32metadata.OriginalFilename="${OriginalFilename}" --win32metadata.CompanyName="${CompanyName}"
         zip -r -q -9 "${dir_dist}/ntfy-electron-mac-$i.zip" "${dir_build}/ntfy-electron-darwin-$i"
-        rm -r "${dir_build}/ntfy-electron-darwin-$i"
+
+        if [ "$bDeleteBuild" = true ] ; then
+            rm -r "${dir_build}/ntfy-electron-darwin-$i"
+        fi
     done
