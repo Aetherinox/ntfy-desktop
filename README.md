@@ -1,5 +1,5 @@
 <div align="center">
-<h1>♾️ ntfy-desktop ♾️</h1>
+<h1>♾️ ntfy-electron ♾️</h1>
 <br />
 <p>
 
@@ -94,7 +94,7 @@ This project allows you to access the official free / paid notification service 
 <br />
 
 # Key Binds
-The following keybinds can be used within ntfy-desktop:
+The following keybinds can be used within ntfy-electron:
 
 <br />
 
@@ -134,10 +134,10 @@ This client
 
 | Argument | Description | Available as setting |
 | --- | --- | --- |
-| `--hidden` | Start ntfy-desktop hidden, suitable for autostarting on login/boot | ✅ |
-| `--hotkey` | Start ntfy-desktop with hotkeys enabled | ✅ |
-| `--quit` | Clicking top-right close button will completely exit app instead of minimize to tray | ✅ |
-| `--dev` | Start ntfy-desktop with developer tools | ✅ |
+| `--hidden` | Start app hidden in tray, suitable for auto-starting on login/boot | ✅ |
+| `--hotkey` | Start app with hotkeys enabled | ✅ |
+| `--quit` | Top-right close button will completely exit app instead of minimize to tray | ✅ |
+| `--dev` | Start app with developer tools in `App` menu | ✅ |
 
 <br />
 
@@ -217,13 +217,13 @@ sudo chmod +x build.sh
 <!-- BADGE > GENERAL -->
 [link-general-npm]: https://npmjs.com
 [link-general-nodejs]: https://nodejs.org
-[link-npmtrends]: http://npmtrends.com/ntfy-desktop
+[link-npmtrends]: http://npmtrends.com/ntfy-electron
 <!-- BADGE > VERSION > GITHUB -->
 [badge-version-gh]: https://img.shields.io/github/v/tag/xdpirate/ntfy-electron?logo=GitHub&label=Version&color=ba5225
 [link-version-gh]: https://github.com/xdpirate/ntfy-electron/releases
 <!-- BADGE > VERSION > NPMJS -->
-[badge-version-npm]: https://img.shields.io/npm/v/ntfy-desktop?logo=npm&label=Version&color=ba5225
-[link-version-npm]: https://npmjs.com/package/ntfy-desktop
+[badge-version-npm]: https://img.shields.io/npm/v/ntfy-electron?logo=npm&label=Version&color=ba5225
+[link-version-npm]: https://npmjs.com/package/ntfy-electron
 <!-- BADGE > LICENSE -->
 [badge-license-mit]: https://img.shields.io/badge/MIT-FFF?logo=creativecommons&logoColor=FFFFFF&label=License&color=9d29a0
 [link-license-mit]: https://github.com/xdpirate/ntfy-electron/blob/main/LICENSE
@@ -234,12 +234,12 @@ sudo chmod +x build.sh
 [badge-downloads-gh]: https://img.shields.io/github/downloads/xdpirate/ntfy-electron/total?logo=github&logoColor=FFFFFF&label=Downloads&color=376892
 [link-downloads-gh]: https://github.com/xdpirate/ntfy-electron/releases
 [badge-downloads-npm]: https://img.shields.io/npm/dw/%40aetherinox%2Fmarked-alert-fa?logo=npm&&label=Downloads&color=376892
-[link-downloads-npm]: https://npmjs.com/package/ntfy-desktop
+[link-downloads-npm]: https://npmjs.com/package/ntfy-electron
 <!-- BADGE > DOWNLOAD SIZE -->
 [badge-size-gh]: https://img.shields.io/github/repo-size/xdpirate/ntfy-electron?logo=github&label=Size&color=59702a
 [link-size-gh]: https://github.com/xdpirate/ntfy-electron/releases
-[badge-size-npm]: https://img.shields.io/npm/unpacked-size/ntfy-desktop/latest?logo=npm&label=Size&color=59702a
-[link-size-npm]: https://npmjs.com/package/ntfy-desktop
+[badge-size-npm]: https://img.shields.io/npm/unpacked-size/ntfy-electron/latest?logo=npm&label=Size&color=59702a
+[link-size-npm]: https://npmjs.com/package/ntfy-electron
 <!-- BADGE > COVERAGE -->
 [badge-coverage]: https://img.shields.io/codecov/c/github/xdpirate/ntfy-electron?token=MPAVASGIOG&logo=codecov&logoColor=FFFFFF&label=Coverage&color=354b9e
 [link-coverage]: https://codecov.io/github/xdpirate/ntfy-electron
