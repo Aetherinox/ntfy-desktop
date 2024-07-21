@@ -1,9 +1,9 @@
 {
-    "name": "ntfy-desktop",
-    "version": "1.0.0",
+    "name": "ntfy-electron",
+    "version": "2.0.0",
     "description": "ntfy push notifications wrapped in electron as a web app",
-    "homepage": "https://github.com/Aetherinox/ntfy-desktop",
-    "author": "Aetherinox",
+    "homepage": "https://github.com/xdpirate/ntfy-electron",
+    "author": "xdpirate & Aetherinox",
     "contributors": [
         {
             "name": "xdpirate",
@@ -11,9 +11,9 @@
             "url": "https://github.com/xdpirate"
         },
         {
-            "name": "EuropaServ",
-            "email": "161414668+EuropaServ@users.noreply.github.com",
-            "url": "https://github.com/EuropaServ"
+            "name": "Aetherinox",
+            "email": "118329232+Aetherinox@users.noreply.github.com",
+            "url": "https://github.com/Aetherinox"
         }
     ],
     "funding": [
@@ -30,10 +30,10 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/Aetherinox/ntfy-desktop.git"
+        "url": "git+https://github.com/xdpirate/ntfy-electron.git"
     },
     "bugs": {
-        "url": "https://github.com/Aetherinox/ntfy-desktop/issues"
+        "url": "https://github.com/xdpirate/ntfy-electron/issues"
     },
     "license": "GPLv3",
     "keywords": [
@@ -49,9 +49,9 @@
         "pretest": "npm run lint",
         "lint": "eslint index.js",
         "start": "electron .",
-        "package-win": "electron-packager . ntfy-electron --asar --platform=win32 --arch=all --icon=ntfy.ico --overwrite --ignore=^/build --prune=true --out=dist --appCopyright=\"Copyright (c) 2024\" --win32metadata.FileDescription=\"ntfy desktop client\" --win32metadata.ProductName=\"ntfy desktop\" --win32metadata.OriginalFilename=\"ntfy-desktop.exe\" --win32metadata.CompanyName=\"xdpirate & Aetherinox\"",
-        "package-linux": "electron-packager . ntfy-electron --asar --platform=linux --arch=all --icon=ntfy.png --overwrite --ignore=^/build --prune=true --out=dist --appCopyright=\"Copyright (c) 2024\" --win32metadata.FileDescription=\"ntfy desktop client\" --win32metadata.ProductName=\"ntfy desktop\" --win32metadata.OriginalFilename=\"ntfy-desktop.exe\" --win32metadata.CompanyName=\"xdpirate & Aetherinox\"",
-        "package-mac": "electron-packager . ntfy-electron --asar --platform=darwin --arch=all --icon=ntfy.icns --overwrite --ignore=^/build --prune=true --out=dist --appCopyright=\"Copyright (c) 2024\" --win32metadata.FileDescription=\"ntfy desktop client\" --win32metadata.ProductName=\"ntfy desktop\" --win32metadata.OriginalFilename=\"ntfy-desktop.exe\" --win32metadata.CompanyName=\"xdpirate & Aetherinox\"",
+        "package-win": "electron-packager . ntfy-electron --asar --platform=win32 --arch=all --icon=ntfy.ico --overwrite --ignore=^/build --prune=true --out=dist --appCopyright=\"Copyright (c) 2024\" --win32metadata.FileDescription=\"ntfy desktop client with Electron wrapper\" --win32metadata.ProductName=\"ntfy desktop\" --win32metadata.OriginalFilename=\"ntfy-desktop.exe\" --win32metadata.CompanyName=\"https://github.com/xdpirate/ntfy-electron\"",
+        "package-linux": "electron-packager . ntfy-electron --asar --platform=linux --arch=all --icon=ntfy.png --overwrite --ignore=^/build --prune=true --out=dist --appCopyright=\"Copyright (c) 2024\" --win32metadata.FileDescription=\"ntfy desktop client with Electron wrapper\" --win32metadata.ProductName=\"ntfy desktop\" --win32metadata.OriginalFilename=\"ntfy-desktop.exe\" --win32metadata.CompanyName=\"https://github.com/xdpirate/ntfy-electron\"",
+        "package-mac": "electron-packager . ntfy-electron --asar --platform=darwin --arch=all --icon=ntfy.icns --overwrite --ignore=^/build --prune=true --out=dist --appCopyright=\"Copyright (c) 2024\" --win32metadata.FileDescription=\"ntfy desktop client with Electron wrapper\" --win32metadata.ProductName=\"ntfy desktop\" --win32metadata.OriginalFilename=\"ntfy-desktop.exe\" --win32metadata.CompanyName=\"https://github.com/xdpirate/ntfy-electron\"",
         "pretty": "prettier . --write",
         "pretty:check": "prettier . --check",
         "pretty:ignore": "prettier . --write --ignore-unknown",

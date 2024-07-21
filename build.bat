@@ -32,19 +32,19 @@ set platformMac=x64 arm64
 for %%a in (%platformWin%) do (
     echo.
     echo Building windows-%%a
-    CALL electron-packager . ntfy-electron --asar --platform="win32" --arch="%%a" --icon="ntfy.ico" --overwrite --ignore=^/build --prune=true --out=dist --appCopyright="Copyright (c) 2024" --win32metadata.FileDescription="ntfy desktop client" --win32metadata.ProductName="ntfy desktop" --win32metadata.OriginalFilename="ntfy-desktop.exe" --win32metadata.CompanyName="xdpirate & Aetherinox
+    CALL electron-packager . ntfy-electron --asar --platform="win32" --arch="%%a" --icon="ntfy.ico" --overwrite --ignore=^/build --prune=true --out=dist --appCopyright="Copyright (c) 2024" --win32metadata.FileDescription="ntfy desktop client with Electron wrapper" --win32metadata.ProductName="ntfy desktop" --win32metadata.OriginalFilename="ntfy-desktop.exe" --win32metadata.CompanyName="https://github.com/xdpirate/ntfy-electron"
 )
 
 for %%a in (%platformLinux%) do (
     echo.
     echo Building linux-%%a
-    CALL electron-packager . ntfy-electron --asar --platform="linux" --arch="%%a" --icon="ntfy.png" --overwrite --ignore=^/build --prune=true --out=dist --appCopyright="Copyright (c) 2024" --win32metadata.FileDescription="ntfy desktop client" --win32metadata.ProductName="ntfy desktop" --win32metadata.OriginalFilename="ntfy-desktop.exe" --win32metadata.CompanyName="xdpirate & Aetherinox
+    CALL electron-packager . ntfy-electron --asar --platform="linux" --arch="%%a" --icon="ntfy.png" --overwrite --ignore=^/build --prune=true --out=dist --appCopyright="Copyright (c) 2024" --win32metadata.FileDescription="ntfy desktop client with Electron wrapper" --win32metadata.ProductName="ntfy desktop" --win32metadata.OriginalFilename="ntfy-desktop.exe" --win32metadata.CompanyName="https://github.com/xdpirate/ntfy-electron"
 )
 
 for %%a in (%platformMac%) do (
     echo.
     echo Building linux-%%a
-    CALL electron-packager . ntfy-electron --asar --platform="darwin" --arch="%%a" --icon="ntfy.icns" --overwrite --ignore=^/build --prune=true --out=dist --appCopyright="Copyright (c) 2024" --win32metadata.FileDescription="ntfy desktop client" --win32metadata.ProductName="ntfy desktop" --win32metadata.OriginalFilename="ntfy-desktop.exe" --win32metadata.CompanyName="xdpirate & Aetherinox
+    CALL electron-packager . ntfy-electron --asar --platform="darwin" --arch="%%a" --icon="ntfy.icns" --overwrite --ignore=^/build --prune=true --out=dist --appCopyright="Copyright (c) 2024" --win32metadata.FileDescription="ntfy desktop client with Electron wrapper" --win32metadata.ProductName="ntfy desktop" --win32metadata.OriginalFilename="ntfy-desktop.exe" --win32metadata.CompanyName="https://github.com/xdpirate/ntfy-electron"
 )
 
 goto :END
