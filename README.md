@@ -12,7 +12,7 @@ Official app at https://github.com/xdpirate/ntfy-electron
 
 <br />
 
-<img src="https://github.com/Aetherinox/ntfy-desktop/assets/118329232/cd7dca36-e0cc-43dc-a4c9-c09e084b3cd0" width="630">
+<img src="https://github.com/xdpirate/ntfy-electron/assets/118329232/cd7dca36-e0cc-43dc-a4c9-c09e084b3cd0" width="630">
 
 <br />
 
@@ -150,7 +150,7 @@ To build this app, run the following commands:
 
 ## Linux
 ```shell
-git clone https://github.com/Aetherinox/ntfy-desktop.git
+git clone https://github.com/xdpirate/ntfy-electron.git
 npm install
 npm install -g electron-packager
 sudo apt install wine64
@@ -164,7 +164,7 @@ To test development on a Windows machine, run the following commands.
 A build script for windows will be available later.
 
 ```shell
-git clone https://github.com/Aetherinox/ntfy-desktop.git
+git clone https://github.com/xdpirate/ntfy-electron.git
 npm install
 npm install -g electron
 ```
@@ -212,35 +212,35 @@ sudo chmod +x build.sh
 [link-general-nodejs]: https://nodejs.org
 [link-npmtrends]: http://npmtrends.com/ntfy-desktop
 <!-- BADGE > VERSION > GITHUB -->
-[badge-version-gh]: https://img.shields.io/github/v/tag/Aetherinox/ntfy-desktop?logo=GitHub&label=Version&color=ba5225
-[link-version-gh]: https://github.com/Aetherinox/ntfy-desktop/releases
+[badge-version-gh]: https://img.shields.io/github/v/tag/xdpirate/ntfy-electron?logo=GitHub&label=Version&color=ba5225
+[link-version-gh]: https://github.com/xdpirate/ntfy-electron/releases
 <!-- BADGE > VERSION > NPMJS -->
 [badge-version-npm]: https://img.shields.io/npm/v/ntfy-desktop?logo=npm&label=Version&color=ba5225
 [link-version-npm]: https://npmjs.com/package/ntfy-desktop
 <!-- BADGE > LICENSE -->
 [badge-license-mit]: https://img.shields.io/badge/MIT-FFF?logo=creativecommons&logoColor=FFFFFF&label=License&color=9d29a0
-[link-license-mit]: https://github.com/Aetherinox/ntfy-desktop/blob/main/LICENSE
+[link-license-mit]: https://github.com/xdpirate/ntfy-electron/blob/main/LICENSE
 <!-- BADGE > BUILD -->
-[badge-build]: https://img.shields.io/github/actions/workflow/status/Aetherinox/ntfy-desktop/release-npm.yml?logo=github&logoColor=FFFFFF&label=Build&color=%23278b30
-[link-build]: https://github.com/Aetherinox/ntfy-desktop/actions/workflows/release-npm.yml
+[badge-build]: https://img.shields.io/github/actions/workflow/status/xdpirate/ntfy-electron/release-npm.yml?logo=github&logoColor=FFFFFF&label=Build&color=%23278b30
+[link-build]: https://github.com/xdpirate/ntfy-electron/actions/workflows/release-npm.yml
 <!-- BADGE > DOWNLOAD COUNT -->
-[badge-downloads-gh]: https://img.shields.io/github/downloads/Aetherinox/ntfy-desktop/total?logo=github&logoColor=FFFFFF&label=Downloads&color=376892
-[link-downloads-gh]: https://github.com/Aetherinox/ntfy-desktop/releases
+[badge-downloads-gh]: https://img.shields.io/github/downloads/xdpirate/ntfy-electron/total?logo=github&logoColor=FFFFFF&label=Downloads&color=376892
+[link-downloads-gh]: https://github.com/xdpirate/ntfy-electron/releases
 [badge-downloads-npm]: https://img.shields.io/npm/dw/%40aetherinox%2Fmarked-alert-fa?logo=npm&&label=Downloads&color=376892
 [link-downloads-npm]: https://npmjs.com/package/ntfy-desktop
 <!-- BADGE > DOWNLOAD SIZE -->
-[badge-size-gh]: https://img.shields.io/github/repo-size/Aetherinox/ntfy-desktop?logo=github&label=Size&color=59702a
-[link-size-gh]: https://github.com/Aetherinox/ntfy-desktop/releases
+[badge-size-gh]: https://img.shields.io/github/repo-size/xdpirate/ntfy-electron?logo=github&label=Size&color=59702a
+[link-size-gh]: https://github.com/xdpirate/ntfy-electron/releases
 [badge-size-npm]: https://img.shields.io/npm/unpacked-size/ntfy-desktop/latest?logo=npm&label=Size&color=59702a
 [link-size-npm]: https://npmjs.com/package/ntfy-desktop
 <!-- BADGE > COVERAGE -->
-[badge-coverage]: https://img.shields.io/codecov/c/github/Aetherinox/ntfy-desktop?token=MPAVASGIOG&logo=codecov&logoColor=FFFFFF&label=Coverage&color=354b9e
-[link-coverage]: https://codecov.io/github/Aetherinox/ntfy-desktop
+[badge-coverage]: https://img.shields.io/codecov/c/github/xdpirate/ntfy-electron?token=MPAVASGIOG&logo=codecov&logoColor=FFFFFF&label=Coverage&color=354b9e
+[link-coverage]: https://codecov.io/github/xdpirate/ntfy-electron
 <!-- BADGE > ALL CONTRIBUTORS -->
-[badge-all-contributors]: https://img.shields.io/github/all-contributors/Aetherinox/ntfy-desktop?logo=contributorcovenant&color=de1f6f&label=contributors
+[badge-all-contributors]: https://img.shields.io/github/all-contributors/xdpirate/ntfy-electron?logo=contributorcovenant&color=de1f6f&label=contributors
 [link-all-contributors]: https://github.com/all-contributors/all-contributors
-[badge-tests]: https://img.shields.io/github/actions/workflow/status/Aetherinox/marked-alert-fa/npm-tests.yml?logo=github&label=Tests&color=2c6488
-[link-tests]: https://github.com/Aetherinox/ntfy-desktop/actions/workflows/tests.yml
-[badge-commit]: https://img.shields.io/github/last-commit/Aetherinox/ntfy-desktop?logo=conventionalcommits&logoColor=FFFFFF&label=Last%20Commit&color=313131
-[link-commit]: https://github.com/Aetherinox/ntfy-desktop/commits/main/
+[badge-tests]: https://img.shields.io/github/actions/workflow/status/xdpirate/ntfy-electron/npm-tests.yml?logo=github&label=Tests&color=2c6488
+[link-tests]: https://github.com/xdpirate/ntfy-electron/actions/workflows/tests.yml
+[badge-commit]: https://img.shields.io/github/last-commit/xdpirate/ntfy-electron?logo=conventionalcommits&logoColor=FFFFFF&label=Last%20Commit&color=313131
+[link-commit]: https://github.com/xdpirate/ntfy-electron/commits/main/
 <!-- prettier-ignore-end -->
