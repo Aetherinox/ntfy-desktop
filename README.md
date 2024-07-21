@@ -132,7 +132,7 @@ This client
 
 <br />
 
-| Argument | Description | Available as in-game setting |
+| Argument | Description | Available as setting |
 | --- | --- | --- |
 | `--hidden` | Start ntfy-desktop hidden, suitable for autostarting on login/boot | ✅ |
 | `--hotkey` | Start ntfy-desktop with hotkeys enabled | ✅ |
