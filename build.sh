@@ -1,30 +1,72 @@
 #!/bin/bash
-validReleasesLinux=("x64" "arm64" "armv7l")
-validReleasesMac=("x64" "arm64")
-validReleasesWin=("x64" "ia32" "arm64")
 
-mkdir -p "build"
+# #
+#   define: directories
+# #
 
-# Build Windows
-for i in "${validReleasesWin[@]}"
-do
-    electron-packager . ntfy-electron --asar --platform="win32" --arch="$i" --icon="ntfy.ico" --overwrite --ignore=^/build --prune=true --out=dist --appCopyright="Copyright (c) 2024" --win32metadata.FileDescription="ntfy desktop client with Electron wrapper" --win32metadata.ProductName="ntfy desktop" --win32metadata.OriginalFilename="ntfy-desktop.exe" --win32metadata.CompanyName="https://github.com/xdpirate/ntfy-electron"
-    zip -r -q -9 "build/ntfy-electron-windows-$i.zip" "ntfy-electron-win32-$i"
-    rm -r "ntfy-electron-win32-$i"
-done
+dir_build=build
+dir_dist=dist
 
-# Build linux
-for i in "${validReleasesLinux[@]}"
-do
-    electron-packager . ntfy-electron --asar --platform="linux" --arch="$i" --icon="ntfy.png" --overwrite --ignore=^/build --prune=true --out=dist --appCopyright="Copyright (c) 2024" --win32metadata.FileDescription="ntfy desktop client with Electron wrapper" --win32metadata.ProductName="ntfy desktop" --win32metadata.OriginalFilename="ntfy-desktop.exe" --win32metadata.CompanyName="https://github.com/xdpirate/ntfy-electron"
-    zip -r -q -9 "build/ntfy-electron-linux-$i.zip" "ntfy-electron-linux-$i"
-    rm -r "ntfy-electron-linux-$i"
-done
+# #
+#   define: misc
+# #
 
-# Build mac
-for i in "${validReleasesMac[@]}"
-do
-    electron-packager . ntfy-electron --asar --platform="darwin" --arch="$i" --icon="ntfy.icns" --overwrite --ignore=^/build --prune=true --out=dist --appCopyright="Copyright (c) 2024" --win32metadata.FileDescription="ntfy desktop client with Electron wrapper" --win32metadata.ProductName="ntfy desktop" --win32metadata.OriginalFilename="ntfy-desktop.exe" --win32metadata.CompanyName="https://github.com/xdpirate/ntfy-electron"
-    zip -r -q -9 "build/ntfy-electron-mac-$i.zip" "ntfy-electron-darwin-$i"
-    rm -r "ntfy-electron-darwin-$i"
-done
+bDeleteBuild='false'
+Copyright='Copyright (c) 2024'
+FileDescription='ntfy desktop client with Electron wrapper'
+ProductName='ntfy desktop'
+OriginalFilename='ntfy-desktop.exe'
+CompanyName='https://github.com/xdpirate/ntfy-electron'
+IgnorePattern='(${dir_dist}*|${dir_build}*|.github*|.all-contributorsrc|.editorconfig|.eslintrc|.git*|.npm*|.prettier*)'
+
+# #
+#   define: platforms
+# #
+
+platformWin=("x64" "ia32" "arm64")
+platformLinux=("x64" "arm64" "armv7l")
+platformMac=("x64" "arm64")
+
+# #
+#   Zip Compression
+#
+#   -r      Recursive
+#   -q      Quiet mode
+#   -9      compression ratio
+# #
+
+mkdir -p "${dir_build}"
+mkdir -p "${dir_dist}"
+
+# #
+#   Build Windows
+# #
+
+    for i in "${platformWin[@]}"
+    do
+        electron-packager . ntfy-electron --asar --platform="win32" --arch="$i" --icon="ntfy.ico" --overwrite --ignore="${IgnorePattern}" --prune=true --out=${dir_build} --appCopyright="${Copyright}" --win32metadata.FileDescription="${FileDescription}" --win32metadata.ProductName="${ProductName}" --win32metadata.OriginalFilename="${OriginalFilename}" --win32metadata.CompanyName="${CompanyName}"
+        zip -r -q -9 "${dir_dist}/ntfy-electron-windows-$i.zip" "${dir_build}/ntfy-electron-win32-$i"
+        rm -r "${dir_build}/ntfy-electron-win32-$i"
+    done
+
+# #
+#   Build linux
+# #
+
+    for i in "${platformLinux[@]}"
+    do
+        electron-packager . ntfy-electron --asar --platform="linux" --arch="$i" --icon="ntfy.png" --overwrite --ignore="${IgnorePattern}" --prune=true --out=${dir_build} --appCopyright="${Copyright}" --win32metadata.FileDescription="${FileDescription}" --win32metadata.ProductName="${ProductName}" --win32metadata.OriginalFilename="${OriginalFilename}" --win32metadata.CompanyName="${CompanyName}"
+        zip -r -q -9 "${dir_dist}/ntfy-electron-linux-$i.zip" "${dir_build}/ntfy-electron-linux-$i"
+        rm -r "${dir_build}/ntfy-electron-linux-$i"
+    done
+
+# #
+#   Build mac
+# #
+
+    for i in "${platformMac[@]}"
+    do
+        electron-packager . ntfy-electron --asar --platform="darwin" --arch="$i" --icon="ntfy.icns" --overwrite --ignore="${IgnorePattern}" --prune=true --out=${dir_build} --appCopyright="${Copyright}" --win32metadata.FileDescription="${FileDescription}" --win32metadata.ProductName="${ProductName}" --win32metadata.OriginalFilename="${OriginalFilename}" --win32metadata.CompanyName="${CompanyName}"
+        zip -r -q -9 "${dir_dist}/ntfy-electron-mac-$i.zip" "${dir_build}/ntfy-electron-darwin-$i"
+        rm -r "${dir_build}/ntfy-electron-darwin-$i"
+    done
