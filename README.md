@@ -116,7 +116,7 @@ The following keybinds can be used within ntfy-desktop:
 
 <br />
 
-> [!NOTE] Disabled by Default
+> [!NOTE]
 > Hotkeys are disabled by default. To enable hotkeys, select **Configure** in the top menu, and select **General**.
 > 
 > Enable `Allow usage of hotkeys to navigate`
