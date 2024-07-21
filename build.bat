@@ -32,18 +32,24 @@ ECHO.
 :: -----------------------------------------------------------------------------------------------------
 
 :: -----------------------------------------------------------------------------------------------------
-::  define:     misc
-:: -----------------------------------------------------------------------------------------------------
-
-set bDeleteBuild=true
-
-:: -----------------------------------------------------------------------------------------------------
 ::  define:     directories
 :: -----------------------------------------------------------------------------------------------------
 
 set dir_home=%~dp0
 set dir_build=build
 set dir_dist=dist
+
+:: -----------------------------------------------------------------------------------------------------
+::  define:     misc
+:: -----------------------------------------------------------------------------------------------------
+
+set "bDeleteBuild=false"
+set "Copyright=Copyright (c) 2024"
+set "FileDescription=ntfy desktop client with Electron wrapper"
+set "ProductName=ntfy desktop"
+set "OriginalFilename=ntfy-desktop.exe"
+set "CompanyName=https://github.com/xdpirate/ntfy-electron"
+set "IgnorePattern=(!dir_dist!*|!dir_build!*|.github*|.all-contributorsrc|.editorconfig|.eslintrc|.git*|.npm*|.prettier*)"
 
 :: -----------------------------------------------------------------------------------------------------
 ::  Create build directory
@@ -72,10 +78,14 @@ set platformWin=x64 ia32 arm64
 set platformLinux=x64 arm64 armv7l
 set platformMac=x64 arm64
 
+:: -----------------------------------------------------------------------------------------------------
+::  Build > Windows
+:: -----------------------------------------------------------------------------------------------------
+
 for %%a in (%platformWin%) do (
     echo.
     echo Building windows-%%a
-    CALL electron-packager . ntfy-electron --asar --platform="win32" --arch="%%a" --icon="ntfy.ico" --overwrite --ignore=\"(!dir_dist!*|!dir_build!*|.github*|.all-contributorsrc|.editorconfig|.eslintrc|.git*|.npm*|.prettier*)\" --prune=true --out=!dir_build! --appCopyright="Copyright (c) 2024" --win32metadata.FileDescription="ntfy desktop client with Electron wrapper" --win32metadata.ProductName="ntfy desktop" --win32metadata.OriginalFilename="ntfy-desktop.exe" --win32metadata.CompanyName="https://github.com/xdpirate/ntfy-electron"
+    CALL electron-packager . ntfy-electron --asar --platform="win32" --arch="%%a" --icon="ntfy.ico" --overwrite --ignore=\"!IgnorePattern!\" --prune=true --out=!dir_build! --appCopyright="!Copyright!" --win32metadata.FileDescription="!FileDescription!" --win32metadata.ProductName="!ProductName!" --win32metadata.OriginalFilename="!OriginalFilename!" --win32metadata.CompanyName="!CompanyName!"
     powershell Compress-Archive -Path "!dir_build!/ntfy-electron-win32-%%a" -DestinationPath "!dir_dist!/ntfy-electron-windows-%%a.zip"
 
     if "!bDeleteBuild!" == "true" (
@@ -83,10 +93,14 @@ for %%a in (%platformWin%) do (
     )
 )
 
+:: -----------------------------------------------------------------------------------------------------
+::  Build > Linux
+:: -----------------------------------------------------------------------------------------------------
+
 for %%a in (%platformLinux%) do (
     echo.
-    echo Building linux-%%a
-    CALL electron-packager . ntfy-electron --asar --platform="linux" --arch="%%a" --icon="ntfy.png" --overwrite --ignore=\"(!dir_dist!*|!dir_build!*|.github*|.all-contributorsrc|.editorconfig|.eslintrc|.git*|.npm*|.prettier*)\" --prune=true --out=!dir_build! --appCopyright="Copyright (c) 2024" --win32metadata.FileDescription="ntfy desktop client with Electron wrapper" --win32metadata.ProductName="ntfy desktop" --win32metadata.OriginalFilename="ntfy-desktop.exe" --win32metadata.CompanyName="https://github.com/xdpirate/ntfy-electron"
+    echo Building Linux-%%a
+    CALL electron-packager . ntfy-electron --asar --platform="linux" --arch="%%a" --icon="ntfy.png" --overwrite --ignore=\"!IgnorePattern!\" --prune=true --out=!dir_build! --appCopyright="!Copyright!" --win32metadata.FileDescription="!FileDescription!" --win32metadata.ProductName="!ProductName!" --win32metadata.OriginalFilename="!OriginalFilename!" --win32metadata.CompanyName="!CompanyName!"
     powershell Compress-Archive -Path "!dir_build!/ntfy-electron-linux-%%a" -DestinationPath "!dir_dist!/ntfy-electron-linux-%%a.zip"
 
     if "!bDeleteBuild!" == "true" (
@@ -94,10 +108,14 @@ for %%a in (%platformLinux%) do (
     )
 )
 
+:: -----------------------------------------------------------------------------------------------------
+::  Build > MacOS
+:: -----------------------------------------------------------------------------------------------------
+
 for %%a in (%platformMac%) do (
     echo.
-    echo Building linux-%%a
-    CALL electron-packager . ntfy-electron --asar --platform="darwin" --arch="%%a" --icon="ntfy.icns" --overwrite --ignore=\"(!dir_dist!*|!dir_build!*|.github*|.all-contributorsrc|.editorconfig|.eslintrc|.git*|.npm*|.prettier*)\"  --prune=true --out=!dir_build! --appCopyright="Copyright (c) 2024" --win32metadata.FileDescription="ntfy desktop client with Electron wrapper" --win32metadata.ProductName="ntfy desktop" --win32metadata.OriginalFilename="ntfy-desktop.exe" --win32metadata.CompanyName="https://github.com/xdpirate/ntfy-electron"
+    echo Building MacOS-%%a
+    CALL electron-packager . ntfy-electron --asar --platform="darwin" --arch="%%a" --icon="ntfy.icns" --overwrite --ignore=\"!IgnorePattern!\"  --prune=true --out=!dir_build! --appCopyright="!Copyright!" --win32metadata.FileDescription="!FileDescription!" --win32metadata.ProductName="!ProductName!" --win32metadata.OriginalFilename="!OriginalFilename!" --win32metadata.CompanyName="!CompanyName!"
     powershell Compress-Archive -Path "!dir_build!/ntfy-electron-darwin-%%a" -DestinationPath "!dir_dist!/ntfy-electron-mac-%%a.zip"
 
     if "!bDeleteBuild!" == "true" (
