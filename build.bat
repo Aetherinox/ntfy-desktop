@@ -25,26 +25,26 @@ set dir_home=%~dp0
 ::  define:     platforms
 :: -----------------------------------------------------------------------------------------------------
 
+set platformWin=x64 ia32 arm64
 set platformLinux=x64 arm64 armv7l
 set platformMac=x64 arm64
-set platformWin=x64 ia32 arm64
+
+for %%a in (%platformWin%) do (
+    echo.
+    echo Building windows-%%a
+    CALL electron-packager . ntfy-electron --asar --platform="win32" --arch="%%a" --icon="ntfy.ico" --overwrite --ignore=^/build --prune=true --out=dist --appCopyright="Copyright (c) 2024" --win32metadata.FileDescription="ntfy desktop client" --win32metadata.ProductName="ntfy desktop" --win32metadata.OriginalFilename="ntfy-desktop.exe" --win32metadata.CompanyName="xdpirate & Aetherinox
+)
 
 for %%a in (%platformLinux%) do (
     echo.
     echo Building linux-%%a
-    CALL electron-packager . ntfy-electron --platform "linux" --arch "%%a" --icon "ntfy.png" --overwrite --ignore=^/build
+    CALL electron-packager . ntfy-electron --asar --platform="linux" --arch="%%a" --icon="ntfy.png" --overwrite --ignore=^/build --prune=true --out=dist --appCopyright="Copyright (c) 2024" --win32metadata.FileDescription="ntfy desktop client" --win32metadata.ProductName="ntfy desktop" --win32metadata.OriginalFilename="ntfy-desktop.exe" --win32metadata.CompanyName="xdpirate & Aetherinox
 )
 
-for %%b in (%platformMac%) do (
+for %%a in (%platformMac%) do (
     echo.
-    echo Building darwin-%%b
-    CALL electron-packager . ntfy-electron --platform "darwin" --arch "%%b" --icon "ntfy.icns" --overwrite --ignore=^/build
-)
-
-for %%c in (%platformWin%) do (
-    echo.
-    echo Building windows-%%c
-    CALL electron-packager . ntfy-electron --platform "win32" --arch "%%c" --icon "ntfy.ico" --overwrite --ignore=^/build
+    echo Building linux-%%a
+    CALL electron-packager . ntfy-electron --asar --platform="darwin" --arch="%%a" --icon="ntfy.icns" --overwrite --ignore=^/build --prune=true --out=dist --appCopyright="Copyright (c) 2024" --win32metadata.FileDescription="ntfy desktop client" --win32metadata.ProductName="ntfy desktop" --win32metadata.OriginalFilename="ntfy-desktop.exe" --win32metadata.CompanyName="xdpirate & Aetherinox
 )
 
 goto :END
