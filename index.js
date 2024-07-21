@@ -463,7 +463,17 @@ const menu_Main = [
                 )
                 .then((response) => {
                     if (response !== null) {
-                        store.set('topics', response);
+                        // do not update topics unless values differ from original, since we need to reload the page
+                        if ( store.get('topics') !== response)
+                        {
+                            store.set('topics', response);
+
+                            if (typeof (store.get('instanceURL')) !== 'string' || store.get('instanceURL') === '' || store.get('instanceURL') === null ) {
+                                store.set('instanceURL', _Instance);
+                            }
+
+                            winMain.loadURL(store.get('instanceURL'));
+                        }
                     }
                 })
                 .catch((response) => {
