@@ -75,7 +75,6 @@
         "moment": "2.30.1",
         "custom-electron-prompt": "^1.5.8",
         "toasted-notifier": "^10.0.2",
-        "semver": "^7.3.5",
         "uuid": "^10.0.0"
     }
 }
