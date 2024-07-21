@@ -1,31 +1,29 @@
 <div align="center">
+<h6>Desktop Client</h6>
 <h1>♾️ ntfy-electron ♾️</h1>
+
 <br />
-<p>
 
-A ntfy.sh desktop client built with Electron which supports Windows, Linux, and MacOSX. This client rests in your taskbar tray and allows you to receive push notifications to your desktop without requiring you to leave your browser open.
-
-</p>
+<p>A ntfy.sh desktop client built with Electron which supports Windows, Linux, and MacOSX. This client rests in your taskbar tray and allows you to receive push notifications to your desktop without requiring you to leave your browser open.</p>
 
 <br />
 
 <img src="https://github.com/xdpirate/ntfy-electron/assets/118329232/cd7dca36-e0cc-43dc-a4c9-c09e084b3cd0" width="630">
 
 <br />
+<br />
 
 </div>
-
-<br />
 
 <div align="center">
 
 <!-- prettier-ignore-start -->
-[![Version][badge-version-gh]][link-version-gh]
-[![Build Status][badge-build]][link-build]
-[![Downloads][badge-downloads-gh]][link-downloads-gh]
-[![Size][badge-size-gh]][badge-size-gh]
-[![Last Commit][badge-commit]][badge-commit]
-[![Contributors][badge-all-contributors]](#contributors-)
+[![Version][github-version-img]][github-version-uri]
+[![Build Status][github-build-img]][github-build-uri]
+[![Downloads][github-downloads-img]][github-downloads-uri]
+[![Size][github-size-img]][github-size-img]
+[![Last Commit][github-commit-img]][github-commit-img]
+[![Contributors][contribs-all-img]](#contributors-)
 <!-- prettier-ignore-end -->
 
 </div>
@@ -44,6 +42,7 @@ A ntfy.sh desktop client built with Electron which supports Windows, Linux, and 
 - [Build](#build)
   - [Linux](#linux)
   - [Windows](#windows)
+  - [Contributors ✨](#contributors-)
 
 
 <br />
@@ -191,63 +190,117 @@ sudo chmod +x build.sh
 ./build.sh
 ```
 
-<!-- markdownlint-restore -->
-<!-- prettier-ignore-end -->
+<br />
 
-<!-- ALL-CONTRIBUTORS-LIST:END -->
+---
+
+<br />
+
+## Contributors ✨
+We are always looking for contributors. If you feel that you can provide something useful to Gistr, then we'd love to review your suggestion. Before submitting your contribution, please review the following resources:
+
+- [Pull Request Procedure](.github/PULL_REQUEST_TEMPLATE.md)
+- [Contributor Policy](CONTRIBUTING.md)
+
+<br />
+
+Want to help but can't write code?
+- Review [active questions by our community](https://github.com/xdpirate/ntfy-electron/labels/help%20wanted) and answer the ones you know.
+
+<br />
+
+The following people have helped get this project going:
+
+<br />
+
+<div align="center">
+
+<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+[![Contributors][contribs-all-img]](#contributors-)
+<!-- ALL-CONTRIBUTORS-BADGE:END -->
+
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
 <!-- prettier-ignore-start -->
 <!-- markdownlint-disable -->
+<table>
+  <tbody>
+    <tr>
+      <td align="center" valign="top"><a href="https://gitlab.com/Aetherinox"><img src="https://avatars.githubusercontent.com/u/1757462?v=4&s=40" width="80px;" alt="xdpirate"/><br /><sub><b>xdpirate</b></sub></a><br /><a href="https://github.com/xdpirate/ntfy-electron/commits?author=xdpirate" title="Code">💻</a> <a href="#projectManagement-xdpirate" title="Project Management">📆</a></td>
+      <td align="center" valign="top"><a href="https://gitlab.com/Aetherinox"><img src="https://avatars.githubusercontent.com/u/118329232?v=4?s=40" width="80px;" alt="Aetherinox"/><br /><sub><b>Aetherinox</b></sub></a><br /><a href="https://github.com/xdpirate/ntfy-electron/commits?author=Aetherinox" title="Code">💻</a></td>
+    </tr>
+  </tbody>
+</table>
+</div>
 <!-- markdownlint-restore -->
 <!-- prettier-ignore-end -->
-<!-- ALL-CONTRIBUTORS-LIST:END -->
-
-<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
-<!-- prettier-ignore-start -->
-<!-- markdownlint-disable -->
-<!-- markdownlint-restore -->
-<!-- prettier-ignore-end -->
-
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
 <br />
 <br />
 
 <!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
+
 <!-- BADGE > GENERAL -->
-[link-general-npm]: https://npmjs.com
-[link-general-nodejs]: https://nodejs.org
-[link-npmtrends]: http://npmtrends.com/ntfy-electron
+  [general-npmjs-uri]: https://npmjs.com
+  [general-nodejs-uri]: https://nodejs.org
+  [general-npmtrends-uri]: http://npmtrends.com/ntfy-electron
+
 <!-- BADGE > VERSION > GITHUB -->
-[badge-version-gh]: https://img.shields.io/github/v/tag/xdpirate/ntfy-electron?logo=GitHub&label=Version&color=ba5225
-[link-version-gh]: https://github.com/xdpirate/ntfy-electron/releases
+  [github-version-img]: https://img.shields.io/github/v/tag/xdpirate/ntfy-electron?logo=GitHub&label=Version&color=ba5225
+  [github-version-uri]: https://github.com/xdpirate/ntfy-electron/releases
+
 <!-- BADGE > VERSION > NPMJS -->
-[badge-version-npm]: https://img.shields.io/npm/v/ntfy-electron?logo=npm&label=Version&color=ba5225
-[link-version-npm]: https://npmjs.com/package/ntfy-electron
-<!-- BADGE > LICENSE -->
-[badge-license-mit]: https://img.shields.io/badge/MIT-FFF?logo=creativecommons&logoColor=FFFFFF&label=License&color=9d29a0
-[link-license-mit]: https://github.com/xdpirate/ntfy-electron/blob/main/LICENSE
-<!-- BADGE > BUILD -->
-[badge-build]: https://img.shields.io/github/actions/workflow/status/xdpirate/ntfy-electron/release-npm.yml?logo=github&logoColor=FFFFFF&label=Build&color=%23278b30
-[link-build]: https://github.com/xdpirate/ntfy-electron/actions/workflows/release-npm.yml
-<!-- BADGE > DOWNLOAD COUNT -->
-[badge-downloads-gh]: https://img.shields.io/github/downloads/xdpirate/ntfy-electron/total?logo=github&logoColor=FFFFFF&label=Downloads&color=376892
-[link-downloads-gh]: https://github.com/xdpirate/ntfy-electron/releases
-[badge-downloads-npm]: https://img.shields.io/npm/dw/%40aetherinox%2Fmarked-alert-fa?logo=npm&&label=Downloads&color=376892
-[link-downloads-npm]: https://npmjs.com/package/ntfy-electron
-<!-- BADGE > DOWNLOAD SIZE -->
-[badge-size-gh]: https://img.shields.io/github/repo-size/xdpirate/ntfy-electron?logo=github&label=Size&color=59702a
-[link-size-gh]: https://github.com/xdpirate/ntfy-electron/releases
-[badge-size-npm]: https://img.shields.io/npm/unpacked-size/ntfy-electron/latest?logo=npm&label=Size&color=59702a
-[link-size-npm]: https://npmjs.com/package/ntfy-electron
-<!-- BADGE > COVERAGE -->
-[badge-coverage]: https://img.shields.io/codecov/c/github/xdpirate/ntfy-electron?token=MPAVASGIOG&logo=codecov&logoColor=FFFFFF&label=Coverage&color=354b9e
-[link-coverage]: https://codecov.io/github/xdpirate/ntfy-electron
+  [npm-version-img]: https://img.shields.io/npm/v/ntfy-electron?logo=npm&label=Version&color=ba5225
+  [npm-version-uri]: https://npmjs.com/package/ntfy-electron
+
+<!-- BADGE > VERSION > PYPI -->
+  [pypi-version-img]: https://img.shields.io/pypi/v/ntfy-electron-plugin
+  [pypi-version-uri]: https://pypi.org/project/ntfy-electron-plugin/
+
+<!-- BADGE > LICENSE > MIT -->
+  [license-mit-img]: https://img.shields.io/badge/MIT-FFF?logo=creativecommons&logoColor=FFFFFF&label=License&color=9d29a0
+  [license-mit-uri]: https://github.com/xdpirate/ntfy-electron/blob/main/LICENSE
+
+<!-- BADGE > GITHUB > DOWNLOAD COUNT -->
+  [github-downloads-img]: https://img.shields.io/github/downloads/xdpirate/ntfy-electron/total?logo=github&logoColor=FFFFFF&label=Downloads&color=376892
+  [github-downloads-uri]: https://github.com/xdpirate/ntfy-electron/releases
+
+<!-- BADGE > NPMJS > DOWNLOAD COUNT -->
+  [npmjs-downloads-img]: https://img.shields.io/npm/dw/%40aetherinox%2Fmkdocs-link-embeds?logo=npm&&label=Downloads&color=376892
+  [npmjs-downloads-uri]: https://npmjs.com/package/ntfy-electron
+
+<!-- BADGE > GITHUB > DOWNLOAD SIZE -->
+  [github-size-img]: https://img.shields.io/github/repo-size/xdpirate/ntfy-electron?logo=github&label=Size&color=59702a
+  [github-size-uri]: https://github.com/xdpirate/ntfy-electron/releases
+
+<!-- BADGE > NPMJS > DOWNLOAD SIZE -->
+  [npmjs-size-img]: https://img.shields.io/npm/unpacked-size/ntfy-electron/latest?logo=npm&label=Size&color=59702a
+  [npmjs-size-uri]: https://npmjs.com/package/ntfy-electron
+
+<!-- BADGE > CODECOV > COVERAGE -->
+  [codecov-coverage-img]: https://img.shields.io/codecov/c/github/xdpirate/ntfy-electron?token=MPAVASGIOG&logo=codecov&logoColor=FFFFFF&label=Coverage&color=354b9e
+  [codecov-coverage-uri]: https://codecov.io/github/xdpirate/ntfy-electron
+
 <!-- BADGE > ALL CONTRIBUTORS -->
-[badge-all-contributors]: https://img.shields.io/github/all-contributors/xdpirate/ntfy-electron?logo=contributorcovenant&color=de1f6f&label=contributors
-[link-all-contributors]: https://github.com/all-contributors/all-contributors
-[badge-tests]: https://img.shields.io/github/actions/workflow/status/xdpirate/ntfy-electron/npm-tests.yml?logo=github&label=Tests&color=2c6488
-[link-tests]: https://github.com/xdpirate/ntfy-electron/actions/workflows/tests.yml
-[badge-commit]: https://img.shields.io/github/last-commit/xdpirate/ntfy-electron?logo=conventionalcommits&logoColor=FFFFFF&label=Last%20Commit&color=313131
-[link-commit]: https://github.com/xdpirate/ntfy-electron/commits/main/
+  [contribs-all-img]: https://img.shields.io/github/all-contributors/xdpirate/ntfy-electron?logo=contributorcovenant&color=de1f6f&label=contributors
+  [contribs-all-uri]: https://github.com/all-contributors/all-contributors
+
+<!-- BADGE > GITHUB > BUILD > NPM -->
+  [github-build-img]: https://img.shields.io/github/actions/workflow/status/xdpirate/ntfy-electron/npm-release.yml?logo=github&logoColor=FFFFFF&label=Build&color=%23278b30
+  [github-build-uri]: https://github.com/xdpirate/ntfy-electron/actions/workflows/npm-release.yml
+
+<!-- BADGE > GITHUB > BUILD > Pypi -->
+  [github-build-pypi-img]: https://img.shields.io/github/actions/workflow/status/xdpirate/ntfy-electron/release-pypi.yml?logo=github&logoColor=FFFFFF&label=Build&color=%23278b30
+  [github-build-pypi-uri]: https://github.com/xdpirate/ntfy-electron/actions/workflows/pypi-release.yml
+
+<!-- BADGE > GITHUB > TESTS -->
+  [github-tests-img]: https://img.shields.io/github/actions/workflow/status/xdpirate/ntfy-electron/npm-tests.yml?logo=github&label=Tests&color=2c6488
+  [github-tests-uri]: https://github.com/xdpirate/ntfy-electron/actions/workflows/npm-tests.yml
+
+<!-- BADGE > GITHUB > COMMIT -->
+  [github-commit-img]: https://img.shields.io/github/last-commit/xdpirate/ntfy-electron?logo=conventionalcommits&logoColor=FFFFFF&label=Last%20Commit&color=313131
+  [github-commit-uri]: https://github.com/xdpirate/ntfy-electron/commits/main/
+
 <!-- prettier-ignore-end -->
+<!-- markdownlint-restore -->
