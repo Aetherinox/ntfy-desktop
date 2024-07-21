@@ -3,10 +3,7 @@
 <br />
 <p>
 
-ntfy.sh desktop client built with Electron which supports Windows, Linux, and MacOSX. Client allows you to receive push notifications to your desktop without being owned in your browser.
-<br />
-<br />
-Official app at https://github.com/xdpirate/ntfy-electron
+A ntfy.sh desktop client built with Electron which supports Windows, Linux, and MacOSX. This client rests in your taskbar tray and allows you to receive push notifications to your desktop without requiring you to leave your browser open.
 
 </p>
 
@@ -40,8 +37,7 @@ Official app at https://github.com/xdpirate/ntfy-electron
 <br />
 
 - [About](#about)
-  - [What is ntfy?](#what-is-ntfy)
-  - [What is ntfy-desktop](#what-is-ntfy-desktop)
+  - [ntfy](#ntfy)
 - [Features](#features)
 - [Key Binds](#key-binds)
 - [CLI Arguments](#cli-arguments)
@@ -57,11 +53,11 @@ Official app at https://github.com/xdpirate/ntfy-electron
 <br />
 
 # About
-Getting familiar with the projects:
+This project allows you to access the official free / paid notification service [ntfy.sh](https://ntfy.sh/), or your own self-hosted version of ntfy from within a desktop application which utilizes Electron as the wrapper.
 
 <br />
 
-## What is ntfy?
+## ntfy
 [ntfy.sh](https://ntfy/) (pronounced "notify") is a simple HTTP-based pub-sub notification service. With ntfy, you can send notifications to your phone or desktop via scripts from any computer, without having to sign up or pay any fees. If you'd like to run your own instance of the service, you can easily do so since ntfy is open source.
 
 <br />
@@ -74,13 +70,6 @@ Getting familiar with the projects:
 
 <br />
 
-## What is ntfy-desktop
-This project allows you to access the official free / paid notification service [ntfy.sh](https://ntfy.sh/), or your own self-hosted version of ntfy from within a desktop application which utilizes Electron as the wrapper.
-
-This version of ntfy-desktop is based on the package ntfy-electron created by xdpirate, however, this version brings some changes in functionality, as well as some additional edits that I personally needed.
-
-<br />
-
 ---
 
 <br />
@@ -88,8 +77,8 @@ This version of ntfy-desktop is based on the package ntfy-electron created by xd
 # Features
 - Usable with ntfy.sh and self-hosted instances
 - Two modes for minimizing app, configure in settings
-  - [1] Close button exits app completely, sits in taskbar and tray
-  - [2] Close button sends app to tray. Right-click tray icon to quit / show app
+  1. Close button exits app completely, sits in taskbar and tray
+  2. Close button sends app to tray. Right-click tray icon to quit / show app
 - Shortcut keybinds
   - Option to disable
 - Receive push notifications from ntfy server to desktop
@@ -124,6 +113,13 @@ The following keybinds can be used within ntfy-desktop:
 | `CTRL + T` | Show API Token settings window |
 | `CTRL + SHIFT + T` | Show Topics settings window |
 | `CTRL + N` | Show Notifications settings window |
+
+<br />
+
+> [!NOTE] Disabled by Default
+> Hotkeys are disabled by default. To enable hotkeys, select **Configure** in the top menu, and select **General**.
+> 
+> Enable `Allow usage of hotkeys to navigate`
 
 <br />
 
