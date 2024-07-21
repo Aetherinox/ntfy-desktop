@@ -84,7 +84,7 @@ set platformMac=x64 arm64
 
 for %%a in (%platformWin%) do (
     echo.
-    echo Building windows-%%a
+    echo Building Windows-%%a
     CALL electron-packager . ntfy-electron --asar --platform="win32" --arch="%%a" --icon="ntfy.ico" --overwrite --ignore=\"!IgnorePattern!\" --prune=true --out=!dir_build! --appCopyright="!Copyright!" --win32metadata.FileDescription="!FileDescription!" --win32metadata.ProductName="!ProductName!" --win32metadata.OriginalFilename="!OriginalFilename!" --win32metadata.CompanyName="!CompanyName!"
     powershell Compress-Archive -Path "!dir_build!/ntfy-electron-win32-%%a" -DestinationPath "!dir_dist!/ntfy-electron-windows-%%a.zip"
 

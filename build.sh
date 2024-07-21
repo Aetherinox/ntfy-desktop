@@ -44,6 +44,7 @@ mkdir -p "${dir_dist}"
 
     for i in "${platformWin[@]}"
     do
+        echo -e "Building Windows-${i}"
         electron-packager . ntfy-electron --asar --platform="win32" --arch="$i" --icon="ntfy.ico" --overwrite --ignore="${IgnorePattern}" --prune=true --out=${dir_build} --appCopyright="${Copyright}" --win32metadata.FileDescription="${FileDescription}" --win32metadata.ProductName="${ProductName}" --win32metadata.OriginalFilename="${OriginalFilename}" --win32metadata.CompanyName="${CompanyName}"
         zip -r -q -9 "${dir_dist}/ntfy-electron-windows-$i.zip" "${dir_build}/ntfy-electron-win32-$i"
         rm -r "${dir_build}/ntfy-electron-win32-$i"
@@ -55,6 +56,7 @@ mkdir -p "${dir_dist}"
 
     for i in "${platformLinux[@]}"
     do
+        echo -e "Building Linux-${i}"
         electron-packager . ntfy-electron --asar --platform="linux" --arch="$i" --icon="ntfy.png" --overwrite --ignore="${IgnorePattern}" --prune=true --out=${dir_build} --appCopyright="${Copyright}" --win32metadata.FileDescription="${FileDescription}" --win32metadata.ProductName="${ProductName}" --win32metadata.OriginalFilename="${OriginalFilename}" --win32metadata.CompanyName="${CompanyName}"
         zip -r -q -9 "${dir_dist}/ntfy-electron-linux-$i.zip" "${dir_build}/ntfy-electron-linux-$i"
         rm -r "${dir_build}/ntfy-electron-linux-$i"
@@ -66,6 +68,7 @@ mkdir -p "${dir_dist}"
 
     for i in "${platformMac[@]}"
     do
+        echo -e "Building MacOS-${i}"
         electron-packager . ntfy-electron --asar --platform="darwin" --arch="$i" --icon="ntfy.icns" --overwrite --ignore="${IgnorePattern}" --prune=true --out=${dir_build} --appCopyright="${Copyright}" --win32metadata.FileDescription="${FileDescription}" --win32metadata.ProductName="${ProductName}" --win32metadata.OriginalFilename="${OriginalFilename}" --win32metadata.CompanyName="${CompanyName}"
         zip -r -q -9 "${dir_dist}/ntfy-electron-mac-$i.zip" "${dir_build}/ntfy-electron-darwin-$i"
         rm -r "${dir_build}/ntfy-electron-darwin-$i"
