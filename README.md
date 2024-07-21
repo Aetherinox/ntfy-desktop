@@ -209,7 +209,7 @@ Want to help but can't write code?
 
 <br />
 
-The following people have helped get this project going:
+The following people have helped keep this project going:
 
 <br />
 

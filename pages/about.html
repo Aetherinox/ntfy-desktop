@@ -2,7 +2,7 @@
 	<head>
 		<meta http-equiv="content-type" content="text/html;charset=utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
-		<title>ntfy Desktop</title>
+		<title>ntfy-electron</title>
 		<link href="css/bootstrap.min.css" rel="stylesheet">
 		<link rel="stylesheet" href="css/style.css?v=1.0.1">
 
@@ -23,15 +23,15 @@
 			<img class="img" src="https://github.com/Aetherinox/ntfy-desktop/assets/118329232/f9aa382a-ec2b-4986-9d2e-608255aac56c" alt="icon" style="width: 260px;">
 		</div>
 
-		<div class="mt-3 mb-3 align-c text-primary author" id="app_author">Aetherinox</div>
-		<div class="mt-1 mb-1 align-c text-primary derived" id="app_derived">Derived from ntfy-electron by xdpirate</div>
+		<div class="mt-3 mb-3 align-c text-primary author" id="app_author">xdpirate & Aetherinox</div>
+		<div class="mt-1 mb-1 align-c text-primary derived" id="app_electron">Electron v31.0.0</div>
 		<div class="mt-1 mb-3 align-c text-white license">ntfy-desktop is licensed under GPLv3 or later.</div>
 
 		<div class="mt-4" id="images">
-			<a onclick="lnk_Github(event)" target="_blank" rel="noopener noreferrer" href="https://github.com/Aetherinox/ntfy-desktop">
+			<a onclick="lnk_Github(event)" target="_blank" rel="noopener noreferrer" href="{$REPO}">
 				<img class="badges" border="0" alt="Badge: Github Repo" src="https://img.shields.io/badge/View%20Repo-Github?style=for-the-badge&logo=github&logoColor=FFFFFF&color=de2343">
 			</a>
-			<a onclick="lnk_Docs(event)" target="_blank" rel="noopener noreferrer" href="https://aetherinox.github.io/ntfy-desktop">
+			<a onclick="lnk_Docs(event)" target="_blank" rel="noopener noreferrer" href="{$REPO}">
 				<img class="badges" border="0" alt="Badge: Docs" src="https://img.shields.io/badge/View%20Docs-Github?style=for-the-badge&logo=gitbook&logoColor=FFFFFF&color=29685b">
 			</a>
 		</div>
@@ -43,22 +43,24 @@
 
 			function lnk_Github(e) {
 				e.preventDefault();
-				require('electron').shell.openExternal('https://github.com/Aetherinox/ntfy-desktop/');
+				require('electron').shell.openExternal('https://github.com/xdpirate/ntfy-electron');
 			}
 
 			function lnk_Docs(e) {
 				e.preventDefault();
-				require('electron').shell.openExternal('https://aetherinox.github.io/ntfy-desktop/');
+				require('electron').shell.openExternal('https://github.com/xdpirate/ntfy-electron/blob/main/README.md');
 			}
 
 			function setTitle(title) {
 			    document.title = title;
 			}
 
-			function setAppInfo(name, ver, author) {
+			function setAppInfo(repo, name, ver, author, electron) {
+                document.querySelector("a[href^='{$REPO}']").href = repo;
 				document.querySelector('#app_name').textContent = name;
 				document.querySelector('#app_version').textContent = 'v' + ver;
 				document.querySelector('#app_author').textContent = author;
+				document.querySelector('#app_electron').textContent = 'Electron v' + electron;
 			}
 		</script>
 	</body>

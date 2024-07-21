@@ -29,6 +29,8 @@ const packageJson = require('./package.json');
 const appVer = packageJson.version;
 const appName = packageJson.name;
 const appAuthor = packageJson.author;
+const appElectron = process.versions.electron;
+const appRepo = packageJson.repository;
 const appIcon = app.getAppPath() + '/ntfy.png';
 
 /*
@@ -46,10 +48,11 @@ let winMain, winAbout, timerPollrate, tray;
     bQuitOnClose        --quit          when pressing top-right close button, app exits instead of going to tray
 */
 
-let bWinHidden = 0;
 let bDevTools = 0;
 let bHotkeysEnabled = 0;
 let bQuitOnClose = 0;
+let bStartHidden = 0;
+let bWinHidden = 0;
 
 /*
     Declare > Status
@@ -85,6 +88,7 @@ const store = new Store({
         bHotkeys: 0,
         bDevTools: 0,
         bQuitOnClose: 0,
+        bStartHidden: 0,
         bPersistentNoti: 0,
         datetime: _Datetime
     }
@@ -305,7 +309,7 @@ const menu_Main = [
                         type: 'multiInput',
                         resizable: false,
                         customStylesheet: path.join(__dirname, `pages`, `css`, `prompt.css`),
-                        height: 400,
+                        height: 470,
                         icon: appIcon,
                         multiInputOptions:
                             [
@@ -324,6 +328,11 @@ const menu_Main = [
                                     selectOptions: { 0: 'Disabled', 1: 'Enabled' },
                                     value: store.get('bQuitOnClose'),
                                 },
+                                {
+                                    label: 'Start app minimized in tray',
+                                    selectOptions: { 0: 'Disabled', 1: 'Enabled' },
+                                    value: store.get('bStartHidden'),
+                                }
                             ],
                     },
                     winMain
@@ -339,6 +348,7 @@ const menu_Main = [
 
                         store.set('bHotkeys', response[1]);
                         store.set('bQuitOnClose', response[2]);
+                        store.set('bStartHidden', response[3]);
                     }
                 })
                 .catch((response) => {
@@ -586,7 +596,7 @@ const menu_Main = [
                         .executeJavaScript(
                             `
                 setTitle('${aboutTitle}');
-                setAppInfo('${appName}', '${appVer}', '${appAuthor}');`,
+                setAppInfo('${appRepo}', '${appName}', '${appVer}', '${appAuthor}', '${appElectron}');`,
                             true
                         )
                         .then((result) => {})
@@ -930,7 +940,6 @@ function ready() {
     for (let i = 0; i < process.argv.length; i++) {
         if (process.argv[i] === '--hidden') {
             bWinHidden = 1;
-            winMain.hide();
         } else if (process.argv[i] === '--dev') {
             bDevTools = 1;
             activeDevTools()
@@ -954,6 +963,13 @@ function ready() {
     */
 
     activeDevTools()
+
+    /*
+        Start minimized in tray
+    */
+
+    if( store.get('bStartHidden') == 1 || bWinHidden == 1)
+        winMain.hide();
 }
 
 /*
