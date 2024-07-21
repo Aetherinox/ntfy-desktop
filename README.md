@@ -17,8 +17,8 @@
 </p>
 
 <p float="left">
-  <img style="padding-right:15px;" src="https://github.com/user-attachments/assets/7a3494ab-624f-4f80-b57a-a61cfbf13251" width="300" />
-  <img src="https://github.com/user-attachments/assets/9d940610-b9ee-4a88-aa83-9a2c7e34d6ff" width="300" /> 
+  <img style="padding-right:15px;" src="https://github.com/user-attachments/assets/ce32d901-b35b-48e5-85b5-3cf82ae09b1e" width="300" />
+  <img src="https://github.com/user-attachments/assets/a04f6222-9a29-40c3-a2d2-82bd8f6f4c09" width="300" /> 
 </p>
 
 <br />
