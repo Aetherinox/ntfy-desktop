@@ -225,7 +225,8 @@ async function GetMessages() {
         const message = object.message;
         const topic = object.topic;
 
-        console.log(`Messages .............. ${type}:${id} found`);
+        const cfgPersistent = store.get('bPersistentNoti') == 0 ? false : true;
+        const cfgInstanceURL = store.get('instanceURL');
 
         if (type != 'message')
             continue;
@@ -253,12 +254,17 @@ async function GetMessages() {
                 subtitle: `${dateHuman}`,
                 message: `${message}`,
                 sound: 'Pop',
-                open: store.get('instanceURL'),
-                persistent: (store.get('bPersistentNoti') === 0 ? false : true),
-                sticky: (store.get('bPersistentNoti') === 0 ? false : true)
+                open: cfgInstanceURL,
+                persistent: cfgPersistent,
+                sticky: cfgPersistent
             });
 
             msgHistory.push(id);
+
+            console.log(`   Topic .............. ${type}:${id} ${topic}`);
+            console.log(`   Date ............... ${type}:${id} ${dateHuman}`);
+            console.log(`   InstanceURL ........ ${type}:${id} ${cfgInstanceURL}`);
+            console.log(`   Persistent ......... ${type}:${id} ${cfgPersistent}`);
         }
 
         console.log(`Messages .............. ${type}:${id} sent`);
@@ -309,7 +315,7 @@ const menu_Main = [
                         type: 'multiInput',
                         resizable: false,
                         customStylesheet: path.join(__dirname, `pages`, `css`, `prompt.css`),
-                        height: 470,
+                        height: 480,
                         icon: appIcon,
                         multiInputOptions:
                             [
@@ -375,7 +381,7 @@ const menu_Main = [
                         alwaysOnTop: true,
                         type: 'input',
                         customStylesheet: path.join(__dirname, `pages`, `css`, `prompt.css`),
-                        height: 280,
+                        height: 290,
                         icon: appIcon,
                         inputAttrs: {
                             type: 'url'
@@ -432,7 +438,7 @@ const menu_Main = [
                         alwaysOnTop: true,
                         type: 'input',
                         customStylesheet: path.join(__dirname, `pages`, `css`, `prompt.css`),
-                        height: 260,
+                        height: 265,
                         icon: appIcon,
                         inputAttrs: {
                             type: 'text'
