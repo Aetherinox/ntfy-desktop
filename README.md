@@ -8,7 +8,12 @@
 
 <br />
 
-<img src="https://github.com/xdpirate/ntfy-electron/assets/118329232/cd7dca36-e0cc-43dc-a4c9-c09e084b3cd0" width="630">
+<img src="https://github.com/user-attachments/assets/74963e6d-d8ca-4aaa-b893-3b5472794c30" width="630">
+
+<br />
+
+<img src="https://github.com/user-attachments/assets/18b349fb-d88d-4d63-9de4-ed3024df4d6f" width="630">
+
 
 <br />
 <br />
