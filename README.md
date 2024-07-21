@@ -6,16 +6,16 @@
 
 <p>A ntfy.sh desktop client built with Electron which supports Windows, Linux, and MacOSX. This client rests in your taskbar tray and allows you to receive push notifications to your desktop without requiring you to leave your browser open.</p>
 
-<br />
+<p float="left">
+  <img style="padding-right:15px;" src="https://github.com/user-attachments/assets/b6a34bc3-dbbf-4249-b3d2-d113a21cca66" width="300" />
+  <img src="https://github.com/user-attachments/assets/4f842360-bc94-46eb-8660-17f221fe745d" width="300" /> 
+</p>
 
-<img src="https://github.com/user-attachments/assets/74963e6d-d8ca-4aaa-b893-3b5472794c30" width="630">
+<p float="left">
+  <img style="padding-right:15px;" src="https://github.com/user-attachments/assets/ebe0c02c-336f-4e95-b0f9-24c5b853f0e4" width="300" />
+  <img src="https://github.com/user-attachments/assets/31c0a712-f596-44b1-a30d-fdbe579d9df6" width="300" /> 
+</p>
 
-<br />
-
-<img src="https://github.com/user-attachments/assets/18b349fb-d88d-4d63-9de4-ed3024df4d6f" width="630">
-
-
-<br />
 <br />
 
 </div>
