@@ -128,12 +128,23 @@ The following keybinds can be used within ntfy-desktop:
 <br />
 
 # CLI Arguments
-| Argument | Description |
-| --- | --- |
-| `--hidden` | Start ntfy-desktop hidden, suitable for autostarting on login/boot |
-| `--hotkey` | Start ntfy-desktop with hotkeys enabled |
-| `--quit` | Clicking top-right close button will completely exit app instead of minimize to tray |
-| `--dev` | Start ntfy-desktop with developer tools |
+This client 
+
+<br />
+
+| Argument | Description | Available as in-game setting |
+| --- | --- | --- |
+| `--hidden` | Start ntfy-desktop hidden, suitable for autostarting on login/boot | ✅ |
+| `--hotkey` | Start ntfy-desktop with hotkeys enabled | ✅ |
+| `--quit` | Clicking top-right close button will completely exit app instead of minimize to tray | ✅ |
+| `--dev` | Start ntfy-desktop with developer tools | ✅ |
+
+<br />
+
+If you are running ntfy-electron from node, you can pass arguments using the following example:
+```shell ignore
+npm run start -- --hidden
+```
 
 <br />
 
