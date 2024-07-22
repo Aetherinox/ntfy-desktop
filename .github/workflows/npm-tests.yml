@@ -86,12 +86,12 @@ jobs:
             #   Job > Upload Screenshots
             # ---------------------------------------------------------------------------------------
 
-            - name: "🔗 Upload Screenshots"
+            - name: "🔗 Upload Screenshot"
               uses: actions/upload-artifact@v4
               if: always()
               with:
-                name: test-results
-                path: test-results/
+                name: Screencap
+                path: test-results/1.png
                 retention-days: 30
 
 

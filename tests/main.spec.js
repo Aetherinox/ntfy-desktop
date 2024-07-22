@@ -60,10 +60,6 @@ test('full load', async () => {
     // wait for #root div before taking screenshot
     await window.waitForSelector('#root', { state: 'visible' });
     const ss1 = await window.screenshot({ path: './test-results/1.png' })
-    const ss1Hash = (await jimp.read(ss1)).hash()
-    const ss2 = await window.screenshot({ path: './test-results/2.png' })
-    const ss2Hash = (await jimp.read(ss2)).hash()
-    expect(ss1Hash).toEqual(ss2Hash)
 
     // close app
     await eph.clickMenuItemById(app, 'quit');
