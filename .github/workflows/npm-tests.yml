@@ -69,7 +69,6 @@ jobs:
 
             - name: Run Playwright tests in a virtual X server env
               run: xvfb-run --auto-servernum npx playwright test
-              working-directory: ProtoRabbit-Electron
 
             # ---------------------------------------------------------------------------------------
             #   Job > Npm > Generate Report
