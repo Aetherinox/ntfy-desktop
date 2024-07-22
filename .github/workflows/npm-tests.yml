@@ -30,7 +30,7 @@ jobs:
             - name: "✅ Start"
               id: task_initialize_start
               run: |
-                    echo "Starting build"
+                echo "Starting build"
 
             # ---------------------------------------------------------------------------------------
             #   Job > Initialize > Checkout
@@ -61,7 +61,7 @@ jobs:
               run: |
                 npm ci
                 npx playwright install --with-deps
-                npx electron-playwright-helpers install --with-deps
+                npm i -D electron-playwright-helpers
 
             # ---------------------------------------------------------------------------------------
             #   Job > Npm > Run Tests
