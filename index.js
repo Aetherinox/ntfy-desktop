@@ -290,6 +290,7 @@ const menu_Main = [
     submenu: [
         {
             label: 'Quit',
+            id: 'quit',
             accelerator: (bHotkeysEnabled == 1 || store.get('bHotkeys') == 1) ? 'CTRL+Q' : '',
             click: function () {
                 app.isQuiting = true;
@@ -304,6 +305,7 @@ const menu_Main = [
     submenu: [
         {
             label: 'General',
+            id: 'general',
             accelerator: (bHotkeysEnabled == 1 || store.get('bHotkeys') == 1) ? 'CTRL+G' : '',
             click: function () {
                 prompt(

@@ -1,0 +1,88 @@
+# ---------------------------------------------------------------------------------------
+#   @parent     : github workflow
+#   @desc       : build release
+#   @author     : Aetherinox
+#   @url        : https://github.com/Aetherinox
+# ---------------------------------------------------------------------------------------
+
+name: "📦 NPM › Build"
+run-name: "📦 NPM › Build"
+
+# ---------------------------------------------------------------------------------------
+#   triggers
+# ---------------------------------------------------------------------------------------
+
+on:
+  workflow_dispatch:
+
+# ---------------------------------------------------------------------------------------
+#   jobs
+# ---------------------------------------------------------------------------------------
+
+jobs:
+    build:
+        name: >-
+          📦 Tests › Initialize
+        runs-on: ubuntu-latest
+        strategy:
+            matrix:
+                node-version: [16.x, 17.x, 18.x, 20.x, 22.x]
+
+        steps:
+            - name: "✅ Start"
+              id: task_initialize_start
+              run: |
+                    echo "Starting build"
+
+            # ---------------------------------------------------------------------------------------
+            #   Job > Initialize > Checkout
+            # ---------------------------------------------------------------------------------------
+
+            - name: "☑️ Checkout"
+              id: task_initialize_checkout
+              uses: actions/checkout@v4
+              with:
+                fetch-depth: 0
+
+            # ---------------------------------------------------------------------------------------
+            #   Job > Use NodeJS
+            # ---------------------------------------------------------------------------------------
+
+            - name: "⚙️ Setup Node"
+              id: task_initialize_node_setup
+              uses: actions/setup-node@v4
+              with:
+                node-version: ${{ matrix.node-version }}
+
+            # ---------------------------------------------------------------------------------------
+            #   Job > Npm > Install Dependencies
+            # ---------------------------------------------------------------------------------------
+
+            - name: "⚙️ Install Dependencies"
+              id: task_initialize_npm_deps
+              run: |
+                npm ci
+                npx playwright install --with-deps
+                npx electron-playwright-helpers install --with-deps
+
+            # ---------------------------------------------------------------------------------------
+            #   Job > Npm > Run Tests
+            # ---------------------------------------------------------------------------------------
+
+            - name: "⚙️ Run Tests"
+              run: npx playwright test
+
+            # ---------------------------------------------------------------------------------------
+            #   Job > Npm > Generate Report
+            # ---------------------------------------------------------------------------------------
+
+            - name: "⚙️ Generate Report"
+              uses: actions/upload-artifact@v4
+              if: always()
+              with:
+                name: playwright-report
+                path: playwright-report/
+                retention-days: 30
+
+
+

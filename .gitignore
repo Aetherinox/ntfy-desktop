@@ -91,3 +91,8 @@
 !*styles.css
 !*.sh
 !*.bat
+node_modules/
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
