@@ -5,8 +5,8 @@
 #   @url        : https://github.com/Aetherinox
 # ---------------------------------------------------------------------------------------
 
-name: "📦 NPM › Tests"
-run-name: "📦 NPM › Tests"
+name: "🧪 NPM › Tests"
+run-name: "🧪 NPM › Tests"
 
 # ---------------------------------------------------------------------------------------
 #   triggers
@@ -22,7 +22,7 @@ on:
 jobs:
     test:
         name: >-
-          📦 Tests › Initialize
+          🧪 Tests › Initialize
         runs-on: ubuntu-latest
         timeout-minutes: 60
 
@@ -57,28 +57,31 @@ jobs:
             # ---------------------------------------------------------------------------------------
 
             - name: "⚙️ Install Dependencies"
-              id: task_test_npm_deps
+              id: task_test_install
               run: |
                 npm ci
                 npx playwright install --with-deps
                 npm i -D electron-playwright-helpers
 
             # ---------------------------------------------------------------------------------------
-            #   Job > Npm > Run Tests
+            #   Job > Run Tests
             # ---------------------------------------------------------------------------------------
 
-            - name: Run Playwright tests in a virtual X server env
-              run: xvfb-run --auto-servernum npx playwright test
+            - name: "🧪 Run Test"
+              id: task_test_run
+              run: |
+                xvfb-run --auto-servernum npx playwright test
 
             # ---------------------------------------------------------------------------------------
-            #   Job > Npm > Generate Report
+            #   Job > Upload Report
             # ---------------------------------------------------------------------------------------
 
-            - name: "⚙️ Generate Report"
+            - name: "📋 Generate Report"
+              id: task_test_artifacts_report
               uses: actions/upload-artifact@v4
               if: always()
               with:
-                name: playwright-report
+                name: report
                 path: playwright-report/
                 retention-days: 30
 
@@ -87,6 +90,7 @@ jobs:
             # ---------------------------------------------------------------------------------------
 
             - name: "🔗 Upload Screenshot"
+              id: task_test_artifacts_screenshot
               uses: actions/upload-artifact@v4
               if: always()
               with:
