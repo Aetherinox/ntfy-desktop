@@ -72,7 +72,7 @@
     "eslint-config-standard": "^17.1.0",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-prettier": "^5.2.1",
-    "eslint-plugin-promise": "^6.4.0",
+    "eslint-plugin-promise": "^6.6.0",
     "prettier": "^3.3.3",
     "jimp": "^0.22.12"
   },
