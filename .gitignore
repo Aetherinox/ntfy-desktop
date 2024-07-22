@@ -23,11 +23,12 @@
 !/electron
 
 # ----------------------------------------
-# [WL]: Test Folder
+# [WL]: Tests
 # ----------------------------------------
 !/Tests
 !/test
 !/example
+!*playwright.config.js
 
 # ----------------------------------------
 # [WL]: Manifest Folders
@@ -91,8 +92,3 @@
 !*styles.css
 !*.sh
 !*.bat
-node_modules/
-/test-results/
-/playwright-report/
-/blob-report/
-/playwright/.cache/
