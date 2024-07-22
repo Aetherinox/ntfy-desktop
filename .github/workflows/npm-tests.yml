@@ -22,12 +22,12 @@ on:
 jobs:
     test:
         name: >-
-          🧪 Tests › Initialize
+          🧪 Tests
         runs-on: ubuntu-latest
         timeout-minutes: 60
         strategy:
             matrix:
-                node-version: [16.x, 17.x, 18.x, 20.x, 22.x]
+                node-version: [14.x, 16.x, 17.x, 18.x, 20.x, 22.x]
 
         steps:
 
