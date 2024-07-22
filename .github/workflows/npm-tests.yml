@@ -25,9 +25,18 @@ jobs:
           🧪 Tests › Initialize
         runs-on: ubuntu-latest
         timeout-minutes: 60
+        strategy:
+            matrix:
+                node-version: [18.x, 20.x, 22.x]
 
         steps:
-            - name: "✅ Start"
+
+            # ---------------------------------------------------------------------------------------
+            #   Job > Start
+            # ---------------------------------------------------------------------------------------
+
+            - name: >-
+                ✅ Start
               id: task_test_start
               run: |
                 echo "Starting build"
@@ -36,7 +45,8 @@ jobs:
             #   Job > Initialize > Checkout
             # ---------------------------------------------------------------------------------------
 
-            - name: "☑️ Checkout"
+            - name: >-
+                ☑️ Checkout
               id: task_test_checkout
               uses: actions/checkout@v4
               with:
@@ -44,19 +54,25 @@ jobs:
 
             # ---------------------------------------------------------------------------------------
             #   Job > Use NodeJS
+            #
+            #   Options:
+            #     node-version: ${{ matrix.node-version }}
+            #     node-version: lts/*
             # ---------------------------------------------------------------------------------------
 
-            - name: "⚙️ Setup Node"
+            - name: >-
+                ⚙️ Setup Node
               id: task_test_node_setup
               uses: actions/setup-node@v4
               with:
-                node-version: lts/*
+                node-version: ${{ matrix.node-version }}
 
             # ---------------------------------------------------------------------------------------
             #   Job > Npm > Install Dependencies
             # ---------------------------------------------------------------------------------------
 
-            - name: "⚙️ Install Dependencies"
+            - name: >-
+                ⚙️ Install Dependencies
               id: task_test_install
               run: |
                 npm ci
@@ -67,7 +83,8 @@ jobs:
             #   Job > Run Tests
             # ---------------------------------------------------------------------------------------
 
-            - name: "🧪 Run Test"
+            - name: >-
+                🧪 Run Test
               id: task_test_run
               run: |
                 xvfb-run --auto-servernum npx playwright test
@@ -76,12 +93,13 @@ jobs:
             #   Job > Upload Report
             # ---------------------------------------------------------------------------------------
 
-            - name: "📋 Generate Report"
+            - name: >-
+                📋 Generate Report
               id: task_test_artifacts_report
               uses: actions/upload-artifact@v4
               if: always()
               with:
-                name: report
+                name: Report
                 path: playwright-report/
                 retention-days: 30
 
@@ -89,12 +107,13 @@ jobs:
             #   Job > Upload Screenshots
             # ---------------------------------------------------------------------------------------
 
-            - name: "🔗 Upload Screenshot"
+            - name: >-
+                🔗 Upload Screenshot
               id: task_test_artifacts_screenshot
               uses: actions/upload-artifact@v4
               if: always()
               with:
-                name: Screencap
+                name: Screenshot
                 path: test-results/1.png
                 retention-days: 30
 
