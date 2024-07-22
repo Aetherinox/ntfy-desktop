@@ -24,7 +24,14 @@ import jimp from 'jimp'
 */
 
 test('launch ntfy-desktop', async () => {
-    const app = await electron.launch({ args: ['index.js'] })
+    const app = await electron.launch({
+        args: ['index.js'],
+        env: {
+        ...process.env,
+        NODE_ENV: 'development',
+        },
+    });
+
     await app.close()
 })
 
@@ -33,7 +40,13 @@ test('launch ntfy-desktop', async () => {
 */
 
 test('full load', async () => {
-    const app = await electron.launch({ args: ['index.js'] })
+    const app = await electron.launch({
+        args: ['index.js'],
+        env: {
+        ...process.env,
+        NODE_ENV: 'development',
+        },
+    });
 
     const appPath = await app.evaluate(async ({ app }) => {
         return app.getAppPath();
