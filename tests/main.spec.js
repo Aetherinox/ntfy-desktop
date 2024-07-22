@@ -25,7 +25,7 @@ import jimp from 'jimp'
 
 test('launch ntfy-desktop', async () => {
     const app = await electron.launch({
-        args: ['index.js'],
+        args: ['index.js', '--quit'],
         env: {
         ...process.env,
         NODE_ENV: 'development',
@@ -69,6 +69,9 @@ test('full load', async () => {
 
     const ss1 = await window.screenshot({ path: './test-results/1.png' })
 
-    // close app
+    /*
+        Since the close button minimizes to tray, activate the menu and select quit
+    */
+
     await eph.clickMenuItemById(app, 'quit');
 })
