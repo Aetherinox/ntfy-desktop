@@ -24,9 +24,7 @@ jobs:
         name: >-
           📦 Tests › Initialize
         runs-on: ubuntu-latest
-        strategy:
-            matrix:
-                node-version: [16.x, 17.x, 18.x, 20.x, 22.x]
+        timeout-minutes: 60
 
         steps:
             - name: "✅ Start"
@@ -52,7 +50,7 @@ jobs:
               id: task_initialize_node_setup
               uses: actions/setup-node@v4
               with:
-                node-version: ${{ matrix.node-version }}
+                node-version: lts/*
 
             # ---------------------------------------------------------------------------------------
             #   Job > Npm > Install Dependencies
