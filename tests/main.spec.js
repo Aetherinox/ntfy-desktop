@@ -41,16 +41,19 @@ test('launch ntfy-desktop', async () => {
 
 test('full load', async () => {
     const app = await electron.launch({
-        args: ['index.js'],
+        args: ['index.js', '--quit'],
         env: {
         ...process.env,
         NODE_ENV: 'development',
         },
     });
 
+    const timestamp = Date.now().toString();
+
     const appPath = await app.evaluate(async ({ app }) => {
         return app.getAppPath();
     });
+
     console.log(appPath);
 
     const window = await app.firstWindow()
@@ -59,6 +62,11 @@ test('full load', async () => {
 
     // wait for #root div before taking screenshot
     await window.waitForSelector('#root', { state: 'visible' });
+
+    /*
+        path: `e2e/screenshots/test-${timestamp}.png`,
+    */
+
     const ss1 = await window.screenshot({ path: './test-results/1.png' })
 
     // close app
