@@ -3,6 +3,8 @@
 #   @desc       : test release
 #   @author     : Aetherinox
 #   @url        : https://github.com/Aetherinox
+#
+#   cannot be ran on anything older than NodeJS 16
 # ---------------------------------------------------------------------------------------
 
 name: "🧪 NPM › Tests"
@@ -27,7 +29,7 @@ jobs:
         timeout-minutes: 60
         strategy:
             matrix:
-                node-version: [14.x, 16.x, 17.x, 18.x, 20.x, 22.x]
+                node-version: [16.x, 17.x, 18.x, 20.x, 22.x]
 
         steps:
 
