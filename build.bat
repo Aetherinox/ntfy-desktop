@@ -49,7 +49,7 @@ set "FileDescription=ntfy desktop client with Electron wrapper"
 set "ProductName=ntfy desktop"
 set "OriginalFilename=ntfy-desktop.exe"
 set "CompanyName=https://github.com/xdpirate/ntfy-electron"
-set "IgnorePattern=(!dir_dist!*|!dir_build!*|.github*|test-*|tests*|playwright*|.all-contributorsrc|.editorconfig|.eslintrc|.git*|.npm*|.prettier*)"
+set "IgnorePattern=(/!dir_dist!|/!dir_build!|/.github*|/test-*|/tests*|playwright*|.all-contributorsrc|.editorconfig|.eslintrc|.git*|.npm*|.prettier*)"
 
 :: -----------------------------------------------------------------------------------------------------
 ::  Create build directory
@@ -59,12 +59,14 @@ set "IgnorePattern=(!dir_dist!*|!dir_build!*|.github*|test-*|tests*|playwright*|
 :: -----------------------------------------------------------------------------------------------------
 
 IF exist !dir_build! (
+    rm -r !dir_build!/*
     echo Folder !dir_build! already exists
 ) ELSE (
     md !dir_build! && echo Folder !dir_build! created
 )
 
 IF exist !dir_dist! (
+    rm -r !dir_dist!/*
     echo Folder !dir_dist! already exists
 ) ELSE (
     md !dir_dist! && echo Folder !dir_dist! created
@@ -84,13 +86,17 @@ set platformMac=x64 arm64
 
 for %%a in (%platformWin%) do (
     echo.
+    echo -------------------------------------------------------------------------
     echo Building Windows-%%a
+    echo Setting Ignore Pattern: !IgnorePattern!
     CALL electron-packager . ntfy-electron --asar --platform="win32" --arch="%%a" --icon="ntfy.ico" --overwrite --ignore=\"!IgnorePattern!\" --prune=true --out=!dir_build! --appCopyright="!Copyright!" --win32metadata.FileDescription="!FileDescription!" --win32metadata.ProductName="!ProductName!" --win32metadata.OriginalFilename="!OriginalFilename!" --win32metadata.CompanyName="!CompanyName!"
     powershell Compress-Archive -Path "!dir_build!/ntfy-electron-win32-%%a" -DestinationPath "!dir_dist!/ntfy-electron-windows-%%a.zip"
 
     if "!bDeleteBuild!" == "true" (
         rm -rf "!dir_build!/ntfy-electron-win32-%%a"
     )
+    echo -------------------------------------------------------------------------
+    echo.
 )
 
 :: -----------------------------------------------------------------------------------------------------
@@ -99,13 +105,17 @@ for %%a in (%platformWin%) do (
 
 for %%a in (%platformLinux%) do (
     echo.
+    echo -------------------------------------------------------------------------
     echo Building Linux-%%a
+    echo Setting Ignore Pattern: !IgnorePattern!
     CALL electron-packager . ntfy-electron --asar --platform="linux" --arch="%%a" --icon="ntfy.png" --overwrite --ignore=\"!IgnorePattern!\" --prune=true --out=!dir_build! --appCopyright="!Copyright!" --win32metadata.FileDescription="!FileDescription!" --win32metadata.ProductName="!ProductName!" --win32metadata.OriginalFilename="!OriginalFilename!" --win32metadata.CompanyName="!CompanyName!"
     powershell Compress-Archive -Path "!dir_build!/ntfy-electron-linux-%%a" -DestinationPath "!dir_dist!/ntfy-electron-linux-%%a.zip"
 
     if "!bDeleteBuild!" == "true" (
         rm -rf "!dir_build!/ntfy-electron-linux-%%a"
     )
+    echo -------------------------------------------------------------------------
+    echo.
 )
 
 :: -----------------------------------------------------------------------------------------------------
@@ -114,13 +124,17 @@ for %%a in (%platformLinux%) do (
 
 for %%a in (%platformMac%) do (
     echo.
+    echo -------------------------------------------------------------------------
     echo Building MacOS-%%a
+    echo Setting Ignore Pattern: !IgnorePattern!
     CALL electron-packager . ntfy-electron --asar --platform="darwin" --arch="%%a" --icon="ntfy.icns" --overwrite --ignore=\"!IgnorePattern!\"  --prune=true --out=!dir_build! --appCopyright="!Copyright!" --win32metadata.FileDescription="!FileDescription!" --win32metadata.ProductName="!ProductName!" --win32metadata.OriginalFilename="!OriginalFilename!" --win32metadata.CompanyName="!CompanyName!"
     powershell Compress-Archive -Path "!dir_build!/ntfy-electron-darwin-%%a" -DestinationPath "!dir_dist!/ntfy-electron-mac-%%a.zip"
 
     if "!bDeleteBuild!" == "true" (
         rm -rf "!dir_build!/ntfy-electron-darwin-%%a"
     )
+    echo -------------------------------------------------------------------------
+    echo.
 )
 
 goto :END
