@@ -118,5 +118,3 @@ jobs:
                 name: Screenshot-${{ matrix.node-version }}
                 path: test-results/1.png
                 retention-days: 30
-
-
