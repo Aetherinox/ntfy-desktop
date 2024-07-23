@@ -31,7 +31,7 @@ const appName = packageJson.name;
 const appAuthor = packageJson.author;
 const appElectron = process.versions.electron;
 const appRepo = packageJson.repository;
-const appIcon = app.getAppPath() + '/ntfy.png';
+const appIcon = app.getAppPath() + '/assets/icons/ntfy.png';
 
 /*
     Declare > Window
