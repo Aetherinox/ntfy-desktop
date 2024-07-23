@@ -17,7 +17,7 @@ FileDescription='ntfy desktop client with Electron wrapper'
 ProductName='ntfy desktop'
 OriginalFilename='ntfy-desktop.exe'
 CompanyName='https://github.com/xdpirate/ntfy-electron'
-IgnorePattern='(/${dir_dist}|/${dir_build}|/.github*|/test-*|/tests*|/playwright*|.all-contributorsrc|.editorconfig|.eslintrc|/.git*|.git*|.npm*|.prettier*)'
+IgnorePattern='(^/!dir_dist!|^/!dir_build!|^/.github*|/test-*|/tests*|^/playwright*|.all-contributorsrc|.editorconfig|.eslintrc|^/.git*|^.git*|.npm*|.prettier*|CONTRIBUTING.md|CODE_OF_CONDUCT.md|README|README.md|readme.md|LICENSE|license|LICENSE.md|CHANGELOG|CHANGELOG.md)"'
 
 # #
 #   define: platforms
