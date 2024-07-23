@@ -17,7 +17,7 @@ FileDescription='ntfy desktop client with Electron wrapper'
 ProductName='ntfy desktop'
 OriginalFilename='ntfy-desktop.exe'
 CompanyName='https://github.com/xdpirate/ntfy-electron'
-IgnorePattern='(${dir_dist}*|${dir_build}*|.github*|test-*|tests*|playwright*|.all-contributorsrc|.editorconfig|.eslintrc|.git*|.npm*|.prettier*)'
+IgnorePattern='(/${dir_dist}|/${dir_build}|/.github*|/test-*|/tests*|/playwright*|.all-contributorsrc|.editorconfig|.eslintrc|/.git*|.git*|.npm*|.prettier*)'
 
 # #
 #   define: platforms
@@ -37,6 +37,9 @@ platformMac=("x64" "arm64")
 
 mkdir -p "${dir_build}"
 mkdir -p "${dir_dist}"
+
+rm -rf ${dir_build}/*
+rm -rf ${dir_dist}/*
 
 # #
 #   Build Windows

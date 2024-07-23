@@ -49,7 +49,7 @@ set "FileDescription=ntfy desktop client with Electron wrapper"
 set "ProductName=ntfy desktop"
 set "OriginalFilename=ntfy-desktop.exe"
 set "CompanyName=https://github.com/xdpirate/ntfy-electron"
-set "IgnorePattern=(/!dir_dist!|/!dir_build!|/.github*|/test-*|/tests*|playwright*|.all-contributorsrc|.editorconfig|.eslintrc|.git*|.npm*|.prettier*)"
+set "IgnorePattern=(/!dir_dist!|/!dir_build!|/.github*|/test-*|/tests*|/playwright*|.all-contributorsrc|.editorconfig|.eslintrc|/.git*|.git*|.npm*|.prettier*)"
 
 :: -----------------------------------------------------------------------------------------------------
 ::  Create build directory
