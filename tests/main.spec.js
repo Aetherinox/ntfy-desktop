@@ -67,5 +67,10 @@ test( 'full load', async () =>
         }
     } )
 
+    const timestamp = Date.now().toString()
+
+    const window = await app.firstWindow()
+    window.on( 'console', console.log )
+
     await app.close()
 } )
