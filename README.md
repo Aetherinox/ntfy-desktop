@@ -4,10 +4,7 @@
 
 <br />
 
-<p>
-
-A [ntfy.sh](https://ntfy.sh/app) desktop client built with Electron which supports Windows, Linux, and MacOS (Darwin). This client rests in your taskbar tray and allows you to receive push notifications to your desktop without requiring you to leave your browser open.
-</p>
+<p>A ntfy.sh desktop client built with Electron which supports Windows, Linux, and MacOSX. This client rests in your taskbar tray and allows you to receive push notifications to your desktop without requiring you to leave your browser open.</p>
 
 <p float="left">
   <img style="padding-right:15px;" src="https://github.com/user-attachments/assets/b6a34bc3-dbbf-4249-b3d2-d113a21cca66" width="300" />
@@ -23,13 +20,6 @@ A [ntfy.sh](https://ntfy.sh/app) desktop client built with Electron which suppor
   <img style="padding-right:15px;" src="https://github.com/user-attachments/assets/ce32d901-b35b-48e5-85b5-3cf82ae09b1e" width="300" />
   <img src="https://github.com/user-attachments/assets/a04f6222-9a29-40c3-a2d2-82bd8f6f4c09" width="300" /> 
 </p>
-
-<br />
-
-<p float="center">
-  <img src="https://github.com/user-attachments/assets/243a2d63-fbf8-49e5-931a-0f9d83c1f5e7" width="170" /> 
-</p>
-
 
 <br />
 
@@ -94,7 +84,7 @@ This project allows you to access the official free / paid notification service 
 <br />
 
 # Features
-- Usable with [ntfy.sh](https://ntfy.sh/app) and [self-hosted](https://docs.ntfy.sh/install/) instances
+- Usable with ntfy.sh and self-hosted instances
 - Two modes for minimizing app, configure in settings
   1. Close button exits app completely, sits in taskbar and tray
   2. Close button sends app to tray. Right-click tray icon to quit / show app
@@ -102,9 +92,8 @@ This project allows you to access the official free / paid notification service 
   - Option to disable
 - Receive push notifications from ntfy server to desktop
   - Advanced setting to adjust polling rate
-  - Datetime format customization
-  - Persistent notifications (optional)
-    - <small>Notifications stay on screen until dismissed by user</small>
+  - Datetime format setting
+  - Optional persistent notifications
   - Topic filtering
 
 <br />
@@ -148,7 +137,7 @@ The following keybinds can be used within ntfy-electron:
 <br />
 
 # CLI Arguments
-This client includes several arguments that can be specified at launch. If you do not wish to use CLI arguments, most of the arguments below have the ability to be set within the application by using the top menu and selecting **Configure**.
+This client 
 
 <br />
 
@@ -158,7 +147,6 @@ This client includes several arguments that can be specified at launch. If you d
 | `--hotkey` | Start app with hotkeys enabled | ✅ |
 | `--quit` | Top-right close button will completely exit app instead of minimize to tray | ✅ |
 | `--dev` | Start app with developer tools in `App` menu | ✅ |
-| `--url` | Forces app to launch and load a specific url<br><small>For testing purposes only. Should not need to use.</small>| ❌ |
 
 <br />
 
