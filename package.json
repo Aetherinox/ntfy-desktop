@@ -62,6 +62,12 @@
         "pretty:ignore": "prettier . --write --ignore-unknown",
         "contrib:add": "all-contributors add",
         "contrib:generate": "all-contributors generate",
+        "release": "node release.js",
+        "release:generate": "node release.js generate",
+        "env:release": "npx --quiet env-cmd --no-override node release.js",
+        "env:uuid": "npx --quiet env-cmd --no-override node release.js uuid",
+        "env:guid": "npx --quiet env-cmd --no-override node release.js guid",
+        "env:version": "node -p require('./package.json').version;",
         "version": "node -p require('./package.json').version;"
     },
     "devDependencies": {
