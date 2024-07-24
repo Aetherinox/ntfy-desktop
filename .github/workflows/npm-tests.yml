@@ -89,7 +89,7 @@ jobs:
                 🧪 Run Test
               id: task_test_run
               run: |
-                xvfb-run --auto-servernum npx playwright test
+                xvfb-run --auto-servernum npx playwright test --trace on
 
             # ---------------------------------------------------------------------------------------
             #   Job > Upload Report
