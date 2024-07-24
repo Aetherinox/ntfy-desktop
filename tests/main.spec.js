@@ -45,3 +45,27 @@ test( 'launch ntfy-desktop', async () =>
     await app.close()
 } )
 
+/*
+    Test > full loadup and screenshot
+*/
+
+test( 'full load', async () =>
+{
+
+    /*
+        Initialize
+    */
+
+    const app = await electron.launch( {
+        args: [
+            'index.js',
+            '--quit'
+        ],
+        env: {
+            ...process.env,
+            NODE_ENV: 'development'
+        }
+    } )
+
+    await app.close()
+} )
