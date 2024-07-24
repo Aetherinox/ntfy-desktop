@@ -30,7 +30,7 @@ test( 'launch ntfy-desktop', async () =>
         args: [
             'index.js',
             '--quit',
-            '--url https://google.com'
+            '--url https://ntfy.sh/app'
         ],
         env: {
             ...process.env,
