@@ -52,7 +52,7 @@
     "scripts": {
         "test": "npx playwright test",
         "pretest": "npm run lint",
-        "lint": "eslint index.js",
+        "lint": "eslint .",
         "start": "electron .",
         "package-win": "electron-packager . ntfy-electron --asar --platform=win32 --arch=all --icon=ntfy.ico --overwrite --ignore=\"^/dist|/build|/.github*|/test-*|/tests*|/playwright*|.all-contributorsrc|.editorconfig|.eslintrc|/.git*|.git*|.npm*|.prettier*\" --prune=true --out=build --appCopyright=\"Copyright (c) 2024\" --win32metadata.FileDescription=\"ntfy desktop client with Electron wrapper\" --win32metadata.ProductName=\"ntfy desktop\" --win32metadata.OriginalFilename=\"ntfy-desktop.exe\" --win32metadata.CompanyName=\"https://github.com/xdpirate/ntfy-electron\"",
         "package-linux": "electron-packager . ntfy-electron --asar --platform=linux --arch=all --icon=ntfy.png --overwrite --ignore=\"^/dist|/build|/.github*|/test-*|/tests*|/playwright*|.all-contributorsrc|.editorconfig|.eslintrc|/.git*|.git*|.npm*|.prettier*\" --prune=true --out=build --appCopyright=\"Copyright (c) 2024\" --win32metadata.FileDescription=\"ntfy desktop client with Electron wrapper\" --win32metadata.ProductName=\"ntfy desktop\" --win32metadata.OriginalFilename=\"ntfy-desktop.exe\" --win32metadata.CompanyName=\"https://github.com/xdpirate/ntfy-electron\"",
@@ -79,6 +79,8 @@
         "eslint-plugin-node": "^11.1.0",
         "eslint-plugin-prettier": "^5.2.1",
         "eslint-plugin-promise": "^6.4.0",
+        "@stylistic/eslint-plugin-js": "^2.3.0",
+        "@stylistic/eslint-plugin-plus": "^2.3.0",
         "jimp": "^0.22.12",
         "prettier": "^3.3.3"
     },

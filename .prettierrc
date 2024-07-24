@@ -49,7 +49,7 @@ useTabs: false
 #   @default        : true
 #   @ref            : https://prettier.io/docs/en/options.html#semicolons
 # --------------------------------------------------------------------------------------
-semi: true
+semi: false
 
 # --------------------------------------------------------------------------------------
 #   Use single quotes instead of double quotes.
