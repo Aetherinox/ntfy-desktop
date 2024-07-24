@@ -71,6 +71,6 @@ test( 'full load', async () =>
 
     const window = await app.firstWindow()
     window.on( 'console', console.log )
-
+    await eph.clickMenuItemById( app, 'quit' )
     await app.close()
 } )
