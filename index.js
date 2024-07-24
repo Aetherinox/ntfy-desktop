@@ -18,12 +18,14 @@ const prompt = require( 'custom-electron-prompt' )
 
 /*
     Debug > Print args
+
+    argv[0] is the path to the Node. js executable.
+    argv[1] is the path to the script file.
+    argv[2] is the first argument passed to the script.
+    argv[3] is the second argument passed to the script and so on.
+
+    developer env   : process.env.ENV
 */
-
-console.log( 'env' )
-console.log( process.env.ENV )
-console.log( process.argv )
-
 
 /*
     Declare > Package
@@ -55,7 +57,8 @@ let winMain, winAbout, timerPollrate, tray
 let bDevTools = 0
 let bHotkeysEnabled = 0
 let bQuitOnClose = 0
-const bStartHidden = 0
+let bUrlOverride = 0
+let bStartHidden = 0
 let bWinHidden = 0
 
 /*
@@ -73,6 +76,7 @@ let statusMessage
 */
 
 const _Instance = 'https://ntfy.sh/app'
+const _InstanceOverride = 'https://domain.com'
 const _Datetime = 'YYYY-MM-DD hh:mm a'
 const _Pollrate = 5
 
@@ -434,7 +438,7 @@ const menu_Main = [
                                 {
                                     statusBadURL = false
                                     console.log( `Successfully resolved ` + store.get( 'instanceURL' ) )
-                                    winMain.loadURL( store.get( 'instanceURL' ) )
+                                    winMain.loadURL( ( bUrlOverride != 1 && bUrlOverride ) || store.get( 'instanceURL' ) )
                                 } ).catch( ( _err ) =>
                                 {
                                     statusBadURL = true
@@ -529,7 +533,7 @@ const menu_Main = [
                                         store.set( 'instanceURL', _Instance )
                                     }
 
-                                    winMain.loadURL( store.get( 'instanceURL' ) )
+                                    winMain.loadURL( ( bUrlOverride != 1 && bUrlOverride ) || store.get( 'instanceURL' ) )
                                 }
                             }
                         } )
@@ -783,7 +787,7 @@ function ready()
     {
         statusBadURL = false
         console.log( `Successfully resolved ` + store.get( 'instanceURL' ) )
-        winMain.loadURL( store.get( 'instanceURL' ) )
+        winMain.loadURL( ( bUrlOverride != 1 && bUrlOverride ) || store.get( 'instanceURL' ) )
     } ).catch( ( _err ) =>
     {
         statusBadURL = true
@@ -1032,6 +1036,7 @@ function ready()
         if ( process.argv[ i ] === '--hidden' )
         {
             bWinHidden = 1
+            bStartHidden = 1
         }
         else if ( process.argv[ i ] === '--dev' )
         {
@@ -1041,6 +1046,10 @@ function ready()
         else if ( process.argv[ i ] === '--quit' )
         {
             bQuitOnClose = 1
+        }
+        else if ( process.argv[ i ] === '--url' )
+        {
+            bUrlOverride = process.argv[ 3 ]
         }
         else if ( process.argv[ i ] === '--hotkeys' )
         {

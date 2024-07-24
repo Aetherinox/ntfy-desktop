@@ -4,30 +4,21 @@
 /*
 
 # ----------------------------------------
-# [WL]: Git Base Folders/Files
-# ----------------------------------------
-!/.github
-!/.gitea
-!*README.md
-!*LICENSE.md
-!*LICENSE
-!*CHANGELOG.md
-!*CONTRIBUTE.md
-!*CONTRIBUTING.md
-!*CODE_OF_CONDUCT.md
-!*DECISION_FLOW.md
-
-# ----------------------------------------
-# [WL]: Electron
+# [WL]: NodeJS > Electron
 # ----------------------------------------
 !/electron
 
 # ----------------------------------------
-# [WL]: Test Folder
+# [WL]: Visual Studio
 # ----------------------------------------
-!/Tests
-!/test
-!/example
+!/Classes
+!/Controls
+!/Forms
+!/Materials
+!/Properties
+!*app.*
+!*csproj*
+!*sln*
 
 # ----------------------------------------
 # [WL]: Manifest Folders
@@ -40,55 +31,167 @@
 !/Tools
 
 # ----------------------------------------
-# [WL]: vendor
-# ----------------------------------------
-!/vendor
-
-# ----------------------------------------
-# [WL]: assets
-# ----------------------------------------
-!/assets
-
-# ----------------------------------------
 # [WL]: Gitignore File
 # ----------------------------------------
-!.gitignore
+!*.gitignore
 
 # ----------------------------------------
-# [WL]: Docs Folder
+# [WL]: Docs / assets
 # ----------------------------------------
 !/docs
+!/assets
 !/pages
 
 # ----------------------------------------
 # [WL]: Source Folder
 # ----------------------------------------
 !/src
+!/source
+!/target
 !/lib
 !/notifiers
 
 # ----------------------------------------
+# [WL]: Dist Folder
+# ----------------------------------------
+!/bin
+!/release
+
+# ----------------------------------------
+# [WL]: Test Folder
+# ----------------------------------------
+!/Tests
+!/Test
+!/example
+!*playwright.config.js
+
+# ----------------------------------------
+# [WL]: Util / vendor
+# ----------------------------------------
+!/util
+!/vendor
+
+# ----------------------------------------
 # [WL]: Base Files
 # ----------------------------------------
-!*.prettierrc
-!*.prettierignore
-!*.eslintrc
-!*.npmignore
 !*.all-contributorsrc
 !*.editorconfig
-!*ntfy.js
-!*index.js
 !*manifest.json
-!*package.json
-!*package-lock.json
+!*versions.json
+!*styles.css
+
+# ----------------------------------------
+# [WL]: npm release
+# ----------------------------------------
+!*package*.json
+!*attribution.js
+!*jsconfig.json
+!*postcss.config.js
+!*webpack.config.js
+
+# ----------------------------------------
+# [WL]: Git Base Folders/Files
+# ----------------------------------------
+!*.md
+!/.github
+!/.gitea
+!*LICENSE*
+!*README*
+!*CHANGELOG*
+!*CONTRIBUTE*
+!*CONTRIBUTING*
+!*CODE_OF_CONDUCT*
+!*DEPS-LICENSE*
+!*DECISION_FLOW*
+!*SECURITY*
+!tree*
+!*release-notes
+
+# ----------------------------------------
+# [WL]: Misc
+# ----------------------------------------
+!*.js
+!*.ts
+!*.css
+!*.sh
+!*.tgz
+!*.ico
+!*.conf
+!*.bat
+!*.xml
+!*.html
+
+# ----------------------------------------
+# [WL]: NodeJS > NPM
+# ----------------------------------------
+!.nvmrc
+!.nvmrc
+!.node-version
+!.npmignore
+
+# ----------------------------------------
+# [WL]: NodeJS > Babel
+# ----------------------------------------
+!*.babelrc
+!*.babel*
+
+# ----------------------------------------
+# [WL]: NodeJS > Eslint
+# ----------------------------------------
+!*eslint.config.js
+!*eslintrc.*
+!*.eslintrc*
+
+# ----------------------------------------
+# [WL]: NodeJS > Prettier
+# ----------------------------------------
+!*.prettierignore
+!*.prettierrc
+!*prettier.config.js
+
+# ----------------------------------------
+# [WL]: NodeJS > Grunt
+# ----------------------------------------
+!*gruntfile.*
+!*grunt.*
+!*Gruntfile*
+
+# ----------------------------------------
+# [WL]: NodeJS > Jest
+# ----------------------------------------
+!*jest.config.js
+
+# ----------------------------------------
+# [WL]: NodeJS > Wrangler
+# ----------------------------------------
+!*wrangler.toml
+
+# ----------------------------------------
+# [WL]: NodeJS > Typescript
+# ----------------------------------------
+!*typescript.js
+!*tsconfig.json
+vitest.workspace.ts
+
+# ----------------------------------------
+# [WL]: NodeJS > Rollup
+# ----------------------------------------
 !*rollup.config.js
 !*rollup.config.mjs
-!*tsconfig.json
-!*versions.json
+
+# ----------------------------------------
+# [WL]: Github > Development Actions
+# ----------------------------------------
+!*action.yml
+
+# ----------------------------------------
+# [WL]: VSC
+# ----------------------------------------
+!*jsconfig.json
+
+# ----------------------------------------
+# [WL]: Signing
+# ----------------------------------------
 !sign.bat
 !*SHA*.asc
 !*SHA*.sig
-!*styles.css
-!*.sh
-!*.bat
-!*playwright.config.js
