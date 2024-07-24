@@ -69,33 +69,9 @@ test( 'full load', async () =>
 
     const timestamp = Date.now().toString()
 
-    const appPath = await app.evaluate( async ( { app } ) =>
-    {
-        return app.getAppPath()
-    } )
-
-    console.log( appPath )
-
     const window = await app.firstWindow()
     console.log( await window.title() )
     window.on( 'console', console.log )
 
-    /*
-        wait for #root div before taking screenshot
-    */
-
-    await window.waitForSelector( '#root', { state: 'visible' } )
-
-    /*
-        path: `e2e/screenshots/test-${timestamp}.png`,
-    */
-
-    const ss1 = await window.screenshot( { path: './test-results/1.png' } )
-
-    /*
-        Since the close button minimizes to tray, activate the menu and select quit
-    */
-
-    await eph.clickMenuItemById( app, 'quit' )
     await app.close()
 } )
