@@ -17,15 +17,19 @@ const Storage = require( './app/Storage.js' )
 const prompt = require( 'custom-electron-prompt' )
 
 /*
-    Debug > Print args
+    Args & Env Vars
 
     argv[0] is the path to the Node. js executable.
     argv[1] is the path to the script file.
     argv[2] is the first argument passed to the script.
     argv[3] is the second argument passed to the script and so on.
 
-    developer env   : process.env.ENV
+    developer env   : process.env.NODE_ENV
 */
+
+const _ENV_MODE = ( process.env.NODE_ENV == `dev` ) || ( process.env.NODE_ENV == `development` ) ? `development` : `production`
+const _ENV_PROD = ( _ENV_MODE == `production` )
+const _ENV_DEV = _ENV_MODE == `development`
 
 /*
     Declare > Package
@@ -187,18 +191,19 @@ const msgHistory = []
 async function GetMessages()
 {
 
+    const log = []
     const cfgPollrate = store.get( 'pollrate' ) || _Pollrate
     const cfgTopics = store.get( 'topics' )
     const cfgInstanceURL = store.get( 'instanceURL' )
 
     if ( cfgInstanceURL === '' || cfgInstanceURL === null )
     {
-        console.log( `URL Missing, skipping GetMessages(): ${ uri }` )
+        log.push( `URL Missing, skipping GetMessages(): ${ uri }` )
         return
     }
 
     let uri = `${ cfgInstanceURL }/${ cfgTopics }/json?since=${ cfgPollrate }s&poll=1`
-    console.log( `URL: ${ uri }` )
+    log.push( `URL: ${ uri }` )
 
     /*
         For the official ntfy.sh API, url must be changed internally
@@ -216,27 +221,29 @@ async function GetMessages()
 
     if ( statusBadURL == true )
     {
-        console.error( `Invalid instance URL specified, skipping polling` )
+        log.push( `Invalid instance URL specified, skipping polling` )
         return
     }
 
     const json = await GetMessageData( uri )
+    const historyLst = msgHistory.length > 0 ? `${ msgHistory }` : `Empty`
+    const messageLst = JSON.stringify( json ) !== `[]` ? JSON.stringify( json ) : `Empty`
 
-    console.log( `CHECKING FOR NEW MESSAGES` )
-    console.log( `---------------------------------------------------------` )
-    console.log( `InstanceURL ........... ${ cfgInstanceURL }` )
-    console.log( `Query ................. ${ uri }` )
-    console.log( `Topics ................ ${ cfgTopics }` )
+    log.push( `-------------------------------------------------------------------------------` )
+    log.push( `Status ................ Checking New Messages` )
+    log.push( `InstanceURL ........... ${ cfgInstanceURL }` )
+    log.push( `Query ................. ${ uri }` )
+    log.push( `Topics ................ ${ cfgTopics }` )
 
     /*
         Loop ntfy api results.
         only items with event = 'message' will be allowed through to display in a notification.
     */
 
-    console.log( `---------------------------------------------------------` )
-    console.log( `History ............... ${ msgHistory }` )
-    console.log( `Messages .............. ${ JSON.stringify( json ) }` )
-    console.log( `---------------------------------------------------------\n` )
+    log.push( `-------------------------------------------------------------------------------` )
+    log.push( `History ............... ${ historyLst }` )
+    log.push( `Message ............... ${ messageLst }` )
+    log.push( `-------------------------------------------------------------------------------\n` )
 
     for ( let i = 0; i < json.length; i++ )
     {
@@ -248,11 +255,11 @@ async function GetMessages()
         const message = object.message
         const topic = object.topic
 
-        const cfgPersistent = store.get( 'bPersistentNoti' ) == 0 ? false : true
-        const cfgInstanceURL = store.get( 'instanceURL' )
-
         if ( type != 'message' )
             continue
+
+        const cfgPersistent = store.get( 'bPersistentNoti' ) == 0 ? false : true
+        const cfgInstanceURL = store.get( 'instanceURL' )
 
         /*
             convert unix timestamp into human readable
@@ -265,7 +272,7 @@ async function GetMessages()
         */
 
         const msgStatus = msgHistory.includes( id ) === true ? 'already sent, skipping' : 'pending send'
-        console.log( `Messages .............. ${ type }:${ id } ${ msgStatus }` )
+        log.push( `Messages .............. ${ type }:${ id } ${ msgStatus }` )
 
         /*
             @ref    : https://github.com/Aetherinox/toasted-notifier
@@ -285,16 +292,28 @@ async function GetMessages()
 
             msgHistory.push( id )
 
-            console.log( `   Topic .............. ${ type }:${ id } ${ topic }` )
-            console.log( `   Date ............... ${ type }:${ id } ${ dateHuman }` )
-            console.log( `   InstanceURL ........ ${ type }:${ id } ${ cfgInstanceURL }` )
-            console.log( `   Persistent ......... ${ type }:${ id } ${ cfgPersistent }` )
+            log.push( `   Topic .............. ${ type }:${ id } ${ topic }` )
+            log.push( `   Date ............... ${ type }:${ id } ${ dateHuman }` )
+            log.push( `   InstanceURL ........ ${ type }:${ id } ${ cfgInstanceURL }` )
+            log.push( `   Persistent ......... ${ type }:${ id } ${ cfgPersistent }` )
         }
 
-        console.log( `Messages .............. ${ type }:${ id } sent` )
+        log.push( `Messages .............. ${ type }:${ id } sent` )
     }
 
-    console.log( `\n\n` )
+    log.push( `\n\n` )
+
+    /*
+        Console Output
+    */
+
+    if ( _ENV_DEV == true )
+    {
+        for ( let i = 0; i < log.length; i++ )
+        {
+            console.log( log[ i ] )
+        }
+    }
 
     return json
 }
