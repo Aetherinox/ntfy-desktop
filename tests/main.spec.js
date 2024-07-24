@@ -158,3 +158,4 @@ test('app usage', async () => {
     await eph.clickMenuItemById(app, 'quit');
     await app.close()
 });
+
