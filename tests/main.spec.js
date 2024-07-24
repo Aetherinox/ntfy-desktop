@@ -29,8 +29,7 @@ test( 'launch ntfy-desktop', async () =>
     const app = await electron.launch( {
         args: [
             'index.js',
-            '--quit',
-            '--url https://ntfy.sh/app'
+            '--quit'
         ],
         env: {
             ...process.env,
