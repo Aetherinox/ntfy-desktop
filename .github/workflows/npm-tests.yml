@@ -78,8 +78,8 @@ jobs:
               id: task_test_node_cache
               uses: actions/cache@v4
               with:
-                path: node_modules
-                key: node-modules-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+                  path: node_modules
+                  key: node-modules-${{ hashFiles('package-lock.json') }}
 
             # ---------------------------------------------------------------------------------------
             #   Job > Npm > Install Dependencies
