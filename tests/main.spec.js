@@ -43,6 +43,5 @@ test( 'launch ntfy-desktop', async () =>
     console.log(appInfo.name);
     */
 
-    await eph.clickMenuItemById( app, 'quit' )
     await app.close()
 } )
