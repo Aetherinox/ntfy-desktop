@@ -4,7 +4,10 @@
 
 <br />
 
-<p>A ntfy.sh desktop client built with Electron which supports Windows, Linux, and MacOSX. This client rests in your taskbar tray and allows you to receive push notifications to your desktop without requiring you to leave your browser open.</p>
+<p>
+
+A [ntfy.sh](https://ntfy.sh/app) desktop client built with Electron which supports Windows, Linux, and MacOS (Darwin). This client rests in your taskbar tray and allows you to receive push notifications to your desktop without requiring you to leave your browser open.
+</p>
 
 <p float="left">
   <img style="padding-right:15px;" src="https://github.com/user-attachments/assets/b6a34bc3-dbbf-4249-b3d2-d113a21cca66" width="300" />
@@ -91,7 +94,7 @@ This project allows you to access the official free / paid notification service 
 <br />
 
 # Features
-- Usable with ntfy.sh and self-hosted instances
+- Usable with [ntfy.sh](https://ntfy.sh/app) and [self-hosted](https://docs.ntfy.sh/install/) instances
 - Two modes for minimizing app, configure in settings
   1. Close button exits app completely, sits in taskbar and tray
   2. Close button sends app to tray. Right-click tray icon to quit / show app
@@ -99,8 +102,9 @@ This project allows you to access the official free / paid notification service 
   - Option to disable
 - Receive push notifications from ntfy server to desktop
   - Advanced setting to adjust polling rate
-  - Datetime format setting
-  - Optional persistent notifications
+  - Datetime format customization
+  - Persistent notifications (optional)
+    - <small>Notifications stay on screen until dismissed by user</small>
   - Topic filtering
 
 <br />
@@ -154,6 +158,7 @@ This client
 | `--hotkey` | Start app with hotkeys enabled | ✅ |
 | `--quit` | Top-right close button will completely exit app instead of minimize to tray | ✅ |
 | `--dev` | Start app with developer tools in `App` menu | ✅ |
+| `--url` | Forces app to launch and load a specific url<br><small>For testing purposes only. Should not need to use.</small>| ❌ |
 
 <br />
 
