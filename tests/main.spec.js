@@ -69,9 +69,6 @@ test('full load', async () => {
 
     const ss1 = await window.screenshot({ path: './test-results/1.png' })
 
-    /*
-        Since the close button minimizes to tray, activate the menu and select quit
-    */
-
+    // close app
     await eph.clickMenuItemById(app, 'quit');
 })
