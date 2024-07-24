@@ -148,7 +148,7 @@ The following keybinds can be used within ntfy-electron:
 <br />
 
 # CLI Arguments
-This client 
+This client includes several arguments that can be specified at launch. If you do not wish to use CLI arguments, most of the arguments below have the ability to be set within the application by using the top menu and selecting **Configure**.
 
 <br />
 
