@@ -71,7 +71,7 @@
         "@types/node": "^20.14.11",
         "@types/testing-library__jest-dom": "^5.14.9",
         "@types/uuid": "^10.0.0",
-        "electron": "^31.2.1",
+        "electron": "^31.3.1",
         "electron-playwright-helpers": "^1.7.1",
         "eslint": "^8.0.0",
         "eslint-config-semistandard": "^17.0.0",
