@@ -68,7 +68,7 @@
         "@aetherinox/noxenv": "^1.0.0",
         "@playwright/test": "^1.45.3",
         "@testing-library/jest-dom": "^6.4.8",
-        "@types/node": "^20.14.11",
+        "@types/node": "^22.1.0",
         "@types/testing-library__jest-dom": "^5.14.9",
         "@types/uuid": "^10.0.0",
         "electron": "^31.2.1",
