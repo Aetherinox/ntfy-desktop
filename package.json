@@ -1,15 +1,10 @@
 {
     "name": "ntfy-electron",
-    "version": "2.0.0",
-    "description": "ntfy push notifications wrapped in electron as a web app",
-    "homepage": "https://github.com/xdpirate/ntfy-electron",
-    "author": "xdpirate & Aetherinox",
+    "version": "2.0.1",
+    "description": "Ntfy.sh desktop client for Windows, Linux, and MacOS with push notifications. Supports official ntfy.sh website and self-hosted instances.",
+    "homepage": "https://github.com/aetherinox/ntfy-desktop",
+    "author": "Aetherinox",
     "contributors": [
-        {
-            "name": "xdpirate",
-            "email": "1757462+xdpirate@users.noreply.github.com",
-            "url": "https://github.com/xdpirate"
-        },
         {
             "name": "Aetherinox",
             "email": "118329232+Aetherinox@users.noreply.github.com",
@@ -34,10 +29,10 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/xdpirate/ntfy-electron.git"
+        "url": "git+https://github.com/aetherinox/ntfy-desktop.git"
     },
     "bugs": {
-        "url": "https://github.com/xdpirate/ntfy-electron/issues"
+        "url": "https://github.com/aetherinox/ntfy-desktop/issues"
     },
     "license": "GPLv3",
     "keywords": [
