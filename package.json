@@ -71,7 +71,7 @@
         "eslint-plugin-n": "17.15.0",
         "eslint-plugin-promise": "7.2.1",
         "@stylistic/eslint-plugin-js": "^4.4.0",
-        "jimp": "^0.22.12"
+        "jimp": "^1.6.0"
     },
     "dependencies": {
         "custom-electron-prompt": "^1.5.8",
