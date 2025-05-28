@@ -8,8 +8,4 @@ test
 .travis.yml
 .prettierrc
 .prettierignore
-
-
-
-
-
+*.ats
