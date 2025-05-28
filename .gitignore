@@ -74,6 +74,7 @@
 !*.prettierrc
 !*.prettierignore
 !*.eslintrc
+!*.eslint.config.mjs
 !*.npmignore
 !*.all-contributorsrc
 !*.editorconfig
@@ -90,5 +91,6 @@
 !*SHA*.asc
 !*SHA*.sig
 !*styles.css
+!*renovate.json
 !*.sh
 !*.bat
