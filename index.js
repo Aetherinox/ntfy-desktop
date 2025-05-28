@@ -1,10 +1,10 @@
-const { app, BrowserWindow, Tray, Menu, MenuItem } = require('electron');
-const electronShell = require('electron').shell;
-const toasted = require('toasted-notifier');
-const process = require('process');
-const path = require('path');
-const moment = require('moment');
-const Store = require('./store.js');
+const { app, BrowserWindow, Tray, Menu, MenuItem } = require( 'electron' );
+const electronShell = require( 'electron' ).shell;
+const toasted = require( 'toasted-notifier' );
+const process = require( 'process' );
+const path = require( 'path' );
+const moment = require( 'moment' );
+const Storage = require( './storage.js' );
 
 /*
     Declare > Prompt
@@ -12,20 +12,19 @@ const Store = require('./store.js');
     @docs   : https://araxeus.github.io/custom-electron-prompt/
 */
 
-const prompt = require('custom-electron-prompt');
+const prompt = require( 'custom-electron-prompt' );
 
 /*
     Debug > Print args
 */
 
-console.log(process.argv);
-
+console.log( process.argv );
 
 /*
     Declare > Package
 */
 
-const packageJson = require('./package.json');
+const packageJson = require( './package.json' );
 const appVer = packageJson.version;
 const appName = packageJson.name;
 const appAuthor = packageJson.author;
@@ -79,7 +78,7 @@ const _Pollrate = 5;
               storage: AppData\Roaming\ntfy-desktop
 */
 
-const store = new Store({
+const store = new Storage({
     configName: 'prefs',
     defaults: {
         instanceURL: _Instance,
@@ -98,18 +97,23 @@ const store = new Store({
     Validate instance url
 */
 
-function validateUrl(uri, tries, delay) {
-    return new Promise((success, reject) => {
-        (function rec(i) {
-            fetch(uri, {mode: 'no-cors'}).then((r) => {
-                success(r); // success: resolve promise
-            }).catch( err => {
-                if (tries === 0) // num of tries reached
-                    return reject(err);
+function validateUrl( uri, tries, delay )
+{
+    return new Promise( ( success, reject ) =>
+    {
+        ( function rec( i )
+        {
+            fetch( uri, { mode: 'no-cors' }).then( ( r ) =>
+            {
+                success( r ); // success: resolve promise
+            }).catch( ( err ) =>
+            {
+                if ( tries === 0 ) // num of tries reached
+                    return reject( err );
 
-                setTimeout(() => rec(--tries), delay ) // retry
+                setTimeout( () => rec( --tries ), delay ) // retry
             }); // retries exceeded
-        })(tries);
+        })( tries );
     });
 }
 
@@ -122,13 +126,14 @@ function validateUrl(uri, tries, delay) {
     API Token can be specified in app.
 */
 
-async function GetMessageData(uri) {
-    const cfgApiToken = store.get('apiToken');
-    let req = await fetch(uri, {
+async function GetMessageData( uri ) {
+    const cfgApiToken = store.get( 'apiToken' );
+    const req = await fetch( uri,
+    {
         method: 'GET',
         headers: {
-            'Accept': 'application/json',
-            Authorization: `Bearer ${cfgApiToken}`
+            Accept: 'application/json',
+            Authorization: `Bearer ${ cfgApiToken }`
         }
     });
 
@@ -141,21 +146,36 @@ async function GetMessageData(uri) {
     */
 
     const json = await req.text();
-    let jsonArr = [];
-    const entries = json.split('\n');
-    for (let i = 0; i < entries.length; i++) {
-        jsonArr.push(entries[i]);
+    const jsonArr = [];
+    const entries = json.split( '\n' );
+    for ( let i = 0;i < entries.length;i++ ) {
+        jsonArr.push( entries[i]);
     }
 
     /*
         Filter out empty entry in array which was caused by the last newline
     */
 
-    const jsonResult = jsonArr.filter(function (el) {
-        return el != null && el != '';
+    const jsonResult = jsonArr.filter( ( el ) =>
+    {
+        return el !== null && el !== '';
     });
 
     return jsonResult;
+}
+
+function isJsonString( str )
+{
+    try
+    {
+        JSON.parse( str );
+    }
+    catch ( e )
+    {
+        return false;
+    }
+
+    return true;
 }
 
 /*
@@ -166,57 +186,71 @@ async function GetMessageData(uri) {
 */
 
 const msgHistory = [];
-async function GetMessages() {
+async function GetMessages()
+{
+    const cfgPollrate = store.get( 'pollrate' ) || _Pollrate;
+    const cfgTopics = store.get( 'topics' );
+    const cfgInstanceURL = store.get( 'instanceURL' );
 
-    const cfgPollrate = store.get('pollrate') || _Pollrate;
-    const cfgTopics = store.get('topics');
-    const cfgInstanceURL = store.get('instanceURL');
-
-    if (cfgInstanceURL === '' || cfgInstanceURL === null) {
-        console.log(`URL Missing, skipping GetMessages(): ${uri}`);
+    if ( cfgInstanceURL === '' || cfgInstanceURL === null )
+    {
+        console.log( `URL Missing, skipping GetMessages(): ${ uri }` );
         return;
     }
 
-    let uri = `${cfgInstanceURL}/${cfgTopics}/json?since=${cfgPollrate}s&poll=1`;
-    console.log(`URL: ${uri}`);
+    let uri = `${ cfgInstanceURL }/${ cfgTopics }/json?since=${ cfgPollrate }s&poll=1`;
+    console.log( `URL: ${ uri }` );
 
     /*
         For the official ntfy.sh API, url must be changed internally
             https://ntfy.sh/app/ -> https://ntfy.sh/
     */
 
-    if (uri.includes('ntfy.sh/app')) {
-        uri = uri.replace("ntfy.sh/app", 'ntfy.sh');
+    if ( uri.includes( 'ntfy.sh/app' ) )
+    {
+        uri = uri.replace( 'ntfy.sh/app', 'ntfy.sh' );
     }
 
     /*
         Bad URL detected, skip polling
     */
 
-    if ( statusBadURL == true ) {
-        console.error(`Invalid instance URL specified, skipping polling`);
+    if ( statusBadURL === true )
+    {
+        console.error( `Invalid instance URL specified, skipping polling` );
         return;
     }
 
-    const json = await GetMessageData(uri);
+    const json = await GetMessageData( uri );
 
-    console.log(`CHECKING FOR NEW MESSAGES`);
-    console.log(`---------------------------------------------------------`);
-    console.log(`InstanceURL ........... ${cfgInstanceURL}`);
-    console.log(`Query ................. ${uri}`);
-    console.log(`Topics ................ ${cfgTopics}`);
+    /*
+        will be thrown if the instance url does not return valid json (ntfy server possibly down?)
+    */
+
+    if ( isJsonString( json ) === false )
+    {
+        console.error( `Specified  instance URL not returning valid json. Change your instance URL to a valid Ntfy instance` );
+        return;
+    }
+
+    console.log( `CHECKING FOR NEW MESSAGES` );
+    console.log( `---------------------------------------------------------` );
+    console.log( `InstanceURL ........... ${ cfgInstanceURL }` );
+    console.log( `Query ................. ${ uri }` );
+    console.log( `Topics ................ ${ cfgTopics }` );
 
     /*
         Loop ntfy api results.
         only items with event = 'message' will be allowed through to display in a notification.
     */
 
-    console.log(`---------------------------------------------------------`);
-    console.log(`History ............... ${msgHistory}`);
-    console.log(`Messages .............. ${JSON.stringify(json)}`);
-    console.log(`---------------------------------------------------------\n`);
+    console.log( `---------------------------------------------------------` );
+    console.log( `History ............... ${ msgHistory }` );
+    console.log( `Messages .............. ${ JSON.stringify( json ) }` );
+    console.log( `---------------------------------------------------------\n` );
 
-    for (let i = 0; i < json.length; i++) {
+    for ( let i = 0;i < json.length;i++ )
+    {
         const object = JSON.parse(json[i]);
         const id = object.id;
         const type = object.event;
@@ -225,52 +259,52 @@ async function GetMessages() {
         const message = object.message;
         const topic = object.topic;
 
-        const cfgPersistent = store.get('bPersistentNoti') == 0 ? false : true;
-        const cfgInstanceURL = store.get('instanceURL');
+        const cfgPersistent = store.get( 'bPersistentNoti' ) !== 0;
+        const cfgInstanceURL = store.get( 'instanceURL' );
 
-        if (type != 'message')
+        if ( type !== 'message' )
             continue;
 
         /*
             convert unix timestamp into human readable
         */
 
-        const dateHuman = moment.unix(time).format(store.get('datetime' || _Datetime));
+        const dateHuman = moment.unix( time ).format( store.get( 'datetime' || _Datetime ) );
 
         /*
             debugging to console to show the status of messages
         */
 
-        const msgStatus = msgHistory.includes(id) === true ? 'already sent, skipping' : 'pending send';
-        console.log(`Messages .............. ${type}:${id} ${msgStatus}`);
+        const msgStatus = msgHistory.includes( id ) === true ? 'already sent, skipping' : 'pending send';
+        console.log( `Messages .............. ${ type }:${ id } ${ msgStatus }` );
 
         /*
             @ref    : https://github.com/Aetherinox/toasted-notifier
         */
 
-        if (!msgHistory.includes(id)) {
+        if ( !msgHistory.includes( id ) ) {
             toasted.notify({
-                title: `${topic} - ${dateHuman}`,
-                subtitle: `${dateHuman}`,
-                message: `${message}`,
+                title: `${ topic } - ${ dateHuman }`,
+                subtitle: `${ dateHuman }`,
+                message: `${ message }`,
                 sound: 'Pop',
                 open: cfgInstanceURL,
                 persistent: cfgPersistent,
                 sticky: cfgPersistent
             });
 
-            msgHistory.push(id);
+            msgHistory.push( id );
 
-            console.log(`   Topic .............. ${type}:${id} ${topic}`);
-            console.log(`   Date ............... ${type}:${id} ${dateHuman}`);
-            console.log(`   InstanceURL ........ ${type}:${id} ${cfgInstanceURL}`);
-            console.log(`   Persistent ......... ${type}:${id} ${cfgPersistent}`);
+            console.log( `   Topic .............. ${ type }:${ id } ${ topic }` );
+            console.log( `   Date ............... ${ type }:${ id } ${ dateHuman }` );
+            console.log( `   InstanceURL ........ ${ type }:${ id } ${ cfgInstanceURL }` );
+            console.log( `   Persistent ......... ${ type }:${ id } ${ cfgPersistent }` );
         }
 
-        console.log(`Messages .............. ${type}:${id} sent`);
+        console.log( `Messages .............. ${ type }:${ id } sent` );
     }
 
-    console.log(`\n\n`);
+    console.log( `\n\n` );
 
     return json;
 }
@@ -291,7 +325,7 @@ const menu_Main = [
         {
             label: 'Quit',
             id: 'quit',
-            accelerator: (bHotkeysEnabled == 1 || store.get('bHotkeys') == 1) ? 'CTRL+Q' : '',
+            accelerator: ( bHotkeysEnabled == 1 || store.get( 'bHotkeys' ) == 1 ) ? 'CTRL+Q' : '',
             click: function () {
                 app.isQuiting = true;
                 app.quit();
@@ -306,7 +340,7 @@ const menu_Main = [
         {
             label: 'General',
             id: 'general',
-            accelerator: (bHotkeysEnabled == 1 || store.get('bHotkeys') == 1) ? 'CTRL+G' : '',
+            accelerator: ( bHotkeysEnabled == 1 || store.get( 'bHotkeys' ) == 1 ) ? 'CTRL+G' : '',
             click: function () {
                 prompt(
                     {
@@ -316,7 +350,7 @@ const menu_Main = [
                         alwaysOnTop: true,
                         type: 'multiInput',
                         resizable: false,
-                        customStylesheet: path.join(__dirname, `pages`, `css`, `prompt.css`),
+                        customStylesheet: path.join( __dirname, `pages`, `css`, `prompt.css` ),
                         height: 480,
                         icon: appIcon,
                         multiInputOptions:
@@ -324,42 +358,42 @@ const menu_Main = [
                                 {
                                     label: 'Developer tools in app menu',
                                     selectOptions: { 0: 'Disabled', 1: 'Enabled' },
-                                    value: store.get('bDevTools'),
+                                    value: store.get( 'bDevTools' ),
                                 },
                                 {
                                     label: 'Allow usage of hotkeys to navigate',
                                     selectOptions: { 0: 'Disabled', 1: 'Enabled' },
-                                    value: store.get('bHotkeys'),
+                                    value: store.get( 'bHotkeys' ),
                                 },
                                 {
                                     label: 'Quit app instead of send-to-tray for close button',
                                     selectOptions: { 0: 'Disabled', 1: 'Enabled' },
-                                    value: store.get('bQuitOnClose'),
+                                    value: store.get( 'bQuitOnClose' ),
                                 },
                                 {
                                     label: 'Start app minimized in tray',
                                     selectOptions: { 0: 'Disabled', 1: 'Enabled' },
-                                    value: store.get('bStartHidden'),
+                                    value: store.get( 'bStartHidden' ),
                                 }
                             ],
                     },
                     winMain
                 )
-                .then((response) => {
-                    if (response !== null) {
+                .then( ( response ) => {
+                    if ( response !== null ) {
                         // do not update dev tools if value hasn't changed
-                        if ( store.get('bDevTools') !== response[0])
+                        if ( store.get( 'bDevTools' ) !== response[0])
                         {
-                            store.set('bDevTools', response[0]);
+                            store.set( 'bDevTools', response[0]);
                             activeDevTools();
                         }
 
-                        store.set('bHotkeys', response[1]);
-                        store.set('bQuitOnClose', response[2]);
-                        store.set('bStartHidden', response[3]);
+                        store.set( 'bHotkeys', response[1]);
+                        store.set( 'bQuitOnClose', response[2]);
+                        store.set( 'bStartHidden', response[3]);
                     }
                 })
-                .catch((response) => {
+                .catch( ( response ) => {
                     console.error
                 })
 
@@ -372,17 +406,17 @@ const menu_Main = [
         },
         {
             label: 'URL',
-            accelerator: (bHotkeysEnabled == 1 || store.get('bHotkeys') == 1) ? 'CTRL+U' : '',
+            accelerator: ( bHotkeysEnabled == 1 || store.get( 'bHotkeys' ) == 1 ) ? 'CTRL+U' : '',
             click: function () {
                 prompt(
                     {
                         title: 'Set Server Instance',
                         label: 'Server URL<div class="label-desc">This can either be the URL to the official ntfy.sh server, or your own self-hosted domain / ip.<br><br>Remove everything to set back to official ntfy.sh server.</div>',
                         useHtmlLabel: true,
-                        value: store.get('instanceURL') || _Instance,
+                        value: store.get( 'instanceURL' ) || _Instance,
                         alwaysOnTop: true,
                         type: 'input',
-                        customStylesheet: path.join(__dirname, `pages`, `css`, `prompt.css`),
+                        customStylesheet: path.join( __dirname, `pages`, `css`, `prompt.css` ),
                         height: 290,
                         icon: appIcon,
                         inputAttrs: {
@@ -391,10 +425,10 @@ const menu_Main = [
                     },
                     winMain
                 )
-                .then((response) => {
-                    if (response !== null) {
-                        const newUrl = (response === "" ? _Instance : response);
-                        store.set('instanceURL', newUrl);
+                .then( ( response ) => {
+                    if ( response !== null ) {
+                        const newUrl = ( response === "" ? _Instance : response );
+                        store.set( 'instanceURL', newUrl );
 
                         /*
                             Validate URL.
@@ -402,21 +436,21 @@ const menu_Main = [
                             load default _Instance url
                         */
 
-                        validateUrl(store.get('instanceURL'), 3, 1000).then( item => {
+                        validateUrl( store.get( 'instanceURL' ), 3, 1000 ).then( ( item ) => {
                             statusBadURL = false;
-                            console.log(`Successfully resolved `+ store.get('instanceURL'));
-                            winMain.loadURL(store.get('instanceURL'));
-                        }).catch( err => {
+                            console.log( `Successfully resolved `+ store.get( 'instanceURL' ) );
+                            winMain.loadURL( store.get( 'instanceURL' ) );
+                        }).catch( ( err ) => {
                             statusBadURL = true;
-                            const msg = `Failed to resolve `+ store.get('instanceURL') + ` - defaulting to ${_Instance}`;
-                            statusMessage = `${msg}`;
-                            console.error(`${msg}`);
-                            store.set('instanceURL', _Instance);
-                            winMain.loadURL(_Instance);
+                            const msg = `Failed to resolve `+ store.get( 'instanceURL' ) + ` - defaulting to ${ _Instance }`;
+                            statusMessage = `${ msg }`;
+                            console.error( `${ msg }` );
+                            store.set( 'instanceURL', _Instance );
+                            winMain.loadURL( _Instance );
                         });
                     }
                 })
-                .catch((response) => {
+                .catch( ( response ) => {
                     console.error
                 })
 
@@ -429,17 +463,17 @@ const menu_Main = [
         },
         {
             label: 'API Token',
-            accelerator: (bHotkeysEnabled == 1 || store.get('bHotkeys') == 1) ? 'CTRL+T' : '',
+            accelerator: ( bHotkeysEnabled == 1 || store.get( 'bHotkeys' ) == 1 ) ? 'CTRL+T' : '',
             click: function () {
                 prompt(
                     {
                         title: 'Set API Token',
                         label: 'API Token<div class="label-desc">Generate an API token within ntfy.sh  or your self-hosted instance and provide it below to receive desktop push notifications.</div>',
                         useHtmlLabel: true,
-                        value: store.get('apiToken'),
+                        value: store.get( 'apiToken' ),
                         alwaysOnTop: true,
                         type: 'input',
-                        customStylesheet: path.join(__dirname, `pages`, `css`, `prompt.css`),
+                        customStylesheet: path.join( __dirname, `pages`, `css`, `prompt.css` ),
                         height: 265,
                         icon: appIcon,
                         inputAttrs: {
@@ -448,29 +482,29 @@ const menu_Main = [
                     },
                     winMain
                 )
-                .then((response) => {
-                    if (response !== null) {
-                        store.set('apiToken', response);
+                .then( ( response ) => {
+                    if ( response !== null ) {
+                        store.set( 'apiToken', response );
                     }
                 })
-                .catch((response) => {
+                .catch( ( response ) => {
                     console.error
                 })
             }
         },
         {
             label: 'Topics',
-            accelerator: (bHotkeysEnabled == 1 || store.get('bHotkeys') == 1) ? 'CTRL+SHIFT+T' : '',
+            accelerator: ( bHotkeysEnabled == 1 || store.get( 'bHotkeys' ) == 1 ) ? 'CTRL+SHIFT+T' : '',
             click: function () {
                 prompt(
                     {
                         title: 'Set Subscribed Topics',
                         label: 'Subscribed Topics<div class="label-desc">Specify a list of topics you would like to receive push notifications for, separated by commas.<br><br>Ex: Meetings,Personal,Urgent</div>',
                         useHtmlLabel: true,
-                        value: store.get('topics'),
+                        value: store.get( 'topics' ),
                         alwaysOnTop: true,
                         type: 'input',
-                        customStylesheet: path.join(__dirname, `pages`, `css`, `prompt.css`),
+                        customStylesheet: path.join( __dirname, `pages`, `css`, `prompt.css` ),
                         height: 290,
                         icon: appIcon,
                         inputAttrs: {
@@ -479,29 +513,29 @@ const menu_Main = [
                     },
                     winMain
                 )
-                .then((response) => {
-                    if (response !== null) {
+                .then( ( response ) => {
+                    if ( response !== null ) {
                         // do not update topics unless values differ from original, since we need to reload the page
-                        if ( store.get('topics') !== response)
+                        if ( store.get( 'topics' ) !== response )
                         {
-                            store.set('topics', response);
+                            store.set( 'topics', response );
 
-                            if (typeof (store.get('instanceURL')) !== 'string' || store.get('instanceURL') === '' || store.get('instanceURL') === null ) {
-                                store.set('instanceURL', _Instance);
+                            if ( typeof ( store.get( 'instanceURL' ) ) !== 'string' || store.get( 'instanceURL' ) === '' || store.get( 'instanceURL' ) === null ) {
+                                store.set( 'instanceURL', _Instance );
                             }
 
-                            winMain.loadURL(store.get('instanceURL'));
+                            winMain.loadURL( store.get( 'instanceURL' ) );
                         }
                     }
                 })
-                .catch((response) => {
+                .catch( ( response ) => {
                     console.error
                 })
             }
         },
         {
             label: 'Notifications',
-            accelerator: (bHotkeysEnabled == 1 || store.get('bHotkeys') == 1) ? 'CTRL+N' : '',
+            accelerator: ( bHotkeysEnabled == 1 || store.get( 'bHotkeys' ) == 1 ) ? 'CTRL+N' : '',
             click: function () {
                 prompt(
                     {
@@ -511,7 +545,7 @@ const menu_Main = [
                         alwaysOnTop: true,
                         type: 'multiInput',
                         resizable: false,
-                        customStylesheet: path.join(__dirname, `pages`, `css`, `prompt.css`),
+                        customStylesheet: path.join( __dirname, `pages`, `css`, `prompt.css` ),
                         height: 400,
                         icon: appIcon,
                         multiInputOptions:
@@ -519,20 +553,20 @@ const menu_Main = [
                                 {
                                     label: 'Stay on screen until dismissed',
                                     selectOptions: { 0: 'Disabled', 1: 'Enabled' },
-                                    value: store.get('bPersistentNoti'),
+                                    value: store.get( 'bPersistentNoti' ),
                                 },
                                 {
                                     label: 'Datetime format for notification title',
-                                    value: store.get('datetime') || _Datetime,
+                                    value: store.get( 'datetime' ) || _Datetime,
                                     inputAttrs:
                                     {
-                                        placeholder: `${_Datetime}`,
+                                        placeholder: `${ _Datetime }`,
                                         required: true
                                     }
                                 },
                                 {
                                     label: 'Polling rate / fetch messages (seconds)',
-                                    value: store.get('pollrate') || _Pollrate,
+                                    value: store.get( 'pollrate' ) || _Pollrate,
                                     inputAttrs: {
                                         type: 'number',
                                         required: true,
@@ -544,19 +578,19 @@ const menu_Main = [
                     },
                     winMain
                 )
-                .then((response) => {
-                    if (response !== null) {
-                        store.set('bPersistentNoti', response[0])
-                        store.set('datetime', response[1])
-                        store.set('pollrate', response[2])
+                .then( ( response ) => {
+                    if ( response !== null ) {
+                        store.set( 'bPersistentNoti', response[0])
+                        store.set( 'datetime', response[1])
+                        store.set( 'pollrate', response[2])
 
-                        const cfgPollrate = (store.get('pollrate') || _Pollrate);
-                        const fetchInterval = (cfgPollrate * 1000) + 600;
-                        clearInterval(timerPollrate);
-                        timerPollrate = setInterval(GetMessages, fetchInterval);
+                        const cfgPollrate = ( store.get( 'pollrate' ) || _Pollrate );
+                        const fetchInterval = ( cfgPollrate * 1000 ) + 600;
+                        clearInterval( timerPollrate );
+                        timerPollrate = setInterval( GetMessages, fetchInterval );
                     }
                 })
-                .catch((response) => {
+                .catch( ( response ) => {
                     console.error
                 })
 
@@ -582,7 +616,7 @@ const menu_Main = [
                 winAbout = new BrowserWindow({
                     width: 480,
                     height: 440,
-                    title: `${aboutTitle}`,
+                    title: `${ aboutTitle }`,
                     icon: appIcon,
                     parent: winMain,
                     center: true,
@@ -599,31 +633,31 @@ const menu_Main = [
                     }
                 });
 
-                winAbout.loadFile(path.join(__dirname, `pages`, `about.html`)).then(() => {
+                winAbout.loadFile( path.join( __dirname, `pages`, `about.html` ) ).then( () => {
                     winAbout.webContents
                         .executeJavaScript(
                             `
-                setTitle('${aboutTitle}');
-                setAppInfo('${appRepo}', '${appName}', '${appVer}', '${appAuthor}', '${appElectron}');`,
+                setTitle('${ aboutTitle }');
+                setAppInfo('${ appRepo }', '${ appName }', '${ appVer }', '${ appAuthor }', '${ appElectron }');`,
                             true
                         )
-                        .then((result) => {})
-                        .catch(console.error);
+                        .then( ( result ) => {})
+                        .catch( console.error );
                 });
 
-                winAbout.webContents.on('new-window', function (e, url) {
+                winAbout.webContents.on( 'new-window', function ( e, url ) {
                     e.preventDefault();
-                    require('electron').shell.openExternal(url);
+                    require( 'electron' ).shell.openExternal( url );
                 });
 
                 // Remove menubar from about window
-                winAbout.setMenu(null);
+                winAbout.setMenu( null );
             }
         },
         {
             label: 'View New Releases',
             click() {
-                electronShell.openExternal(`${packageJson.homepage}`);
+                electronShell.openExternal( `${ packageJson.homepage }` );
             }
         }
     ]
@@ -653,8 +687,8 @@ const contextMenu = Menu.buildFromTemplate([
     Main Menu > Set
 */
 
-const header_menu = Menu.buildFromTemplate(menu_Main);
-Menu.setApplicationMenu(header_menu);
+const header_menu = Menu.buildFromTemplate( menu_Main );
+Menu.setApplicationMenu( header_menu );
 
 /*
     Main Menu > Developer Tools
@@ -666,13 +700,13 @@ Menu.setApplicationMenu(header_menu);
 */
 
 function activeDevTools() {
-    const header_menu = Menu.buildFromTemplate(menu_Main);
-    Menu.setApplicationMenu(header_menu);
+    const header_menu = Menu.buildFromTemplate( menu_Main );
+    Menu.setApplicationMenu( header_menu );
 
-    if (bDevTools == 1 || store.get('bDevTools') == 1) {
-        let menuItem = header_menu.getMenuItemById('app')
+    if ( bDevTools == 1 || store.get( 'bDevTools' ) == 1 ) {
+        let menuItem = header_menu.getMenuItemById( 'app' )
 
-        menuItem.submenu.insert(0, new MenuItem(
+        menuItem.submenu.insert( 0, new MenuItem(
         {
             label: 'Toggle Dev Tools',
             accelerator: process.platform === 'darwin' ? 'ALT+CMD+I' : 'CTRL+SHIFT+I',
@@ -682,7 +716,7 @@ function activeDevTools() {
         },
         {
             type: 'separator'
-        }))
+        }) )
     }
 }
 
@@ -697,7 +731,7 @@ function ready() {
     */
 
     winMain = new BrowserWindow({
-        title: `${appName}`,
+        title: `${ appName }`,
         width: 1280,
         height: 720,
         icon: appIcon,
@@ -711,11 +745,11 @@ function ready() {
         otherwise app will return invalid index and stop loading.
     */
 
-    if (typeof (store.get('instanceURL')) !== 'string' || store.get('instanceURL') === '' || store.get('instanceURL') === null ) {
-        store.set('instanceURL', _Instance);
+    if ( typeof ( store.get( 'instanceURL' ) ) !== 'string' || store.get( 'instanceURL' ) === '' || store.get( 'instanceURL' ) === null ) {
+        store.set( 'instanceURL', _Instance );
 
         statusHasError = true;
-        statusMessage = `Invalid instance URL specified; defaulting to ${_Instance}`;
+        statusMessage = `Invalid instance URL specified; defaulting to ${ _Instance }`;
     }
 
     /*
@@ -724,24 +758,24 @@ function ready() {
         load default _Instance url
     */
 
-    validateUrl(store.get('instanceURL'), 3, 1000).then( item => {
+    validateUrl( store.get( 'instanceURL' ), 3, 1000 ).then( ( item ) => {
         statusBadURL = false;
-        console.log(`Successfully resolved `+ store.get('instanceURL'));
-        winMain.loadURL(store.get('instanceURL'));
-    }).catch( err => {
+        console.log( `Successfully resolved `+ store.get( 'instanceURL' ) );
+        winMain.loadURL( store.get( 'instanceURL' ) );
+    }).catch( ( err ) => {
         statusBadURL = true;
-        const msg = `Failed to resolve `+ store.get('instanceURL') + ` - defaulting to ${_Instance}`;
-        statusMessage = `${msg}`;
-        console.error(`${msg}`);
-        store.set('instanceURL', _Instance);
-        winMain.loadURL(_Instance);
+        const msg = `Failed to resolve `+ store.get( 'instanceURL' ) + ` - defaulting to ${ _Instance }`;
+        statusMessage = `${ msg }`;
+        console.error( `${ msg }` );
+        store.set( 'instanceURL', _Instance );
+        winMain.loadURL( _Instance );
     });
 
     /*
         Event > Page Title Update
     */
 
-    winMain.on('page-title-updated', (e) => {
+    winMain.on( 'page-title-updated', ( e ) => {
         e.preventDefault();
     });
 
@@ -752,10 +786,10 @@ function ready() {
         otherwise; app will hide
     */
 
-    winMain.on('close', function (e) {
-        if (!app.isQuiting) {
+    winMain.on( 'close', function ( e ) {
+        if ( !app.isQuiting ) {
             e.preventDefault();
-            if (bQuitOnClose == 1 || store.get('bQuitOnClose') == 1) {
+            if ( bQuitOnClose == 1 || store.get( 'bQuitOnClose' ) == 1 ) {
                 app.isQuiting = true;
                 app.quit();
             } else {
@@ -770,7 +804,7 @@ function ready() {
         Event > Closed
     */
 
-    winMain.on('closed', () => {
+    winMain.on( 'closed', () => {
         winMain = null;
     });
 
@@ -780,9 +814,9 @@ function ready() {
         buttons leading to external websites should open in user browser
     */
 
-    winMain.webContents.on('new-window', (e, url) => {
+    winMain.webContents.on( 'new-window', ( e, url ) => {
         e.preventDefault();
-        require('electron').shell.openExternal(url);
+        require( 'electron' ).shell.openExternal( url );
     });
 
     /*
@@ -790,8 +824,8 @@ function ready() {
         user shouldn't see this unless its something serious
     */
 
-    winMain.webContents.on('did-finish-load', (e, url)=> {
-        if ((statusHasError === true || statusBadURL == true) && statusMessage !== '') {
+    winMain.webContents.on( 'did-finish-load', ( e, url )=> {
+        if ( ( statusHasError === true || statusBadURL == true ) && statusMessage !== '' ) {
             winMain.webContents
                 .executeJavaScript(
                 `
@@ -811,11 +845,11 @@ function ready() {
 
                     const span = document.createElement("span");
                     span.setAttribute("class","ntfy-notify error");
-                    span.textContent = '${statusMessage}';
+                    span.textContent = '${ statusMessage }';
 
                     div.appendChild(span);
                     document.body.appendChild(div);
-                `)
+                ` )
             }
         }
     );
@@ -824,13 +858,13 @@ function ready() {
         Event > Input
     */
 
-    winMain.webContents.on('before-input-event', (e, input) => {
+    winMain.webContents.on( 'before-input-event', ( e, input ) => {
 
         /*
             Input > Refresh Page (CTRL + r)
         */
 
-        if ((bHotkeysEnabled == 1 || store.get('bHotkeys') == 1) && input.type === 'keyDown' && input.control && input.key === 'r') {
+        if ( ( bHotkeysEnabled == 1 || store.get( 'bHotkeys' ) == 1 ) && input.type === 'keyDown' && input.control && input.key === 'r' ) {
             winMain.webContents.reload();
         }
 
@@ -838,7 +872,7 @@ function ready() {
             Input > Zoom In (CTRL + =)
         */
 
-        if ((bHotkeysEnabled == 1 || store.get('bHotkeys') == 1) && input.type === 'keyDown' && input.control && input.key === '=') {
+        if ( ( bHotkeysEnabled == 1 || store.get( 'bHotkeys' ) == 1 ) && input.type === 'keyDown' && input.control && input.key === '=' ) {
             winMain.webContents.zoomFactor += 0.1;
         }
 
@@ -846,7 +880,7 @@ function ready() {
             Input > Zoom Out (CTRL + -)
         */
 
-        if ((bHotkeysEnabled == 1 || store.get('bHotkeys') == 1) && input.type === 'keyDown' && input.control && input.key === '-') {
+        if ( ( bHotkeysEnabled == 1 || store.get( 'bHotkeys' ) == 1 ) && input.type === 'keyDown' && input.control && input.key === '-' ) {
             winMain.webContents.zoomFactor -= 0.1;
         }
 
@@ -854,7 +888,7 @@ function ready() {
             Input > Zoom Reset (CTRL + 0)
         */
 
-        if ((bHotkeysEnabled == 1 || store.get('bHotkeys') == 1) && input.type === 'keyDown' && input.control && input.key === '0') {
+        if ( ( bHotkeysEnabled == 1 || store.get( 'bHotkeys' ) == 1 ) && input.type === 'keyDown' && input.control && input.key === '0' ) {
             winMain.webContents.zoomFactor = 1;
         }
 
@@ -862,7 +896,7 @@ function ready() {
             Input > Quit (CTRL + q)
         */
 
-        if ((bHotkeysEnabled == 1 || store.get('bHotkeys') == 1) && input.type === 'keyDown' && input.control && input.key === 'q') {
+        if ( ( bHotkeysEnabled == 1 || store.get( 'bHotkeys' ) == 1 ) && input.type === 'keyDown' && input.control && input.key === 'q' ) {
             app.isQuiting = true;
             app.quit();
         }
@@ -871,7 +905,7 @@ function ready() {
             Input > Minimize to tray (CTRL + m)
         */
 
-        if ((bHotkeysEnabled == 1 || store.get('bHotkeys') == 1) && input.type === 'keyDown' && input.control && input.key === 'm') {
+        if ( ( bHotkeysEnabled == 1 || store.get( 'bHotkeys' ) == 1 ) && input.type === 'keyDown' && input.control && input.key === 'm' ) {
             bWinHidden = 1;
             winMain.hide();
         }
@@ -880,10 +914,10 @@ function ready() {
             Input > Dev Tools (CTRL + SHIFT + I || F12)
         */
 
-        if (((bHotkeysEnabled == 1 || store.get('bHotkeys') == 1) && input.control && input.shift) || input.key === 'F12') {
-            if (input.type === 'keyDown' && (input.key === 'I' || input.key === 'F12')) {
+        if ( ( ( bHotkeysEnabled == 1 || store.get( 'bHotkeys' ) == 1 ) && input.control && input.shift ) || input.key === 'F12' ) {
+            if ( input.type === 'keyDown' && ( input.key === 'I' || input.key === 'F12' ) ) {
                 winMain.webContents.toggleDevTools();
-                winMain.webContents.on('devtools-opened', () => {
+                winMain.webContents.on( 'devtools-opened', () => {
                     winMain.webContents.devToolsWebContents
                         .executeJavaScript(
                             `
@@ -909,7 +943,7 @@ function ready() {
                             })
                         `
                         )
-                        .then(() => {
+                        .then( () => {
                             winMain.webContents.toggleDevTools();
                         });
                 });
@@ -924,11 +958,11 @@ function ready() {
         Linux           : left and right click have same functionality
     */
 
-    tray = new Tray(appIcon);
-    tray.setToolTip(`${appName}`);
-    tray.setContextMenu(contextMenu);
-    tray.on('click', function () {
-        if (bWinHidden) {
+    tray = new Tray( appIcon );
+    tray.setToolTip( `${ appName }` );
+    tray.setContextMenu( contextMenu );
+    tray.on( 'click', function () {
+        if ( bWinHidden ) {
             bWinHidden = 0;
             winMain.show();
         } else {
@@ -945,15 +979,15 @@ function ready() {
         --quit          : quit app when close button pressed
     */
 
-    for (let i = 0; i < process.argv.length; i++) {
-        if (process.argv[i] === '--hidden') {
+    for ( let i = 0;i < process.argv.length;i++ ) {
+        if ( process.argv[i] === '--hidden' ) {
             bWinHidden = 1;
-        } else if (process.argv[i] === '--dev') {
+        } else if ( process.argv[i] === '--dev' ) {
             bDevTools = 1;
             activeDevTools()
-        } else if (process.argv[i] === '--quit') {
+        } else if ( process.argv[i] === '--quit' ) {
             bQuitOnClose = 1;
-        } else if (process.argv[i] === '--hotkeys') {
+        } else if ( process.argv[i] === '--hotkeys' ) {
             bHotkeysEnabled = 1;
         }
     }
@@ -962,8 +996,8 @@ function ready() {
         Run timer every X seconds to check for new messages
     */
 
-    const fetchInterval = ((store.get('pollrate') || _Pollrate) * 1000) + 600;
-    timerPollrate = setInterval(GetMessages, fetchInterval);
+    const fetchInterval = ( ( store.get( 'pollrate' ) || _Pollrate ) * 1000 ) + 600;
+    timerPollrate = setInterval( GetMessages, fetchInterval );
 
     /*
         Check stored setting for developer tools and set state when
@@ -976,7 +1010,7 @@ function ready() {
         Start minimized in tray
     */
 
-    if( store.get('bStartHidden') == 1 || bWinHidden == 1)
+    if( store.get( 'bStartHidden' ) == 1 || bWinHidden == 1 )
         winMain.hide();
 }
 
@@ -984,4 +1018,4 @@ function ready() {
     App > Ready
 */
 
-app.on('ready', ready);
+app.on( 'ready', ready );

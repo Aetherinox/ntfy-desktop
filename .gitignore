@@ -94,3 +94,4 @@
 !renovate.json
 !*.sh
 !*.bat
+!*storage.js
