@@ -49,6 +49,7 @@ let winMain, winAbout, timerPollrate, tray;
 let bDevTools = 0;
 let bHotkeysEnabled = 0;
 let bQuitOnClose = 0;
+// eslint-disable-next-line prefer-const
 let bStartHidden = 0;
 let bWinHidden = 0;
 
@@ -278,6 +279,7 @@ async function GetMessages()
             convert unix timestamp into human readable
         */
 
+        // eslint-disable-next-line no-constant-binary-expression
         const dateHuman = moment.unix( time ).format( store.get( 'datetime' || _Datetime ) );
 
         /*
@@ -698,7 +700,8 @@ const menuMain = [
             }
         }
     ]
-}];
+}
+];
 
 /*
     Tray > Context Menu
