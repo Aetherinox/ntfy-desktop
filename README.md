@@ -166,7 +166,7 @@ To build this app, run the following commands:
 
 ## Linux
 ```shell
-git clone https://github.com/xd/ntfy-electron.git
+git clone https://github.com/Aetherinox/ntfy-desktop.git
 npm install
 npm install -g electron-packager
 sudo apt install wine64
@@ -180,7 +180,7 @@ To test development on a Windows machine, run the following commands.
 A build script for windows will be available later.
 
 ```shell
-git clone https://github.com/xd/ntfy-electron.git
+git clone https://github.com/Aetherinox/ntfy-desktop.git
 npm install
 npm install -g electron
 ```
@@ -215,7 +215,7 @@ We are always looking for contributors. If you feel that you can provide somethi
 <br />
 
 Want to help but can't write code?
-- Review [active questions by our community](https://github.com/xd/ntfy-electron/labels/help%20wanted) and answer the ones you know.
+- Review [active questions by our community](https://github.com/Aetherinox/ntfy-desktop/labels/help%20wanted) and answer the ones you know.
 
 <br />
 
