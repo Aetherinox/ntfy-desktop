@@ -71,26 +71,26 @@
 # #
 # [WL]: Base Files
 # #
-!*.prettierrc
-!*.prettierignore
-!*.eslintrc
-!*.eslint.config.mjs
-!*.npmignore
-!*.all-contributorsrc
-!*.editorconfig
+!prettierrc
+!prettierignore
+!eslintrc
+!eslint.config.mjs
+!npmignore
+!.all-contributorsrc
+!.editorconfig
 !*ntfy.js
 !*index.js
 !*manifest.json
-!*package.json
-!*package-lock.json
-!*rollup.config.js
-!*rollup.config.mjs
-!*tsconfig.json
-!*versions.json
+!package.json
+!package-lock.json
+!rollup.config.js
+!rollup.config.mjs
+!tsconfig.json
+!versions.json
 !sign.bat
 !*SHA*.asc
 !*SHA*.sig
-!*styles.css
-!*renovate.json
+!*.css
+!renovate.json
 !*.sh
 !*.bat
