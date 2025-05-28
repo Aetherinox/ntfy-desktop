@@ -15,8 +15,7 @@ GOTO        comment_end
 
 ECHO.
 
-:: -----------------------------------------------------------------------------------------------------
-::
+:: #
 ::  Powershell zip compression
 ::  Compress-Archive -Path "ntfy-electron-win32-x64" -DestinationPath "build/ntfy-electron-windows-x64.zip"
 ::
@@ -29,37 +28,37 @@ ECHO.
 ::
 ::  TAR -cf archive-file.tar.gz [filenames...]
 ::  TAR -cf "build/ntfy-electron-windows-x64.tar.gz" "ntfy-electron-win32-x64"
-:: -----------------------------------------------------------------------------------------------------
+:: #
 
-:: -----------------------------------------------------------------------------------------------------
+:: #
 ::  define:     directories
-:: -----------------------------------------------------------------------------------------------------
+:: #
 
 set dir_home=%~dp0
 set dir_build=build
 set dir_dist=dist
 
-:: -----------------------------------------------------------------------------------------------------
+:: #
 ::  define:     misc
-:: -----------------------------------------------------------------------------------------------------
+:: #
 
 set "bDeleteBuild=false"
-set "Copyright=Copyright (c) 2024"
+set "Copyright=Copyright (c) 2025"
 set "FileDescription=ntfy desktop client with Electron wrapper"
 set "ProductName=ntfy desktop"
 set "OriginalFilename=ntfy-desktop.exe"
-set "CompanyName=https://github.com/xdpirate/ntfy-electron"
+set "CompanyName=https://github.com/aetherinox/ntfy-desktop"
 set "IgnorePattern=(^^/!dir_dist!|^^/!dir_build!|^^/.github*|/test-*|/tests*|^^/playwright*|.all-contributorsrc|.editorconfig|.eslintrc|^^/.git*|^^.git*|.npm*|.prettier*|CONTRIBUTING.md|CODE_OF_CONDUCT.md|README|README.md|readme.md|LICENSE|license|LICENSE.md|CHANGELOG|CHANGELOG.md)"
 set "IconWindows=assets/icons/ntfy.ico"
 set "IconLinux=assets/icons/ntfy.png"
 set "IconMacOS=assets/icons/ntfy.icns"
 
-:: -----------------------------------------------------------------------------------------------------
+:: #
 ::  Create build directory
 ::
 ::  /build              contains built electron package
 ::  /dist               contains zip archive
-:: -----------------------------------------------------------------------------------------------------
+:: #
 
 IF exist !dir_build! (
     rm -r !dir_build!/*
@@ -75,17 +74,17 @@ IF exist !dir_dist! (
     md !dir_dist! && echo Folder !dir_dist! created
 )
 
-:: -----------------------------------------------------------------------------------------------------
+:: #
 ::  define:     platforms
-:: -----------------------------------------------------------------------------------------------------
+:: #
 
 set platformWin=x64 ia32 arm64
 set platformLinux=x64 arm64 armv7l
 set platformMac=x64 arm64
 
-:: -----------------------------------------------------------------------------------------------------
+:: #
 ::  Build > Windows
-:: -----------------------------------------------------------------------------------------------------
+:: #
 
 for %%a in (%platformWin%) do (
     echo.
@@ -102,9 +101,9 @@ for %%a in (%platformWin%) do (
     echo.
 )
 
-:: -----------------------------------------------------------------------------------------------------
+:: #
 ::  Build > Linux
-:: -----------------------------------------------------------------------------------------------------
+:: #
 
 for %%a in (%platformLinux%) do (
     echo.
@@ -121,9 +120,9 @@ for %%a in (%platformLinux%) do (
     echo.
 )
 
-:: -----------------------------------------------------------------------------------------------------
+:: #
 ::  Build > MacOS
-:: -----------------------------------------------------------------------------------------------------
+:: #
 
 for %%a in (%platformMac%) do (
     echo.
@@ -142,9 +141,9 @@ for %%a in (%platformMac%) do (
 
 goto :END
 
-:: -----------------------------------------------------------------------------------------------------
+:: #
 ::  end
-:: -----------------------------------------------------------------------------------------------------
+:: #
 
 :END
     echo.
