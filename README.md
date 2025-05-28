@@ -101,6 +101,16 @@ This project allows you to access the official free / paid notification service 
 
 <br />
 
+## Selfhosted vs Ntfy.sh
+
+Be aware that the official [ntfy.sh](https://ntfy/) website will rate limit users who have not purchased a paid package. Out of box, this application polls for new notifications every `30 seconds`; if you are on the free plan and decrease this timer, you will get an error stating that you have gone over your rate limit. 
+
+<br />
+
+However, if you are self-hosting your own copy of Ntfy and you set your instance URL to your personal copy, you can set the polling rate as low as `1 second` without any limitations.
+
+<br />
+
 ---
 
 <br />
