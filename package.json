@@ -65,7 +65,7 @@
         "@types/uuid": "^10.0.0",
         "electron": "^36.3.1",
         "electron-playwright-helpers": "^1.7.1",
-        "eslint": "9.17.0",
+        "eslint": "9.27.0",
         "eslint-plugin-chai-friendly": "^1.0.1",
         "eslint-plugin-import": "2.31.0",
         "eslint-plugin-n": "17.15.0",
