@@ -1,7 +1,6 @@
 const { app, BrowserWindow, Tray, Menu, MenuItem } = require( 'electron' );
 const electronShell = require( 'electron' ).shell;
 const toasted = require( 'toasted-notifier' );
-const process = require( 'process' );
 const path = require( 'path' );
 const moment = require( 'moment' );
 const Storage = require( './storage.js' );
@@ -96,7 +95,27 @@ const store = new Storage({
 });
 
 /*
-    Validate instance url
+    helper > valid json
+
+    parse json string to make sure it is valid.
+*/
+
+function isJsonString( json )
+{
+    try
+    {
+        JSON.parse( json );
+    }
+    catch ( e )
+    {
+        return false;
+    }
+
+    return true;
+}
+
+/*
+    helper > validate instance url
 */
 
 function validateUrl( uri, tries, delay )
@@ -113,7 +132,7 @@ function validateUrl( uri, tries, delay )
                 if ( tries === 0 ) // num of tries reached
                     return reject( err );
 
-                setTimeout( () => rec( --tries ), delay ) // retry
+                setTimeout( () => rec( --tries ), delay ); // retry
             }); // retries exceeded
         })( tries );
     });
@@ -128,7 +147,8 @@ function validateUrl( uri, tries, delay )
     API Token can be specified in app.
 */
 
-async function GetMessageData( uri ) {
+async function GetMessageData( uri )
+{
     const cfgApiToken = store.get( 'apiToken' );
     const req = await fetch( uri,
     {
@@ -150,8 +170,9 @@ async function GetMessageData( uri ) {
     const json = await req.text();
     const jsonArr = [];
     const entries = json.split( '\n' );
-    for ( let i = 0;i < entries.length;i++ ) {
-        jsonArr.push( entries[i]);
+    for ( let i = 0;i < entries.length;i++ )
+    {
+        jsonArr.push( entries[ i ] );
     }
 
     /*
@@ -164,20 +185,6 @@ async function GetMessageData( uri ) {
     });
 
     return jsonResult;
-}
-
-function isJsonString( str )
-{
-    try
-    {
-        JSON.parse( str );
-    }
-    catch ( e )
-    {
-        return false;
-    }
-
-    return true;
 }
 
 /*
@@ -253,7 +260,7 @@ async function GetMessages()
 
     for ( let i = 0;i < json.length;i++ )
     {
-        const object = JSON.parse( json[i] );
+        const object = JSON.parse( json[ i ] );
         const id = object.id;
         const type = object.event;
         const time = object.time;
@@ -320,7 +327,7 @@ async function GetMessages()
     App | Configure | Help
 */
 
-const menu_Main = [
+const menuMain = [
 {
     label: '&App',
     id: 'app',
@@ -380,7 +387,7 @@ const menu_Main = [
                                     selectOptions: { 0: 'Disabled', 1: 'Enabled' },
                                     value: store.get( 'bStartHidden' )
                                 }
-                            ],
+                            ]
                     },
                     winMain
                 )
@@ -389,21 +396,21 @@ const menu_Main = [
                     if ( response !== null )
                     {
                         // do not update dev tools if value hasn't changed
-                        if ( store.get( 'bDevTools' ) !== response[0])
+                        if ( store.get( 'bDevTools' ) !== response[ 0 ] )
                         {
-                            store.set( 'bDevTools', response[0]);
+                            store.set( 'bDevTools', response[ 0 ] );
                             activeDevTools();
                         }
 
-                        store.set( 'bHotkeys', response[1]);
-                        store.set( 'bQuitOnClose', response[2]);
-                        store.set( 'bStartHidden', response[3]);
+                        store.set( 'bHotkeys', response[ 1 ] );
+                        store.set( 'bQuitOnClose', response[ 2 ] );
+                        store.set( 'bStartHidden', response[ 3 ] );
                     }
                 })
                 .catch( ( response ) =>
                 {
                     console.error;
-                })
+                });
 
                 /*
                 setTimeout(function (){
@@ -450,12 +457,12 @@ const menu_Main = [
                         validateUrl( store.get( 'instanceURL' ), 3, 1000 ).then( ( item ) =>
                         {
                             statusBadURL = false;
-                            console.log( `Successfully resolved `+ store.get( 'instanceURL' ) );
+                            console.log( `Successfully resolved ` + store.get( 'instanceURL' ) );
                             winMain.loadURL( store.get( 'instanceURL' ) );
                         }).catch( ( err ) =>
                         {
                             statusBadURL = true;
-                            const msg = `Failed to resolve `+ store.get( 'instanceURL' ) + ` - defaulting to ${ _Instance }`;
+                            const msg = `Failed to resolve ` + store.get( 'instanceURL' ) + ` - defaulting to ${ _Instance }`;
                             statusMessage = `${ msg }`;
                             console.error( `${ msg }` );
                             store.set( 'instanceURL', _Instance );
@@ -466,7 +473,7 @@ const menu_Main = [
                 .catch( ( response ) =>
                 {
                     console.error;
-                })
+                });
 
                 /*
                 setTimeout(function (){
@@ -541,7 +548,8 @@ const menu_Main = [
                         {
                             store.set( 'topics', response );
 
-                            if ( typeof ( store.get( 'instanceURL' ) ) !== 'string' || store.get( 'instanceURL' ) === '' || store.get( 'instanceURL' ) === null ) {
+                            if ( typeof ( store.get( 'instanceURL' ) ) !== 'string' || store.get( 'instanceURL' ) === '' || store.get( 'instanceURL' ) === null )
+                            {
                                 store.set( 'instanceURL', _Instance );
                             }
 
@@ -601,11 +609,13 @@ const menu_Main = [
                     },
                     winMain
                 )
-                .then( ( response ) => {
-                    if ( response !== null ) {
-                        store.set( 'bPersistentNoti', response[0])
-                        store.set( 'datetime', response[1])
-                        store.set( 'pollrate', response[2])
+                .then( ( response ) =>
+                {
+                    if ( response !== null )
+                    {
+                        store.set( 'bPersistentNoti', response[ 0 ] );
+                        store.set( 'datetime', response[ 1 ] );
+                        store.set( 'pollrate', response[ 2 ] );
 
                         const cfgPollrate = ( store.get( 'pollrate' ) || _Pollrate );
                         const fetchInterval = ( cfgPollrate * 1000 ) + 600;
@@ -613,16 +623,16 @@ const menu_Main = [
                         timerPollrate = setInterval( GetMessages, fetchInterval );
                     }
                 })
-                .catch( ( response ) => {
-                    console.error
-                })
+                .catch( ( response ) =>
+                {
+                    console.error;
+                });
 
                 /*
                 setTimeout(function (){
                     BrowserWindow.getFocusedWindow().webContents.openDevTools();
                 }, 3000);
                 */
-
             }
         }
     ]
@@ -634,7 +644,8 @@ const menu_Main = [
         {
             id: 'about',
             label: 'About',
-            click() {
+            click()
+            {
                 const aboutTitle = `About`;
                 winAbout = new BrowserWindow({
                     width: 480,
@@ -656,7 +667,8 @@ const menu_Main = [
                     }
                 });
 
-                winAbout.loadFile( path.join( __dirname, `pages`, `about.html` ) ).then( () => {
+                winAbout.loadFile( path.join( __dirname, `pages`, `about.html` ) ).then( () =>
+                {
                     winAbout.webContents
                         .executeJavaScript(
                             `
@@ -680,7 +692,8 @@ const menu_Main = [
         },
         {
             label: 'View New Releases',
-            click() {
+            click()
+            {
                 electronShell.openExternal( `${ packageJson.homepage }` );
             }
         }
@@ -691,28 +704,30 @@ const menu_Main = [
     Tray > Context Menu
 */
 
-const contextMenu = Menu.buildFromTemplate([
+const contextMenu = Menu.buildFromTemplate( [
     {
         label: 'Show App',
-        click: function () {
+        click: function ()
+        {
             winMain.show();
         }
     },
     {
         label: 'Quit',
-        click: function () {
+        click: function ()
+        {
             app.isQuiting = true;
             app.quit();
         }
     }
-]);
+] );
 
 /*
     Main Menu > Set
 */
 
-const header_menu = Menu.buildFromTemplate( menu_Main );
-Menu.setApplicationMenu( header_menu );
+const menuHeader = Menu.buildFromTemplate( menuMain );
+Menu.setApplicationMenu( menuHeader );
 
 /*
     Main Menu > Developer Tools
@@ -723,24 +738,27 @@ Menu.setApplicationMenu( header_menu );
     App | Configure | Help
 */
 
-function activeDevTools() {
-    const header_menu = Menu.buildFromTemplate( menu_Main );
-    Menu.setApplicationMenu( header_menu );
+function activeDevTools()
+{
+    const menuHeader = Menu.buildFromTemplate( menuMain );
+    Menu.setApplicationMenu( menuHeader );
 
-    if ( bDevTools == 1 || store.get( 'bDevTools' ) == 1 ) {
-        let menuItem = header_menu.getMenuItemById( 'app' )
+    if ( bDevTools === 1 || store.get( 'bDevTools' ) === 1 )
+    {
+        const menuItem = menuHeader.getMenuItemById( 'app' );
 
         menuItem.submenu.insert( 0, new MenuItem(
         {
             label: 'Toggle Dev Tools',
             accelerator: process.platform === 'darwin' ? 'ALT+CMD+I' : 'CTRL+SHIFT+I',
-            click: () => {
+            click: () =>
+            {
                 winMain.webContents.toggleDevTools();
             }
         },
         {
             type: 'separator'
-        }) )
+        }) );
     }
 }
 
@@ -748,8 +766,8 @@ function activeDevTools() {
     App > Ready
 */
 
-function ready() {
-
+function ready()
+{
     /*
         New Window
     */
@@ -769,7 +787,8 @@ function ready() {
         otherwise app will return invalid index and stop loading.
     */
 
-    if ( typeof ( store.get( 'instanceURL' ) ) !== 'string' || store.get( 'instanceURL' ) === '' || store.get( 'instanceURL' ) === null ) {
+    if ( typeof ( store.get( 'instanceURL' ) ) !== 'string' || store.get( 'instanceURL' ) === '' || store.get( 'instanceURL' ) === null )
+    {
         store.set( 'instanceURL', _Instance );
 
         statusHasError = true;
@@ -782,13 +801,15 @@ function ready() {
         load default _Instance url
     */
 
-    validateUrl( store.get( 'instanceURL' ), 3, 1000 ).then( ( item ) => {
+    validateUrl( store.get( 'instanceURL' ), 3, 1000 ).then( ( item ) =>
+    {
         statusBadURL = false;
-        console.log( `Successfully resolved `+ store.get( 'instanceURL' ) );
+        console.log( `Successfully resolved ` + store.get( 'instanceURL' ) );
         winMain.loadURL( store.get( 'instanceURL' ) );
-    }).catch( ( err ) => {
+    }).catch( ( err ) =>
+    {
         statusBadURL = true;
-        const msg = `Failed to resolve `+ store.get( 'instanceURL' ) + ` - defaulting to ${ _Instance }`;
+        const msg = `Failed to resolve ` + store.get( 'instanceURL' ) + ` - defaulting to ${ _Instance }`;
         statusMessage = `${ msg }`;
         console.error( `${ msg }` );
         store.set( 'instanceURL', _Instance );
@@ -799,7 +820,8 @@ function ready() {
         Event > Page Title Update
     */
 
-    winMain.on( 'page-title-updated', ( e ) => {
+    winMain.on( 'page-title-updated', ( e ) =>
+    {
         e.preventDefault();
     });
 
@@ -810,13 +832,18 @@ function ready() {
         otherwise; app will hide
     */
 
-    winMain.on( 'close', function ( e ) {
-        if ( !app.isQuiting ) {
+    winMain.on( 'close', ( e ) =>
+    {
+        if ( !app.isQuiting )
+        {
             e.preventDefault();
-            if ( bQuitOnClose == 1 || store.get( 'bQuitOnClose' ) == 1 ) {
+            if ( bQuitOnClose === 1 || store.get( 'bQuitOnClose' ) === 1 )
+            {
                 app.isQuiting = true;
                 app.quit();
-            } else {
+            }
+            else
+            {
                 winMain.hide();
             }
         }
@@ -828,7 +855,8 @@ function ready() {
         Event > Closed
     */
 
-    winMain.on( 'closed', () => {
+    winMain.on( 'closed', () =>
+    {
         winMain = null;
     });
 
@@ -849,7 +877,7 @@ function ready() {
         user shouldn't see this unless its something serious
     */
 
-    winMain.webContents.on( 'did-finish-load', ( e, url )=>
+    winMain.webContents.on( 'did-finish-load', ( e, url ) =>
     {
         if ( ( statusHasError === true || statusBadURL === true ) && statusMessage !== '' )
         {
@@ -876,7 +904,7 @@ function ready() {
 
                     div.appendChild(span);
                     document.body.appendChild(div);
-                ` )
+                ` );
             }
         }
     );
@@ -952,7 +980,8 @@ function ready() {
             if ( input.type === 'keyDown' && ( input.key === 'I' || input.key === 'F12' ) )
             {
                 winMain.webContents.toggleDevTools();
-                winMain.webContents.on( 'devtools-opened', () => {
+                winMain.webContents.on( 'devtools-opened', () =>
+                {
                     winMain.webContents.devToolsWebContents
                         .executeJavaScript(
                             `
@@ -978,7 +1007,8 @@ function ready() {
                             })
                         `
                         )
-                        .then( () => {
+                        .then( () =>
+                        {
                             winMain.webContents.toggleDevTools();
                         });
                 });
@@ -1020,20 +1050,20 @@ function ready() {
 
     for ( let i = 0;i < process.argv.length;i++ )
     {
-        if ( process.argv[i] === '--hidden' )
+        if ( process.argv[ i ] === '--hidden' )
         {
             bWinHidden = 1;
         }
-        else if ( process.argv[i] === '--dev' )
+        else if ( process.argv[ i ] === '--dev' )
         {
             bDevTools = 1;
-            activeDevTools()
+            activeDevTools();
         }
-        else if ( process.argv[i] === '--quit' )
+        else if ( process.argv[ i ] === '--quit' )
         {
             bQuitOnClose = 1;
         }
-        else if ( process.argv[i] === '--hotkeys' )
+        else if ( process.argv[ i ] === '--hotkeys' )
         {
             bHotkeysEnabled = 1;
         }

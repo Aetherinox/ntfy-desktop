@@ -85,6 +85,7 @@ export default
             globals: {
                 ...customGlobals,
                 ...globals.browser,
+                ...globals.node,
                 process: true, // Node.js global
                 _: true,
                 $: true
@@ -175,8 +176,14 @@ export default
             'n/no-restricted-require': 'error',
             'n/no-sync': 'off',
             'n/no-unpublished-bin': 'error',
-            'n/no-unpublished-import': 'error',
-            'n/no-unpublished-require': 'error',
+            'n/no-unpublished-import': [ 'error',
+            {
+                "allowModules": [ 'electron' ]
+            }],
+            'n/no-unpublished-require': [ 'error',
+            {
+                "allowModules": [ 'electron' ]
+            }],
             'n/no-unsupported-features/es-builtins': 'error',
             'n/no-unsupported-features/es-syntax': 'error',
             'n/no-unsupported-features/node-builtins': 'off',
@@ -212,7 +219,7 @@ export default
             '@stylistic/js/block-spacing': [ 'error', 'always' ],
             '@stylistic/js/comma-dangle': [ 'error', 'never' ],
             '@stylistic/js/comma-spacing': [ 'error', { before: false, after: true }],
-            '@stylistic/js/computed-property-spacing': ['error', 'never'],
+            '@stylistic/js/computed-property-spacing': ['error', 'always'],
             '@stylistic/js/no-mixed-operators': ['off'],
             '@stylistic/js/eol-last': ['error', 'always'],
             '@stylistic/js/jsx-quotes': ['error', 'prefer-single'],
@@ -230,7 +237,7 @@ export default
             '@stylistic/js/template-tag-spacing': ['error', 'always'],
             '@stylistic/js/space-in-parens': [ 'error', 'always',
             {
-                exceptions: ["{}", "[]"]
+                exceptions: ["{}"]
             }],
             '@stylistic/js/spaced-comment': [ 'error', 'always',
             {

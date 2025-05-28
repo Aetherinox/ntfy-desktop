@@ -27,7 +27,7 @@ class Storage
 
     get( key )
     {
-        return this.data[key];
+        return this.data[ key ];
     }
 
     /*
@@ -36,7 +36,7 @@ class Storage
 
     set( key, val )
     {
-        this.data[key] = val;
+        this.data[ key ] = val;
         fs.writeFileSync( this.path, JSON.stringify( this.data ) );
     }
 }
