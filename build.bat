@@ -44,7 +44,7 @@ set dir_dist=dist
 
 set "bDeleteBuild=false"
 set "Copyright=Copyright (c) 2025"
-set "FileDescription=ntfy desktop client with Electron wrapper"
+set "FileDescription=Ntfy.sh desktop client for Windows, Linux, and MacOS with push notifications. Supports official ntfy.sh website and self-hosted instances."
 set "ProductName=ntfy desktop"
 set "OriginalFilename=ntfy-desktop.exe"
 set "CompanyName=https://github.com/aetherinox/ntfy-desktop"
