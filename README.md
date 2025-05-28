@@ -62,11 +62,13 @@
 <br />
 
 # About
+
 This project allows you to access the official free / paid notification service [ntfy.sh](https://ntfy.sh/), or your own self-hosted version of ntfy from within a desktop application which utilizes Electron as the wrapper.
 
 <br />
 
 ## ntfy
+
 [ntfy.sh](https://ntfy/) (pronounced "notify") is a simple HTTP-based pub-sub notification service. With ntfy, you can send notifications to your phone or desktop via scripts from any computer, without having to sign up or pay any fees. If you'd like to run your own instance of the service, you can easily do so since ntfy is open source.
 
 <br />
@@ -84,6 +86,7 @@ This project allows you to access the official free / paid notification service 
 <br />
 
 # Features
+
 - Usable with ntfy.sh and self-hosted instances
 - Two modes for minimizing app, configure in settings
   1. Close button exits app completely, sits in taskbar and tray
@@ -137,7 +140,8 @@ The following keybinds can be used within ntfy-desktop:
 <br />
 
 # CLI Arguments
-This client 
+
+This client allows you to utilize the following command-line arguments with ntfy-desktop:
 
 <br />
 
@@ -151,6 +155,7 @@ This client
 <br />
 
 If you are running ntfy-desktop from node, you can pass arguments using the following example:
+
 ```shell ignore
 npm run start -- --hidden
 ```
@@ -162,9 +167,11 @@ npm run start -- --hidden
 <br />
 
 # Build
+
 To build this app, run the following commands:
 
 ## Linux
+
 ```shell
 git clone https://github.com/Aetherinox/ntfy-desktop.git
 npm install
@@ -176,6 +183,7 @@ sudo ln -s /usr/bin/wine /usr/bin/wine64
 <br />
 
 ## Windows
+
 To test development on a Windows machine, run the following commands.
 A build script for windows will be available later.
 
@@ -195,6 +203,7 @@ npm run start
 <br />
 
 When you are ready to build, run the build script:
+
 ```shell ignore
 sudo chmod +x build.sh
 ./build.sh
@@ -207,6 +216,7 @@ sudo chmod +x build.sh
 <br />
 
 ## Contributors ✨
+
 We are always looking for contributors. If you feel that you can provide something useful to Gistr, then we'd love to review your suggestion. Before submitting your contribution, please review the following resources:
 
 - [Pull Request Procedure](.github/PULL_REQUEST_TEMPLATE.md)
