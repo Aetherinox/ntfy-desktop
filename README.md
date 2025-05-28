@@ -1,6 +1,6 @@
 <div align="center">
-<h6>Desktop Client</h6>
-<h1>♾️ ntfy-electron ♾️</h1>
+<h6>Ntfy.sh desktop client for Windows, Linux, and MacOSX</h6>
+<h1>♾️ ntfy-desktop ♾️</h1>
 
 <br />
 
