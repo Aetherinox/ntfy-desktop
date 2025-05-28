@@ -103,7 +103,7 @@ This project allows you to access the official free / paid notification service 
 <br />
 
 # Key Binds
-The following keybinds can be used within ntfy-electron:
+The following keybinds can be used within ntfy-desktop:
 
 <br />
 
@@ -150,7 +150,7 @@ This client
 
 <br />
 
-If you are running ntfy-electron from node, you can pass arguments using the following example:
+If you are running ntfy-desktop from node, you can pass arguments using the following example:
 ```shell ignore
 npm run start -- --hidden
 ```
@@ -254,19 +254,19 @@ The following people have helped keep this project going:
 <!-- BADGE > GENERAL -->
   [general-npmjs-uri]: https://npmjs.com
   [general-nodejs-uri]: https://nodejs.org
-  [general-npmtrends-uri]: http://npmtrends.com/ntfy-electron
+  [general-npmtrends-uri]: http://npmtrends.com/ntfy-desktop
 
 <!-- BADGE > VERSION > GITHUB -->
   [github-version-img]: https://img.shields.io/github/v/tag/Aetherinox/ntfy-desktop?logo=GitHub&label=Version&color=ba5225
   [github-version-uri]: https://github.com/Aetherinox/ntfy-desktop/releases
 
 <!-- BADGE > VERSION > NPMJS -->
-  [npm-version-img]: https://img.shields.io/npm/v/ntfy-electron?logo=npm&label=Version&color=ba5225
-  [npm-version-uri]: https://npmjs.com/package/ntfy-electron
+  [npm-version-img]: https://img.shields.io/npm/v/ntfy-desktop?logo=npm&label=Version&color=ba5225
+  [npm-version-uri]: https://npmjs.com/package/ntfy-desktop
 
 <!-- BADGE > VERSION > PYPI -->
-  [pypi-version-img]: https://img.shields.io/pypi/v/ntfy-electron-plugin
-  [pypi-version-uri]: https://pypi.org/project/ntfy-electron-plugin/
+  [pypi-version-img]: https://img.shields.io/pypi/v/ntfy-desktop-plugin
+  [pypi-version-uri]: https://pypi.org/project/ntfy-desktop-plugin/
 
 <!-- BADGE > LICENSE > MIT -->
   [license-mit-img]: https://img.shields.io/badge/MIT-FFF?logo=creativecommons&logoColor=FFFFFF&label=License&color=9d29a0
@@ -278,15 +278,15 @@ The following people have helped keep this project going:
 
 <!-- BADGE > NPMJS > DOWNLOAD COUNT -->
   [npmjs-downloads-img]: https://img.shields.io/npm/dw/%40aetherinox%2Fmkdocs-link-embeds?logo=npm&&label=Downloads&color=376892
-  [npmjs-downloads-uri]: https://npmjs.com/package/ntfy-electron
+  [npmjs-downloads-uri]: https://npmjs.com/package/ntfy-desktop
 
 <!-- BADGE > GITHUB > DOWNLOAD SIZE -->
   [github-size-img]: https://img.shields.io/github/repo-size/Aetherinox/ntfy-desktop?logo=github&label=Size&color=59702a
   [github-size-uri]: https://github.com/Aetherinox/ntfy-desktop/releases
 
 <!-- BADGE > NPMJS > DOWNLOAD SIZE -->
-  [npmjs-size-img]: https://img.shields.io/npm/unpacked-size/ntfy-electron/latest?logo=npm&label=Size&color=59702a
-  [npmjs-size-uri]: https://npmjs.com/package/ntfy-electron
+  [npmjs-size-img]: https://img.shields.io/npm/unpacked-size/ntfy-desktop/latest?logo=npm&label=Size&color=59702a
+  [npmjs-size-uri]: https://npmjs.com/package/ntfy-desktop
 
 <!-- BADGE > CODECOV > COVERAGE -->
   [codecov-coverage-img]: https://img.shields.io/codecov/c/github/Aetherinox/ntfy-desktop?token=MPAVASGIOG&logo=codecov&logoColor=FFFFFF&label=Coverage&color=354b9e
