@@ -192,6 +192,15 @@ sudo ln -s /usr/bin/wine /usr/bin/wine64
 
 <br />
 
+When you are ready to build, run the build script:
+
+```shell ignore
+sudo chmod +x build.sh
+./build.sh
+```
+
+<br />
+
 ## Windows
 
 To test development on a Windows machine, run the following commands.
@@ -215,8 +224,7 @@ npm run start
 When you are ready to build, run the build script:
 
 ```shell ignore
-sudo chmod +x build.sh
-./build.sh
+./build.bat
 ```
 
 <br />
