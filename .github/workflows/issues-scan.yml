@@ -912,7 +912,7 @@ jobs:
                           const pr_title          = `${ ct.payload.pull_request.title }`;
                           const pr_title_append   = `PR ${ ct.issue.number }:`;
 
-                          if ( !pr_title.startsWith( pr_title_append ) && actor !=  "${{ env.BOT_NAME_RENOVATE }}" )
+                          if ( !pr_title.startsWith( pr_title_append ) )
                           {
                               await github.rest.pulls.update(
                               {
