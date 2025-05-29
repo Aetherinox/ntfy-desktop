@@ -560,6 +560,7 @@ jobs:
                           "renovate/aetherinox/noxenv",
                           "renovate/playwright",
                           "renovate/types",
+                          "renovate/@types",
                           "renovate/eslint",
                           "renovate/stylistic",
                           "renovate/jimp",
