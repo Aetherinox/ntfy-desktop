@@ -75,6 +75,7 @@ env:
           { "name": "Status › Stale",               "color": "928282", "description": "Has not had any activity in over 30 days" },
           { "name": "Type › Bug",                   "color": "9a2c2c", "description": "Something isn't working" },
           { "name": "Type › Dependency",            "color": "243759", "description": "Item is associated to dependency" },
+          { "name": "Type › Lock Maintenance",      "color": "FBCA04", "description": "Sync package-lock.json" },
           { "name": "Type › Docs",                  "color": "0e588d", "description": "Improvements or modifications to docs" },
           { "name": "Type › Feature",               "color": "3c4e93", "description": "Feature request" },
           { "name": "Type › Git Action",            "color": "030406", "description": "GitHub Action / workflow" },
