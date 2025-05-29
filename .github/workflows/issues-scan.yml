@@ -64,6 +64,7 @@ env:
     LABEL_TYPE_PR:                  Type › Pull Request
     LABEL_TYPE_DEPENDENCY:          Type › Dependency
     LABEL_TYPE_GITACTION:           Type › Git Action
+    LABEL_TYPE_MAINTENANCE:         Type › Lock Maintenance
 
     ASSIGN_USER:                    Aetherinox
     BOT_NAME_1:                     EuropaServ
@@ -577,6 +578,11 @@ jobs:
                           "renovate/github_actions"
                       ];
 
+                      const type_maint =
+                      [
+                          "renovate/lock-file-maintenance"
+                      ];
+
                       const files_skipList =
                       [
                           ".github",
@@ -933,11 +939,14 @@ jobs:
 
                       const bGitaction    = type_gitaction.some( s => s.includes( branch_ref ) || branch_ref.includes( s ) );
                       const bDependency   = type_dependency.some( s => s.includes( branch_ref ) || branch_ref.includes( s ) );
+                      const bMaintenance  = type_maint.some( s => s.includes( branch_ref ) || branch_ref.includes( s ) );
 
                       if ( actor ==  "${{ env.BOT_NAME_DEPENDABOT }}" && bDependency || actor ==  "${{ env.BOT_NAME_RENOVATE }}" && bDependency )
                           labels.push( "${{ env.LABEL_TYPE_DEPENDENCY }}" );
                       else if ( actor ==  "${{ env.BOT_NAME_DEPENDABOT }}" && bGitaction || actor ==  "${{ env.BOT_NAME_RENOVATE }}" && bGitaction )
                           labels.push( "${{ env.LABEL_TYPE_GITACTION }}" );
+                      else if ( actor ==  "${{ env.BOT_NAME_DEPENDABOT }}" && bMaintenance || actor ==  "${{ env.BOT_NAME_RENOVATE }}" && bMaintenance )
+                          labels.push( "${{ env.LABEL_TYPE_MAINTENANCE }}" );
 
                       if ( ct.payload.pull_request.labels.filter( label => label.name === "${{ env.LABEL_CHECK_CHANGES_REQ }}" ).length > 0 )
                           labels.push( "${{ env.LABEL_CHECK_CHANGES_REQ }}" );
