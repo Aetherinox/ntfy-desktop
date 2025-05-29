@@ -554,7 +554,20 @@ jobs:
                       const type_dependency =
                       [
                           "dependabot/npm_and_yarn",
-                          "renovate/github_actions"
+                          "renovate/github_actions",
+                          "renovate/testing-library",
+                          "renovate/electron",
+                          "renovate/aetherinox/noxenv",
+                          "renovate/playwright",
+                          "renovate/types",
+                          "renovate/eslint",
+                          "renovate/stylistic",
+                          "renovate/jimp",
+                          "renovate/custom-electron-prompt",
+                          "renovate/moment",
+                          "renovate/semver",
+                          "renovate/toasted",
+                          "renovate/uuid"
                       ];
 
                       const type_gitaction =
