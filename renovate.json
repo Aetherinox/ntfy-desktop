@@ -18,10 +18,10 @@
   "dependencyDashboardLabels": ["📰 Progress Report"],
   "vulnerabilityAlerts": {
     "enabled": true,
-    "labels": ["Type ◦ Vulnerability"]
+    "labels": ["Type › Vulnerability"]
   },
   "labels": [
-    "Type ◦ Dependency"
+    "Type › Dependency"
   ],
   "major": {
     "automerge": false
@@ -38,7 +38,7 @@
         "nvm"
       ],
       "addLabels": [
-        "Type ◦ Dependency"
+        "Type › Dependency"
       ],
       "rangeStrategy": "auto"
     },
@@ -53,7 +53,7 @@
         "patch"
       ],
       "addLabels": [
-        "Type ◦ Dependency"
+        "Type › Dependency"
       ],
       "automerge": false
     },
@@ -62,7 +62,7 @@
         "github-actions"
       ],
       "addLabels": [
-        "Type ◦ Git Action"
+        "Type › Git Action"
       ],
       "rangeStrategy": "auto"
     },
@@ -71,7 +71,7 @@
         "github-actions"
       ],
       "addLabels": [
-        "Type ◦ Git Action"
+        "Type › Git Action"
       ],
       "matchUpdateTypes": [
         "minor",
