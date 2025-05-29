@@ -105,6 +105,7 @@ env:
           { "name": "Status › Stale",               "color": "928282", "description": "Has not had any activity in over 30 days" },
           { "name": "Type › Bug",                   "color": "9a2c2c", "description": "Something isn't working" },
           { "name": "Type › Dependency",            "color": "243759", "description": "Item is associated to dependency" },
+          { "name": "Type › Lock Maintenance",      "color": "FBCA04", "description": "Sync package-lock.json" },
           { "name": "Type › Docs",                  "color": "0e588d", "description": "Improvements or modifications to docs" },
           { "name": "Type › Feature",               "color": "3c4e93", "description": "Feature request" },
           { "name": "Type › Git Action",            "color": "030406", "description": "GitHub Action / workflow" },
@@ -257,7 +258,7 @@ jobs:
 
             # #
             #   Assign > Get Issue Title
-            #   
+            #
             #   this step simply gets the title set for a new issue created by a user and sets it as an env
             # #
 
@@ -277,21 +278,21 @@ jobs:
 
             # #
             #   Labels > Bugs
-            #   
+            #
             #   this step scans the title and body of a new submitted issue for certain keywords.
             #   this step will then re-name the issue with a title which contains the type of issue at the front
             #   with whatever label is set for PREFIX_BUG; title change will look like the following:
-            #       - EuropaServ changed the title 
+            #       - EuropaServ changed the title
             #           [-] test issue found bug here
             #           [+] 🐛 Bug: test issue found bug here
             #       - EuropaServ added [ Type › Bug ]
-            #   
+            #
             #   There are four main types of tickets:
             #       1. 🐛 Bug
             #       2. 💡 Feature
             #       3. 🗺️ Roadmap
             #       4. ⚠ Urgent
-            #   
+            #
             #   If the ticket is classified as a "Bug", the title of the ticket will be re-named to include `🐛 Bug` at the beginning
             #   of the issue name, but then that title will be carried over to the next type of ticket to check the title again.
             # #
@@ -427,7 +428,7 @@ jobs:
                                   iss_title = iss_title.slice(removeBeginning2.length);
                                   iss_title = iss_title.trim();
                               }
-  
+
                               const title             = iss_title;
                               let title_new           = title.replace( /^\s?bug\s*(.*?)\b/gi, '' );
                               title_new               = title.replace( /^\s?fail\s*(.*?)\b/gi, '' );
@@ -449,21 +450,21 @@ jobs:
 
             # #
             #   Labels > Features
-            #   
+            #
             #   this step scans the title and body of a new submitted issue for certain keywords.
             #   this step will then re-name the issue with a title which contains the type of issue at the front
             #   with whatever label is set for PREFIX_FEATURE; title change will look like the following:
-            #       - EuropaServ changed the title 
+            #       - EuropaServ changed the title
             #           [-] Add ability to create X
             #           [+] 💡 Feature: Add ability to create X
             #       - EuropaServ added [ Type › Feature ]
-            #   
+            #
             #   There are four main types of tickets:
             #       1. 🐛 Bug
             #       2. 💡 Feature
             #       3. 🗺️ Roadmap
             #       4. ⚠ Urgent
-            #   
+            #
             #   If the ticket is classified as a "Feature", the title of the ticket will be re-named to include `💡 Feature` at the beginning
             #   of the issue name, but then that title will be carried over to the next type of ticket to check the title again.
             # #
@@ -622,21 +623,21 @@ jobs:
 
             # #
             #   Labels > Roadmap
-            #   
+            #
             #   this step scans the title and body of a new submitted issue for certain keywords.
             #   this step will then re-name the issue with a title which contains the type of issue at the front
             #   with whatever label is set for PREFIX_ROADMAP; title change will look like the following:
-            #       - EuropaServ changed the title 
+            #       - EuropaServ changed the title
             #           [-] roadmap new feature
             #           [+] 🗺️ Roadmap: new feature
             #       - EuropaServ added [ Type › Roadmap ]
-            #   
+            #
             #   There are four main types of tickets:
             #       1. 🐛 Bug
             #       2. 💡 Feature
             #       3. 🗺️ Roadmap
             #       4. ⚠ Urgent
-            #   
+            #
             #   If the ticket is classified as a "Roadmap", the title of the ticket will be re-named to include `🗺️ Roadmap` at the beginning
             #   of the issue name, but then that title will be carried over to the next type of ticket to check the title again.
             # #
@@ -795,27 +796,27 @@ jobs:
 
             # #
             #   Labels > Urgent
-            #   
+            #
             #   this step scans the title and body of a new submitted issue for certain keywords.
             #   this step will then re-name the issue with a title which contains the type of issue at the front
             #   with whatever label is set for PREFIX_URGENT; title change will look like the following:
-            #       - EuropaServ changed the title 
+            #       - EuropaServ changed the title
             #           [-] emergency
             #           [+] ⚠ Urgent: emergency
             #       - EuropaServ added [ Type › Urgent ]
-            #   
+            #
             #   this tag can be mixed with 🐛 Bug so that a ticket gets both tags
-            #       - EuropaServ changed the title 
+            #       - EuropaServ changed the title
             #           [-] emergency
             #           [+] 🐛 Bug: urgent issue
             #       - EuropaServ added [ Type › Bug ], [ Type › Urgent ]
-            #   
+            #
             #   There are four main types of tickets:
             #       1. 🐛 Bug
             #       2. 💡 Feature
             #       3. 🗺️ Roadmap
             #       4. ⚠ Urgent
-            #   
+            #
             #   If the ticket is classified as a "Urgent", the title of the ticket will be re-named to include `⚠ Urgent` at the beginning
             #   of the issue name, but then that title will be carried over to the next type of ticket to check the title again.
             # #
@@ -940,7 +941,7 @@ jobs:
                               const removeBeginning1 		  = urgn_tag.substring(3); 				          // "Urgent:"
                               let removeBeginning2 		    = urgn_tag.substring(0);				          // "⚠ Urgent:"
                               removeBeginning2			      = removeBeginning2.replace(/\s/g, '')	    // "Urgent:"
-                    
+
                               if ( iss_title.startsWith(removeBeginning1) )                         // "Urgent:"
                               {
                                   iss_title = iss_title.slice(removeBeginning1.length);
@@ -975,7 +976,7 @@ jobs:
 
     # #
     #   Job > Phrase Search
-    #   
+    #
     #   Checks a message for certain keywords and then responds to the user as a reply / comment
     # #
 
@@ -1006,7 +1007,7 @@ jobs:
 
             # #
             #   Phrase Search > Search
-            #   
+            #
             #   if an issue message contains certain keywords; have our bot reply with helpful links and information.
             # #
 
