@@ -47,6 +47,7 @@
 - [About](#about)
   - [ntfy](#ntfy)
 - [Features](#features)
+  - [Selfhosted vs Ntfy.sh](#selfhosted-vs-ntfysh)
 - [Key Binds](#key-binds)
 - [CLI Arguments](#cli-arguments)
 - [Build](#build)
@@ -183,7 +184,7 @@ To build this app, run the following commands:
 ## Linux
 
 ```shell
-git clone https://github.com/Aetherinox/ntfy-desktop.git
+git clone https://github.com/aetherinox/ntfy-desktop.git
 npm install
 npm install -g electron-packager
 sudo apt install wine64
@@ -207,7 +208,7 @@ To test development on a Windows machine, run the following commands.
 A build script for windows will be available later.
 
 ```shell
-git clone https://github.com/Aetherinox/ntfy-desktop.git
+git clone https://github.com/aetherinox/ntfy-desktop.git
 npm install
 npm install -g electron
 ```
@@ -235,7 +236,7 @@ When you are ready to build, run the build script:
 
 ## Contributors ✨
 
-We are always looking for contributors. If you feel that you can provide something useful to Gistr, then we'd love to review your suggestion. Before submitting your contribution, please review the following resources:
+We are always looking for contributors. If you feel that you can provide something useful to this project, then we'd love to review your suggestion. Before submitting your contribution, please review the following resources:
 
 - [Pull Request Procedure](.github/PULL_REQUEST_TEMPLATE.md)
 - [Contributor Policy](CONTRIBUTING.md)
@@ -243,7 +244,8 @@ We are always looking for contributors. If you feel that you can provide somethi
 <br />
 
 Want to help but can't write code?
-- Review [active questions by our community](https://github.com/Aetherinox/ntfy-desktop/labels/help%20wanted) and answer the ones you know.
+
+- Review [active questions by our community](https://github.com/aetherinox/ntfy-desktop/labels/❔%20Question) and answer the ones you know.
 
 <br />
 
@@ -263,8 +265,7 @@ The following people have helped keep this project going:
 <table>
   <tbody>
     <tr>
-      <td align="center" valign="top"><a href="https://gitlab.com/Aetherinox"><img src="https://avatars.githubusercontent.com/u/1757462?v=4&s=40" width="80px;" alt="xdpirate"/><br /><sub><b>xdpirate</b></sub></a><br /><a href="https://github.com/Aetherinox/ntfy-desktop/commits?author=xdpirate" title="Code">💻</a> <a href="#projectManagement-xdpirate" title="Project Management">📆</a></td>
-      <td align="center" valign="top"><a href="https://gitlab.com/Aetherinox"><img src="https://avatars.githubusercontent.com/u/118329232?v=4?s=40" width="80px;" alt="Aetherinox"/><br /><sub><b>Aetherinox</b></sub></a><br /><a href="https://github.com/Aetherinox/ntfy-desktop/commits?author=Aetherinox" title="Code">💻</a></td>
+      <td align="center" valign="top"><a href="https://github.com/aetherinox"><img src="https://avatars.githubusercontent.com/u/118329232?v=4&s=40" width="80px;" alt="Aetherinox"/><br /><sub><b>Aetherinox</b></sub></a><br /><a href="https://github.com/aetherinox/noxenv/commits?author=aetherinox" title="Code">💻</a> <a href="#projectManagement-aetherinox" title="Project Management">📆</a></td>
     </tr>
   </tbody>
 </table>
@@ -285,60 +286,60 @@ The following people have helped keep this project going:
   [general-npmtrends-uri]: http://npmtrends.com/ntfy-desktop
 
 <!-- BADGE > VERSION > GITHUB -->
-  [github-version-img]: https://img.shields.io/github/v/tag/Aetherinox/ntfy-desktop?logo=GitHub&label=Version&color=ba5225
-  [github-version-uri]: https://github.com/Aetherinox/ntfy-desktop/releases
+  [github-version-img]: https://img.shields.io/github/v/tag/aetherinox/ntfy-desktop?logo=GitHub&label=Version&color=ba5225
+  [github-version-uri]: https://github.com/aetherinox/ntfy-desktop/releases
 
 <!-- BADGE > VERSION > NPMJS -->
   [npm-version-img]: https://img.shields.io/npm/v/ntfy-desktop?logo=npm&label=Version&color=ba5225
   [npm-version-uri]: https://npmjs.com/package/ntfy-desktop
 
 <!-- BADGE > VERSION > PYPI -->
-  [pypi-version-img]: https://img.shields.io/pypi/v/ntfy-desktop-plugin
-  [pypi-version-uri]: https://pypi.org/project/ntfy-desktop-plugin/
+  [pypi-version-img]: https://img.shields.io/pypi/v/ntfy-desktop
+  [pypi-version-uri]: https://pypi.org/project/ntfy-desktop/
 
 <!-- BADGE > LICENSE > MIT -->
   [license-mit-img]: https://img.shields.io/badge/MIT-FFF?logo=creativecommons&logoColor=FFFFFF&label=License&color=9d29a0
-  [license-mit-uri]: https://github.com/Aetherinox/ntfy-desktop/blob/main/LICENSE
+  [license-mit-uri]: https://github.com/aetherinox/ntfy-desktop/blob/main/LICENSE
 
 <!-- BADGE > GITHUB > DOWNLOAD COUNT -->
-  [github-downloads-img]: https://img.shields.io/github/downloads/Aetherinox/ntfy-desktop/total?logo=github&logoColor=FFFFFF&label=Downloads&color=376892
-  [github-downloads-uri]: https://github.com/Aetherinox/ntfy-desktop/releases
+  [github-downloads-img]: https://img.shields.io/github/downloads/aetherinox/ntfy-desktop/total?logo=github&logoColor=FFFFFF&label=Downloads&color=376892
+  [github-downloads-uri]: https://github.com/aetherinox/ntfy-desktop/releases
 
 <!-- BADGE > NPMJS > DOWNLOAD COUNT -->
-  [npmjs-downloads-img]: https://img.shields.io/npm/dw/%40aetherinox%2Fmkdocs-link-embeds?logo=npm&&label=Downloads&color=376892
+  [npmjs-downloads-img]: https://img.shields.io/npm/dw/%40aetherinox%2Fntfy-desktop?logo=npm&&label=Downloads&color=376892
   [npmjs-downloads-uri]: https://npmjs.com/package/ntfy-desktop
 
 <!-- BADGE > GITHUB > DOWNLOAD SIZE -->
-  [github-size-img]: https://img.shields.io/github/repo-size/Aetherinox/ntfy-desktop?logo=github&label=Size&color=59702a
-  [github-size-uri]: https://github.com/Aetherinox/ntfy-desktop/releases
+  [github-size-img]: https://img.shields.io/github/repo-size/aetherinox/ntfy-desktop?logo=github&label=Size&color=59702a
+  [github-size-uri]: https://github.com/aetherinox/ntfy-desktop/releases
 
 <!-- BADGE > NPMJS > DOWNLOAD SIZE -->
   [npmjs-size-img]: https://img.shields.io/npm/unpacked-size/ntfy-desktop/latest?logo=npm&label=Size&color=59702a
   [npmjs-size-uri]: https://npmjs.com/package/ntfy-desktop
 
 <!-- BADGE > CODECOV > COVERAGE -->
-  [codecov-coverage-img]: https://img.shields.io/codecov/c/github/Aetherinox/ntfy-desktop?token=MPAVASGIOG&logo=codecov&logoColor=FFFFFF&label=Coverage&color=354b9e
-  [codecov-coverage-uri]: https://codecov.io/github/Aetherinox/ntfy-desktop
+  [codecov-coverage-img]: https://img.shields.io/codecov/c/github/aetherinox/ntfy-desktop?token=MPAVASGIOG&logo=codecov&logoColor=FFFFFF&label=Coverage&color=354b9e
+  [codecov-coverage-uri]: https://codecov.io/github/aetherinox/ntfy-desktop
 
 <!-- BADGE > ALL CONTRIBUTORS -->
-  [contribs-all-img]: https://img.shields.io/github/all-contributors/Aetherinox/ntfy-desktop?logo=contributorcovenant&color=de1f6f&label=contributors
+  [contribs-all-img]: https://img.shields.io/github/all-contributors/aetherinox/ntfy-desktop?logo=contributorcovenant&color=de1f6f&label=contributors
   [contribs-all-uri]: https://github.com/all-contributors/all-contributors
 
 <!-- BADGE > GITHUB > BUILD > NPM -->
-  [github-build-img]: https://img.shields.io/github/actions/workflow/status/Aetherinox/ntfy-desktop/npm-release.yml?logo=github&logoColor=FFFFFF&label=Build&color=%23278b30
-  [github-build-uri]: https://github.com/Aetherinox/ntfy-desktop/actions/workflows/npm-release.yml
+  [github-build-img]: https://img.shields.io/github/actions/workflow/status/aetherinox/ntfy-desktop/app-release.yml?logo=github&logoColor=FFFFFF&label=Build&color=%23278b30
+  [github-build-uri]: https://github.com/aetherinox/ntfy-desktop/actions/workflows/app-release.yml
 
 <!-- BADGE > GITHUB > BUILD > Pypi -->
-  [github-build-pypi-img]: https://img.shields.io/github/actions/workflow/status/Aetherinox/ntfy-desktop/release-pypi.yml?logo=github&logoColor=FFFFFF&label=Build&color=%23278b30
-  [github-build-pypi-uri]: https://github.com/Aetherinox/ntfy-desktop/actions/workflows/pypi-release.yml
+  [github-build-pypi-img]: https://img.shields.io/github/actions/workflow/status/aetherinox/ntfy-desktop/app-pypi.yml?logo=github&logoColor=FFFFFF&label=Build&color=%23278b30
+  [github-build-pypi-uri]: https://github.com/aetherinox/ntfy-desktop/actions/workflows/app-pypi.yml
 
 <!-- BADGE > GITHUB > TESTS -->
-  [github-tests-img]: https://img.shields.io/github/actions/workflow/status/Aetherinox/ntfy-desktop/npm-tests.yml?logo=github&label=Tests&color=2c6488
-  [github-tests-uri]: https://github.com/Aetherinox/ntfy-desktop/actions/workflows/npm-tests.yml
+  [github-tests-img]: https://img.shields.io/github/actions/workflow/status/aetherinox/ntfy-desktop/app-tests.yml?logo=github&label=Tests&color=2c6488
+  [github-tests-uri]: https://github.com/aetherinox/ntfy-desktop/actions/workflows/app-tests.yml
 
 <!-- BADGE > GITHUB > COMMIT -->
-  [github-commit-img]: https://img.shields.io/github/last-commit/Aetherinox/ntfy-desktop?logo=conventionalcommits&logoColor=FFFFFF&label=Last%20Commit&color=313131
-  [github-commit-uri]: https://github.com/Aetherinox/ntfy-desktop/commits/main/
+  [github-commit-img]: https://img.shields.io/github/last-commit/aetherinox/ntfy-desktop?logo=conventionalcommits&logoColor=FFFFFF&label=Last%20Commit&color=313131
+  [github-commit-uri]: https://github.com/aetherinox/ntfy-desktop/commits/main/
 
 <!-- prettier-ignore-end -->
 <!-- markdownlint-restore -->
