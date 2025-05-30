@@ -15,14 +15,26 @@
 */
 
 import jimp from 'jimp';
-const { test, expect, _electron: electron } = require( '@playwright/test' );
+const { test, expect, _electron: electron, defineConfig, devices } = require( '@playwright/test' );
 const eph = require( 'electron-playwright-helpers' );
+
+module.exports = defineConfig({
+    projects: [
+        {
+            name: 'chromium',
+            use: {
+                ...devices[ 'Desktop Chrome' ],
+                channel: 'chromium'
+            }
+        }
+    ]
+});
 
 /*
     Test > ensure ntfy-desktop launches
 */
 
-test( 'launch ntfy-desktop', async() =>
+test( '✅ launch ntfy-desktop for first time', async() =>
 {
     const app = await electron.launch({
         args: [
@@ -47,7 +59,7 @@ test( 'launch ntfy-desktop', async() =>
     Test > full loadup and screenshot
 */
 
-test( 'full load', async() =>
+test( '✅ ensure interface can fully load', async() =>
 {
     /*
         Initialize
@@ -64,33 +76,57 @@ test( 'full load', async() =>
         }
     });
 
-    const timestamp = Date.now().toString();
+    /*
+        define > defaults
+    */
 
+    const ts = Date.now().toString();
+    const ss1Path = `test-results/fullload_${ ts }.png`;
     const appPath = await app.evaluate( async({ app }) =>
     {
         return app.getAppPath();
     });
 
-    console.log( appPath );
-
-    const window = await app.firstWindow();
-    console.log( await window.title() );
-    window.on( 'console', console.log );
+    console.log( `✅ Loading App Path: ${ appPath }` );
 
     /*
-        wait for #root div before taking screenshot
+        Load first window
     */
 
-    await window.waitForSelector( '#root', { state: 'visible' });
+    const page = await app.firstWindow( { timeout: 120000 } );
+    console.log( `✅ Loading App Window: ${ await page.title() }` );
+    page.on( 'console', console.log );
 
     /*
-        path: `e2e/screenshots/test-${timestamp}.png`,
+        wait for #root div to be fully loaded
     */
 
-    const ss1 = await window.screenshot({ path: './test-results/1.png' });
+    await page.waitForSelector( '#root', { state: 'visible' });
 
     /*
-        Since the close button minimizes to tray, activate the menu and select quit
+        Test Window > About
+    */
+
+    await eph.clickMenuItemById( app, 'about' );
+    const windowAbout = await app.waitForEvent( 'window' );
+    expect( windowAbout ).toBeTruthy();
+    expect( await windowAbout.title() ).toBe( 'About' );
+    console.log( `✅ Open New Window: ${ await windowAbout.title() }` );
+    windowAbout.on( 'console', console.log );
+    await windowAbout.close();
+
+    /*
+        take screenshot of interface
+    */
+
+    const screenshot = await page.screenshot({ type: 'png', path: `${ ss1Path }` });
+    if ( screenshot )
+        console.log( `✅ Saved screenshot: ${ ss1Path }` );
+    else
+        throw Error( `❌ Unable to take screenshot for test: ${ ss1Path }` );
+
+    /*
+        since the close button minimizes to tray, activate the menu and select quit
     */
 
     await eph.clickMenuItemById( app, 'quit' );
@@ -101,7 +137,7 @@ test( 'full load', async() =>
     Test functionality
 */
 
-test( 'app usage', async() =>
+test( '✅ fail to sign into invalid account', async() =>
 {
     /*
         Initialize
@@ -160,4 +196,3 @@ test( 'app usage', async() =>
     await eph.clickMenuItemById( app, 'quit' );
     await app.close();
 });
-
