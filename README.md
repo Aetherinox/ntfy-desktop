@@ -45,15 +45,23 @@
 <br />
 
 - [About](#about)
-  - [ntfy](#ntfy)
-- [Features](#features)
-  - [Selfhosted vs Ntfy.sh](#selfhosted-vs-ntfysh)
-- [Key Binds](#key-binds)
-- [CLI Arguments](#cli-arguments)
+  - [What is Ntfy](#what-is-ntfy)
+  - [Ntfy Desktop Features](#ntfy-desktop-features)
+  - [Self-hosted vs Ntfy.sh](#self-hosted-vs-ntfysh)
+- [Usage](#usage)
+  - [Key Binds](#key-binds)
+  - [CLI Arguments](#cli-arguments)
 - [Build](#build)
-  - [Linux](#linux)
-  - [Windows](#windows)
-  - [Contributors ✨](#contributors-)
+  - [Method: Build Script](#method-build-script)
+    - [Linux](#linux)
+    - [Windows](#windows)
+    - [MacOSX](#macosx)
+  - [Method: Package.json Command](#method-packagejson-command)
+    - [Summary](#summary)
+    - [Linux](#linux-1)
+    - [Windows](#windows-1)
+    - [MacOSX](#macosx-1)
+- [Contributors ✨](#contributors-)
 
 
 <br />
@@ -68,47 +76,65 @@ This project allows you to access the official free / paid notification service 
 
 <br />
 
-## ntfy
+## What is Ntfy
 
-[ntfy.sh](https://ntfy/) (pronounced "notify") is a simple HTTP-based pub-sub notification service. With ntfy, you can send notifications to your phone or desktop via scripts from any computer, without having to sign up or pay any fees. If you'd like to run your own instance of the service, you can easily do so since ntfy is open source.
+[ntfy.sh](https://ntfy/) (pronounced "notify") is a simple HTTP-based pub-sub notification service. With [ntfy](https://ntfy/), you can send notifications to your phone or desktop via scripts from any computer, without having to sign up or pay any fees. If you'd like to run your own instance of the service, you can easily do so since ntfy is open source.
 
-<br />
+To install Ntfy on your system, visit the following links:
 
 <div align="center">
 
-[![View](https://img.shields.io/badge/%20-%20View%20Project%20Repo-%20%23de2343?style=for-the-badge&logo=github&logoColor=FFFFFF)](https://github.com/binwiederhier/ntfy)
+[![View](https://img.shields.io/badge/%20-%20Download%20Ntfy.sh%20-%20%231F85DE?style=for-the-badge&logo=github&logoColor=FFFFFF)](https://github.com/binwiederhier/ntfy/releases) [![Download](https://img.shields.io/badge/%20-%20View%20Documentation-%20%23de2343?style=for-the-badge&logo=github&logoColor=FFFFFF)](https://docs.ntfy.sh/install/)
 
 </div>
 
 <br />
 
----
+## Ntfy Desktop Features
 
-<br />
-
-# Features
-
-- Usable with ntfy.sh and self-hosted instances
+- Usable with ntfy.sh or a self-hosted instance
+  - To self-host, you must install Ntfy server on a local machine.
+  - View docs at https://docs.ntfy.sh/install/
 - Two modes for minimizing app, configure in settings
-  1. Close button exits app completely, sits in taskbar and tray
+  1. Close button exits app completely; OR
   2. Close button sends app to tray. Right-click tray icon to quit / show app
-- Shortcut keybinds
-  - Option to disable
+- Start app minimized
+- Shortcut key-binds
+  - Can disable the keyboard shortcuts
 - Receive push notifications from ntfy server to desktop
-  - Advanced setting to adjust polling rate
-  - Datetime format setting
-  - Optional persistent notifications
+  - Includes setting to adjust polling rate
+  - Modify Datetime format
+  - Optional persistent (sticky) notifications which require user interaction to clear
   - Topic filtering
+- Supports Ntfy API token
+- Includes [command-line arguments](#cli-arguments)
 
 <br />
 
-## Selfhosted vs Ntfy.sh
+## Self-hosted vs Ntfy.sh
 
-Be aware that the official [ntfy.sh](https://ntfy/) website will rate limit users who have not purchased a paid package. Out of box, this application polls for new notifications every `30 seconds`; if you are on the free plan and decrease this timer, you will get an error stating that you have gone over your rate limit. 
+To use this desktop client, you will be required to either have an Ntfy.sh account, or you must host your own instance of the Ntfy.sh server to pull notifications from. 
+
+You can install your own self-hosted copy of Ntfy server from:
+
+- https://github.com/binwiederhier/ntfy/releases
 
 <br />
 
-However, if you are self-hosting your own copy of Ntfy and you set your instance URL to your personal copy, you can set the polling rate as low as `1 second` without any limitations.
+Be aware that the official [ntfy.sh](https://ntfy/) website will **rate-limit** users who have not purchased a paid package. Out of box, this ntfy-desktop client polls for new notifications every `30 seconds`; if you are on the free plan and decrease this timer in the desktop client settings, you will get an error saying that you have gone over your rate-limit. 
+
+<br />
+
+If you are self-hosting your own copy of Ntfy, you must open the Ntfy Desktop client, click the menu item **Configure** and then click **URL**. You must set your instance URL to your personal self-hosted instance. 
+
+<p align="center"><img style="width: 80%;text-align: center;" src="docs/img/README/selfhost.gif"></p>
+
+<br />
+
+You can set the polling rate lower without any limitations or rate limits:
+
+<p align="center"><img style="width: 80%;text-align: center;" src="docs/img/README/polling.gif"></p>
+
 
 <br />
 
@@ -116,7 +142,13 @@ However, if you are self-hosting your own copy of Ntfy and you set your instance
 
 <br />
 
-# Key Binds
+# Usage
+
+This section explains how to use ntfy-desktop once you have it ready to go on your system.
+
+<br />
+
+## Key Binds
 The following keybinds can be used within ntfy-desktop:
 
 <br />
@@ -145,12 +177,9 @@ The following keybinds can be used within ntfy-desktop:
 > Enable `Allow usage of hotkeys to navigate`
 
 <br />
-
----
-
 <br />
 
-# CLI Arguments
+## CLI Arguments
 
 This client allows you to utilize the following command-line arguments with ntfy-desktop:
 
@@ -179,53 +208,201 @@ npm run start -- --hidden
 
 # Build
 
-To build this app, run the following commands:
-
-## Linux
-
-```shell
-git clone https://github.com/aetherinox/ntfy-desktop.git
-npm install
-npm install -g electron-packager
-sudo apt install wine64
-sudo ln -s /usr/bin/wine /usr/bin/wine64
-```
+There are numerous ways to build this application. 
 
 <br />
 
-When you are ready to build, run the build script:
+## Method: Build Script
 
-```shell ignore
+This method makes use of the `build.bat` and `build.sh` scripts provided in this repository. Find your operating system below and follow the instructions:
+
+- [Linux](#linux)
+- [Windows](#windows)
+- [MacOSX](#macosx)
+
+<br />
+
+### Linux
+
+Run the following commands to install NodeJS + NPM, and then Ntfy Desktop:
+
+```shell
+# Install NodeJS and NPM
+sudo apt update
+sudo apt install git nodejs npm wine64
+
+# Clone ntfy-desktop repo, make sure you are in an EMPTY folder:
+mkdir ntfy-desktop && cd ntfy-desktop/
+git clone https://github.com/aetherinox/ntfy-desktop.git .
+npm install
+npm install -g electron-packager
+sudo ln -s /usr/bin/wine /usr/bin/wine64
 sudo chmod +x build.sh
+
+# build ntfy-desktop
 ./build.sh
 ```
 
 <br />
+<br />
 
-## Windows
+### Windows
 
-To test development on a Windows machine, run the following commands.
-A build script for windows will be available later.
+Install NodeJS with NPM by going to the following URL. Make sure to select your current operating system at the top:
+
+- https://nodejs.org/en/download
+
+<br />
+
+Next, run the following commands in Powershell or Windows Command Prompt:
 
 ```shell
-git clone https://github.com/aetherinox/ntfy-desktop.git
+# Clone ntfy-desktop repo, make sure you are in an EMPTY folder:
+mkdir ntfy-desktop && cd ntfy-desktop/
+git clone https://github.com/aetherinox/ntfy-desktop.git .
 npm install
 npm install -g electron
-```
 
-<br />
-
-Once you have finished modifying the code, you can test the application with:
-```shell ignore
-npm run start
-```
-
-<br />
-
-When you are ready to build, run the build script:
-
-```shell ignore
+# build ntfy
 ./build.bat
+```
+
+<br />
+<br />
+
+### MacOSX
+
+Install NodeJS with NPM by going to the following URL. Make sure to select your current operating system at the top:
+
+- https://nodejs.org/en/download
+
+<br />
+
+Install **Git** on your system next:
+
+- https://git-scm.com/downloads/mac
+
+<br />
+
+Open your Terminal app and run the following commands:
+
+```shell
+# Clone ntfy-desktop repo, make sure you are in an EMPTY folder:
+mkdir ntfy-desktop && cd ntfy-desktop/
+git clone https://github.com/aetherinox/ntfy-desktop.git .
+npm install
+npm install -g electron-packager
+sudo chmod +x build.sh
+
+# build ntfy-desktop
+./build.sh
+```
+
+<br />
+<br />
+
+## Method: Package.json Command
+
+You can also build your own copy of ntfy-desktop by executing the included `package.json` run commands.
+
+- [Linux](#linux-1)
+- [Windows](#windows-1)
+- [MacOSX](#macosx-1)
+
+<br />
+
+### Summary
+
+To run the `npm` commands, you must install NodeJS and NPM on your system. To install them, visit: 
+
+- https://nodejs.org/en/download
+
+<br />
+
+The `package.json` includes the following commands.
+
+- `npm run build:windows`
+- `npm run build:linux`
+- `npm run build:mac`
+
+<br >
+<br >
+
+### Linux
+
+Run the following commands to install NodeJS + NPM, and then Ntfy Desktop:
+
+```shell
+# Install NodeJS and NPM
+sudo apt update
+sudo apt install git nodejs npm wine64
+
+# Clone ntfy-desktop repo, make sure you are in an EMPTY folder:
+mkdir ntfy-desktop && cd ntfy-desktop/
+git clone https://github.com/aetherinox/ntfy-desktop.git .
+npm install
+npm install -g electron-packager
+sudo ln -s /usr/bin/wine /usr/bin/wine64
+
+# build ntfy-desktop
+npm run build:linux
+```
+
+<br />
+<br />
+
+### Windows
+
+Install NodeJS with NPM by going to the following URL. Make sure to select your current operating system at the top:
+
+- https://nodejs.org/en/download
+
+<br />
+
+Next, run the following commands in Powershell or Windows Command Prompt:
+
+```shell
+# Clone ntfy-desktop repo, make sure you are in an EMPTY folder:
+mkdir ntfy-desktop && cd ntfy-desktop/
+git clone https://github.com/aetherinox/ntfy-desktop.git .
+npm install
+npm install -g electron
+
+# build ntfy-desktop
+npm run build:windows
+```
+
+<br />
+<br />
+
+<br />
+<br />
+
+### MacOSX
+
+Install NodeJS with NPM by going to the following URL. Make sure to select your current operating system at the top:
+
+- https://nodejs.org/en/download
+
+<br />
+
+Install **Git** on your system next:
+
+- https://git-scm.com/downloads/mac
+
+<br />
+
+Open your Terminal app and run the following commands:
+
+```shell
+# Clone ntfy-desktop repo, make sure you are in an EMPTY folder:
+mkdir ntfy-desktop && cd ntfy-desktop/
+git clone https://github.com/aetherinox/ntfy-desktop.git .
+npm install
+npm install -g electron-packager
+
+# build ntfy-desktop
+npm run build:mac
 ```
 
 <br />
@@ -234,7 +411,7 @@ When you are ready to build, run the build script:
 
 <br />
 
-## Contributors ✨
+# Contributors ✨
 
 We are always looking for contributors. If you feel that you can provide something useful to this project, then we'd love to review your suggestion. Before submitting your contribution, please review the following resources:
 
