@@ -55,11 +55,11 @@
         "package:mac": "electron-packager . ntfy-desktop --asar --platform=darwin --arch=all --icon=assets/icons/ntfy.icns --overwrite --ignore=\"^/dist|/build|/.github*|/test-*|/tests*|/playwright*|.all-contributorsrc|.editorconfig|.eslintrc|/.git*|.git*|.npm*|.prettier*\" --prune=true --out=build --build-version \"$npm_config_version\" --appCopyright=\"Copyright (c) $npm_config_year\" --win32metadata.FileDescription=\"Ntfy Desktop client with Electron wrapper\" --win32metadata.ProductName=\"Ntfy Desktop\" --win32metadata.OriginalFilename=\"ntfy-desktop.exe\" --win32metadata.CompanyName=\"https://github.com/aetherinox/ntfy-desktop\" --version-string.CompanyName==\"Ntfy Desktop\" --version-string.FileDescription=\"Ntfy Desktop client with Electron wrapper\" --version-string.ProductName=\"Ntfy Desktop\"",
         "contrib:add": "all-contributors add",
         "contrib:generate": "all-contributors generate",
-        "root": "node root.cjs",
-        "root:generate": "node root.cjs generate",
-        "root:root": "npx --quiet env-cmd --no-override node root.cjs",
-        "root:uuid": "npx --quiet env-cmd --no-override node root.cjs uuid",
-        "root:guid": "npx --quiet env-cmd --no-override node root.cjs guid",
+        "root": "node root.mjs",
+        "root:generate": "node root.mjs generate",
+        "root:root": "npx --quiet env-cmd --no-override node root.mjs",
+        "root:uuid": "npx --quiet env-cmd --no-override node root.mjs uuid",
+        "root:guid": "npx --quiet env-cmd --no-override node root.mjs guid",
         "root:version": "node -p require('./package.json').version;"
     },
     "devDependencies": {
