@@ -1,9 +1,9 @@
-const { app, BrowserWindow, Tray, Menu, MenuItem } = require( 'electron' );
-const electronShell = require( 'electron' ).shell;
-const toasted = require( 'toasted-notifier' );
-const path = require( 'path' );
-const moment = require( 'moment' );
-const Storage = require( './storage.js' );
+import { app, BrowserWindow, Tray, shell, Menu, MenuItem } from 'electron';
+import toasted from 'toasted-notifier';
+import path from 'path';
+import moment from 'moment';
+import { Storage } from './storage.js';
+import { fileURLToPath } from 'url';
 
 /*
     Declare > Prompt
@@ -11,25 +11,25 @@ const Storage = require( './storage.js' );
     @docs   : https://araxeus.github.io/custom-electron-prompt/
 */
 
-const prompt = require( 'custom-electron-prompt' );
-
-/*
-    Debug > Print args
-*/
-
-console.log( process.argv );
+import prompt from 'custom-electron-prompt';
 
 /*
     Declare > Package
 */
 
-const packageJson = require( './package.json' );
+import packageJson from './package.json' with { type: 'json' };
 const appVer = packageJson.version;
 const appName = packageJson.name;
 const appAuthor = packageJson.author;
 const appElectron = process.versions.electron;
 const appRepo = packageJson.repository;
 const appIcon = app.getAppPath() + '/assets/icons/ntfy.png';
+
+/*
+    Debug > Print args
+*/
+
+console.log( process.argv );
 
 /*
     Declare > Window
@@ -60,6 +60,13 @@ let bWinHidden = 0;
 let statusHasError = false;
 let statusBadURL = false;
 let statusMessage;
+
+/*
+    cjs to esm
+*/
+
+const __filename = fileURLToPath( import.meta.url );        // get resolved path to the file
+const __dirname = path.dirname( __filename );               // get name of the directory
 
 /*
     Declare > Fallback
@@ -696,7 +703,7 @@ const menuMain = [
             label: 'View New Releases',
             click()
             {
-                electronShell.openExternal( `${ packageJson.homepage }` );
+                shell.openExternal( `${ packageJson.homepage }` );
             }
         }
     ]

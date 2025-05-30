@@ -1,6 +1,6 @@
-const electron = require( 'electron' );
-const path = require( 'path' );
-const fs = require( 'fs' );
+import electron from 'electron';
+import path from 'path';
+import fs from 'fs';
 
 class Storage
 {
@@ -64,4 +64,4 @@ function parseDataFile( filePath, defaults )
     }
 }
 
-module.exports = Storage;
+export { Storage };

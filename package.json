@@ -4,6 +4,8 @@
     "description": "Ntfy.sh desktop client for Windows, Linux, and MacOS with push notifications. Supports official ntfy.sh website and self-hosted instances.",
     "homepage": "https://github.com/aetherinox/ntfy-desktop",
     "author": "Aetherinox",
+    "type": "module",
+    "main": "index.js",
     "contributors": [
         {
             "name": "Aetherinox",
@@ -43,18 +45,22 @@
         "desktop",
         "windows"
     ],
-    "main": "index.js",
     "scripts": {
         "test": "npx playwright test",
         "pretest": "npm run lint",
         "lint": "eslint index.js",
         "start": "electron .",
-        "package-win": "electron-packager . ntfy-desktop --asar --platform=win32 --arch=all --icon=ntfy.ico --overwrite --ignore=\"^/dist|/build|/.github*|/test-*|/tests*|/playwright*|.all-contributorsrc|.editorconfig|.eslintrc|/.git*|.git*|.npm*|.prettier*\" --prune=true --out=build --appCopyright=\"Copyright (c) 2025\" --win32metadata.FileDescription=\"Ntfy Desktop client with Electron wrapper\" --win32metadata.ProductName=\"Ntfy Desktop\" --win32metadata.OriginalFilename=\"ntfy-desktop.exe\" --win32metadata.CompanyName=\"https://github.com/aetherinox/ntfy-desktop\"",
-        "package-linux": "electron-packager . ntfy-desktop --asar --platform=linux --arch=all --icon=ntfy.png --overwrite --ignore=\"^/dist|/build|/.github*|/test-*|/tests*|/playwright*|.all-contributorsrc|.editorconfig|.eslintrc|/.git*|.git*|.npm*|.prettier*\" --prune=true --out=build --appCopyright=\"Copyright (c) 2025\" --win32metadata.FileDescription=\"Ntfy Desktop client with Electron wrapper\" --win32metadata.ProductName=\"Ntfy Desktop\" --win32metadata.OriginalFilename=\"ntfy-desktop.exe\" --win32metadata.CompanyName=\"https://github.com/aetherinox/ntfy-desktop\"",
-        "package-mac": "electron-packager . ntfy-desktop --asar --platform=darwin --arch=all --icon=ntfy.icns --overwrite --ignore=\"^/dist|/build|/.github*|/test-*|/tests*|/playwright*|.all-contributorsrc|.editorconfig|.eslintrc|/.git*|.git*|.npm*|.prettier*\" --prune=true --out=build --appCopyright=\"Copyright (c) 2025\" --win32metadata.FileDescription=\"Ntfy Desktop client with Electron wrapper\" --win32metadata.ProductName=\"Ntfy Desktop\" --win32metadata.OriginalFilename=\"ntfy-desktop.exe\" --win32metadata.CompanyName=\"https://github.com/aetherinox/ntfy-desktop\"",
+        "package:win": "electron-packager . ntfy-desktop --asar --platform=win32 --arch=all --icon=assets/icons/ntfy.ico --overwrite --ignore=\"^/dist|/build|/.github*|/test-*|/tests*|/playwright*|.all-contributorsrc|.editorconfig|.eslintrc|/.git*|.git*|.npm*|.prettier*\" --prune=true --out=build --build-version \"$npm_config_version\" --appCopyright=\"Copyright (c) $npm_config_year\" --win32metadata.FileDescription=\"Ntfy Desktop client with Electron wrapper\" --win32metadata.ProductName=\"Ntfy Desktop\" --win32metadata.OriginalFilename=\"ntfy-desktop.exe\" --win32metadata.CompanyName=\"https://github.com/aetherinox/ntfy-desktop\" --version-string.CompanyName==\"Ntfy Desktop\" --version-string.FileDescription=\"Ntfy Desktop client with Electron wrapper\" --version-string.ProductName=\"Ntfy Desktop\"",
+        "package:linux": "electron-packager . ntfy-desktop --asar --platform=linux --arch=all --icon=assets/icons/ntfy.png --overwrite --ignore=\"^/dist|/build|/.github*|/test-*|/tests*|/playwright*|.all-contributorsrc|.editorconfig|.eslintrc|/.git*|.git*|.npm*|.prettier*\" --prune=true --out=build --build-version \"$npm_config_version\" --appCopyright=\"Copyright (c) $npm_config_year\" --win32metadata.FileDescription=\"Ntfy Desktop client with Electron wrapper\" --win32metadata.ProductName=\"Ntfy Desktop\" --win32metadata.OriginalFilename=\"ntfy-desktop.exe\" --win32metadata.CompanyName=\"https://github.com/aetherinox/ntfy-desktop\" --version-string.CompanyName==\"Ntfy Desktop\" --version-string.FileDescription=\"Ntfy Desktop client with Electron wrapper\" --version-string.ProductName=\"Ntfy Desktop\"",
+        "package:mac": "electron-packager . ntfy-desktop --asar --platform=darwin --arch=all --icon=assets/icons/ntfy.icns --overwrite --ignore=\"^/dist|/build|/.github*|/test-*|/tests*|/playwright*|.all-contributorsrc|.editorconfig|.eslintrc|/.git*|.git*|.npm*|.prettier*\" --prune=true --out=build --build-version \"$npm_config_version\" --appCopyright=\"Copyright (c) $npm_config_year\" --win32metadata.FileDescription=\"Ntfy Desktop client with Electron wrapper\" --win32metadata.ProductName=\"Ntfy Desktop\" --win32metadata.OriginalFilename=\"ntfy-desktop.exe\" --win32metadata.CompanyName=\"https://github.com/aetherinox/ntfy-desktop\" --version-string.CompanyName==\"Ntfy Desktop\" --version-string.FileDescription=\"Ntfy Desktop client with Electron wrapper\" --version-string.ProductName=\"Ntfy Desktop\"",
         "contrib:add": "all-contributors add",
         "contrib:generate": "all-contributors generate",
-        "version": "node -p require('./package.json').version;"
+        "root": "node root.cjs",
+        "root:generate": "node root.cjs generate",
+        "root:root": "npx --quiet env-cmd --no-override node root.cjs",
+        "root:uuid": "npx --quiet env-cmd --no-override node root.cjs uuid",
+        "root:guid": "npx --quiet env-cmd --no-override node root.cjs guid",
+        "root:version": "node -p require('./package.json').version;"
     },
     "devDependencies": {
         "@aetherinox/noxenv": "^1.1.1",
