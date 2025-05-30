@@ -329,11 +329,11 @@ If you are building ntfy-desktop from a **Windows** machine:
 
 <br />
 
-If you are building ntfy-desktop from a **Linux** machine:
+If you are building ntfy-desktop from a **Linux** or **MacOS** machine:
 
-- `npm run build:linux:windows`
-- `npm run build:linux:linux`
-- `npm run build:linux:mac`
+- `npm run build:lin:windows`
+- `npm run build:lin:linux`
+- `npm run build:lin:mac`
 
 <br >
 <br >
