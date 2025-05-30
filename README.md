@@ -319,11 +319,21 @@ To run the `npm` commands, you must install NodeJS and NPM on your system. To in
 
 <br />
 
-The `package.json` includes the following commands.
+The `package.json` includes the commands listed below. Because the build commands have dynamic variables; you must run the command based on what operating system you are building from.
 
-- `npm run build:windows`
-- `npm run build:linux`
-- `npm run build:mac`
+If you are building ntfy-desktop from a **Windows** machine:
+
+- `npm run build:win:windows`
+- `npm run build:win:linux`
+- `npm run build:win:mac`
+
+<br />
+
+If you are building ntfy-desktop from a **Linux** machine:
+
+- `npm run build:linux:windows`
+- `npm run build:linux:linux`
+- `npm run build:linux:mac`
 
 <br >
 <br >
@@ -344,8 +354,11 @@ npm install
 npm install -g electron-packager
 sudo ln -s /usr/bin/wine /usr/bin/wine64
 
-# build ntfy-desktop
-npm run build:linux
+# build ntfy-desktop from Windows machine
+npm run build:win:linux
+
+# build ntfy-desktop from Linux machine
+npm run build:lin:linux
 ```
 
 <br />
@@ -368,8 +381,11 @@ git clone https://github.com/aetherinox/ntfy-desktop.git .
 npm install
 npm install -g electron
 
-# build ntfy-desktop
-npm run build:windows
+# build ntfy-desktop from Windows machine
+npm run build:win:windows
+
+# build ntfy-desktop from Linux machine
+npm run build:lin:windows
 ```
 
 <br />
@@ -401,8 +417,11 @@ git clone https://github.com/aetherinox/ntfy-desktop.git .
 npm install
 npm install -g electron-packager
 
-# build ntfy-desktop
-npm run build:mac
+# build ntfy-desktop from Windows machine
+npm run build:win:mac
+
+# build ntfy-desktop from Linux machine
+npm run build:lin:mac
 ```
 
 <br />
