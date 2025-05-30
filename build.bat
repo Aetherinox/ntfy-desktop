@@ -17,7 +17,7 @@ ECHO.
 
 :: #
 ::  Powershell zip compression
-::  Compress-Archive -Path "ntfy-electron-win32-x64" -DestinationPath "build/ntfy-electron-windows-x64.zip"
+::  Compress-Archive -Path "ntfy-desktop-win32-x64" -DestinationPath "build/ntfy-desktop-windows-x64.zip"
 ::
 ::  Windows tar.exe Compression
 ::  tar.exe does not support .zip compression. File must be .tar.gz
@@ -27,7 +27,7 @@ ECHO.
 ::  -9      compression ratio
 ::
 ::  TAR -cf archive-file.tar.gz [filenames...]
-::  TAR -cf "build/ntfy-electron-windows-x64.tar.gz" "ntfy-electron-win32-x64"
+::  TAR -cf "build/ntfy-desktop-windows-x64.tar.gz" "ntfy-desktop-win32-x64"
 :: #
 
 :: #
@@ -45,7 +45,7 @@ set dir_dist=dist
 set "bDeleteBuild=false"
 set "Copyright=Copyright (c) 2025"
 set "FileDescription=Ntfy.sh desktop client for Windows, Linux, and MacOS with push notifications. Supports official ntfy.sh website and self-hosted instances."
-set "ProductName=ntfy desktop"
+set "ProductName=Ntfy Desktop"
 set "OriginalFilename=ntfy-desktop.exe"
 set "CompanyName=https://github.com/aetherinox/ntfy-desktop"
 set "IgnorePattern=(^^/!dir_dist!|^^/!dir_build!|^^/.github*|/test-*|/tests*|^^/playwright*|.all-contributorsrc|.editorconfig|.eslintrc|^^/.git*|^^.git*|.npm*|.prettier*|CONTRIBUTING.md|CODE_OF_CONDUCT.md|README|README.md|readme.md|LICENSE|license|LICENSE.md|CHANGELOG|CHANGELOG.md)"
@@ -91,11 +91,11 @@ for %%a in (%platformWin%) do (
     echo -------------------------------------------------------------------------
     echo Building Windows-%%a
     echo Setting Ignore Pattern: !IgnorePattern!
-    CALL electron-packager . ntfy-electron --asar --platform="win32" --arch="%%a" --icon="!IconWindows!" --overwrite --ignore=\"!IgnorePattern!\" --prune=true --out=!dir_build! --appCopyright="!Copyright!" --win32metadata.FileDescription="!FileDescription!" --win32metadata.ProductName="!ProductName!" --win32metadata.OriginalFilename="!OriginalFilename!" --win32metadata.CompanyName="!CompanyName!"
-    powershell Compress-Archive -Path "!dir_build!/ntfy-electron-win32-%%a" -DestinationPath "!dir_dist!/ntfy-electron-windows-%%a.zip"
+    CALL electron-packager . ntfy-desktop --asar --platform="win32" --arch="%%a" --icon="!IconWindows!" --overwrite --ignore=\"!IgnorePattern!\" --prune=true --out=!dir_build! --appCopyright="!Copyright!" --win32metadata.FileDescription="!FileDescription!" --win32metadata.ProductName="!ProductName!" --win32metadata.OriginalFilename="!OriginalFilename!" --win32metadata.CompanyName="!CompanyName!"
+    powershell Compress-Archive -Path "!dir_build!/ntfy-desktop-win32-%%a" -DestinationPath "!dir_dist!/ntfy-desktop-windows-%%a.zip"
 
     if "!bDeleteBuild!" == "true" (
-        rm -rf "!dir_build!/ntfy-electron-win32-%%a"
+        rm -rf "!dir_build!/ntfy-desktop-win32-%%a"
     )
     echo -------------------------------------------------------------------------
     echo.
@@ -110,11 +110,11 @@ for %%a in (%platformLinux%) do (
     echo -------------------------------------------------------------------------
     echo Building Linux-%%a
     echo Setting Ignore Pattern: !IgnorePattern!
-    CALL electron-packager . ntfy-electron --asar --platform="linux" --arch="%%a" --icon="!IconLinux!" --overwrite --ignore=\"!IgnorePattern!\" --prune=true --out=!dir_build! --appCopyright="!Copyright!" --win32metadata.FileDescription="!FileDescription!" --win32metadata.ProductName="!ProductName!" --win32metadata.OriginalFilename="!OriginalFilename!" --win32metadata.CompanyName="!CompanyName!"
-    powershell Compress-Archive -Path "!dir_build!/ntfy-electron-linux-%%a" -DestinationPath "!dir_dist!/ntfy-electron-linux-%%a.zip"
+    CALL electron-packager . ntfy-desktop --asar --platform="linux" --arch="%%a" --icon="!IconLinux!" --overwrite --ignore=\"!IgnorePattern!\" --prune=true --out=!dir_build! --appCopyright="!Copyright!" --win32metadata.FileDescription="!FileDescription!" --win32metadata.ProductName="!ProductName!" --win32metadata.OriginalFilename="!OriginalFilename!" --win32metadata.CompanyName="!CompanyName!"
+    powershell Compress-Archive -Path "!dir_build!/ntfy-desktop-linux-%%a" -DestinationPath "!dir_dist!/ntfy-desktop-linux-%%a.zip"
 
     if "!bDeleteBuild!" == "true" (
-        rm -rf "!dir_build!/ntfy-electron-linux-%%a"
+        rm -rf "!dir_build!/ntfy-desktop-linux-%%a"
     )
     echo -------------------------------------------------------------------------
     echo.
@@ -129,11 +129,11 @@ for %%a in (%platformMac%) do (
     echo -------------------------------------------------------------------------
     echo Building MacOS-%%a
     echo Setting Ignore Pattern: !IgnorePattern!
-    CALL electron-packager . ntfy-electron --asar --platform="darwin" --arch="%%a" --icon="!IconMacOS!" --overwrite --ignore=\"!IgnorePattern!\"  --prune=true --out=!dir_build! --appCopyright="!Copyright!" --win32metadata.FileDescription="!FileDescription!" --win32metadata.ProductName="!ProductName!" --win32metadata.OriginalFilename="!OriginalFilename!" --win32metadata.CompanyName="!CompanyName!"
-    powershell Compress-Archive -Path "!dir_build!/ntfy-electron-darwin-%%a" -DestinationPath "!dir_dist!/ntfy-electron-mac-%%a.zip"
+    CALL electron-packager . ntfy-desktop --asar --platform="darwin" --arch="%%a" --icon="!IconMacOS!" --overwrite --ignore=\"!IgnorePattern!\"  --prune=true --out=!dir_build! --appCopyright="!Copyright!" --win32metadata.FileDescription="!FileDescription!" --win32metadata.ProductName="!ProductName!" --win32metadata.OriginalFilename="!OriginalFilename!" --win32metadata.CompanyName="!CompanyName!"
+    powershell Compress-Archive -Path "!dir_build!/ntfy-desktop-darwin-%%a" -DestinationPath "!dir_dist!/ntfy-desktop-mac-%%a.zip"
 
     if "!bDeleteBuild!" == "true" (
-        rm -rf "!dir_build!/ntfy-electron-darwin-%%a"
+        rm -rf "!dir_build!/ntfy-desktop-darwin-%%a"
     )
     echo -------------------------------------------------------------------------
     echo.
