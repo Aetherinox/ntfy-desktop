@@ -223,8 +223,8 @@ jobs:
 
             - name: '📦 Install NPM & Apt Packages'
               run: |
-                  apt update
-                  apt install git wine64
+                  sudo apt update
+                  sudo apt install git wine64
                   npm install
                   npm install -g electron-packager
               env:
