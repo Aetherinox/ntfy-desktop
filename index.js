@@ -7,7 +7,7 @@ import { Storage } from './storage.js';
 import { fileURLToPath } from 'url';
 
 /*
-    Declare > Prompt
+    Define > Prompt
 
     @docs   : https://araxeus.github.io/custom-electron-prompt/
 */
@@ -15,7 +15,7 @@ import { fileURLToPath } from 'url';
 import prompt from 'custom-electron-prompt';
 
 /*
-    Declare > Package
+    Define > Package
 */
 
 import packageJson from './package.json' with { type: 'json' };
@@ -31,6 +31,13 @@ const appIcon = app.getAppPath() + '/assets/icons/ntfy.png';
 */
 
 const LOG_LEVEL = process.env.LOG_LEVEL || 4;
+
+/*
+    Define > cjs vars converted to esm
+*/
+
+const __filename = fileURLToPath( import.meta.url );        // get resolved path to the file
+const __dirname = path.dirname( __filename );               // get name of the directory
 
 /*
     chalk.level
@@ -55,13 +62,13 @@ chalk.level = 3;
 console.log( process.argv );
 
 /*
-    Declare > Window
+    Define > Window
 */
 
-let winMain, winAbout, timerPollrate, tray;
+let guiMain, guiAbout, guiTray;
 
 /*
-    Declare > CLI State
+    Define > CLI State
 
     bWinHidden          --hidden        app closes to tray on start
     bDevTools           --dev           dev tools added to menu
@@ -77,31 +84,25 @@ let bStartHidden = 0;
 let bWinHidden = 0;
 
 /*
-    Declare > Status
+    Define > Status
 */
 
-let statusHasError = false;
+let statusBoolError = false;
 let statusBadURL = false;
-let statusMessage;
+let statusStrMsg;
 
 /*
-    cjs to esm
-*/
+    Define > Default Fallbacks
 
-const __filename = fileURLToPath( import.meta.url );        // get resolved path to the file
-const __dirname = path.dirname( __filename );               // get name of the directory
-
-/*
-    Declare > Fallback
-
-    fallback values in case a user does something unforseen to cause an index error.
+    fallback values in case a user does something unforeseen to cause an index error.
     if you try to poll too quick on the official instance; it will throw an error:
         ["{\"code\":42909,\"http\":429,\"error\":\"limit reached: too many auth failures; increase your limits with a paid plan, see https://ntfy.sh\",\"link\":\"https://ntfy.sh/docs/publish/#limitations\"}"]
 */
 
-const _Instance = 'https://ntfy.sh/app';
-const _Datetime = 'YYYY-MM-DD hh:mm a';
-const _Pollrate = 60;
+const defInstanceUrl = 'https://ntfy.sh/app';
+const defDatetime = 'YYYY-MM-DD hh:mm a';
+const defPollrate = 60;
+
 
 /*
     Define > Logs
@@ -186,6 +187,8 @@ class Log
     }
 }
 
+/*
+    Define > Store Values
 
     @note   : defaults will not be set until the first time a user edits any of their settings.
               storage: AppData\Roaming\ntfy-desktop
@@ -195,7 +198,7 @@ const store = new Storage(
 {
     configName: 'prefs',
     defaults: {
-        instanceURL: _Instance,
+        instanceURL: defInstanceUrl,
         apiToken: '',
         topics: 'topic1,topic2,topic3',
         bHotkeys: 0,
@@ -204,6 +207,7 @@ const store = new Storage(
         bStartHidden: 0,
         bPersistentNoti: 0,
         bLocalhost: 0,
+        datetime: defDatetime
     }
 });
 
@@ -272,24 +276,24 @@ async function GetMessageData( uri )
 {
     try
     {
-        const cfgApiToken = store.get( 'apiToken' );
+        const cfgTokenApi = store.get( 'apiToken' );
         const req = await fetch( uri,
         {
             method: 'GET',
             headers: {
                 Accept: 'application/json',
-                Authorization: `Bearer ${ cfgApiToken }`
+                Authorization: `Bearer ${ cfgTokenApi }`
             }
         });
-    
+
         /*
             ntfy has the option to output message results as json, however the structure of that json
             is not properly formatted json and adds a newline to the end of each message.
-    
+
             bring the json results in as a string, split them at newline and then push them to a new
             array.
         */
-    
+
         const json = await req.text();
         const jsonArr = [];
         const entries = json.split( '\n' );
@@ -297,21 +301,23 @@ async function GetMessageData( uri )
         {
             jsonArr.push( entries[ i ] );
         }
-    
+
         /*
             Filter out empty entry in array which was caused by the last newline
         */
-    
+
         const jsonResult = jsonArr.filter( ( el ) =>
         {
             return el !== null && el !== '';
         });
-    
+
         return jsonResult;
     }
-    catch (err)
+    catch ( err )
     {
-        alert(err);
+        Log.error( `core`, chalk.redBright( `[messages]` ), chalk.white( `:  ` ),
+            chalk.redBright( `<msg>` ), chalk.gray( `Failed to get messages from ntfy server` ),
+            chalk.redBright( `<error>` ), chalk.gray( `${ err.message }` ) );
     }
 }
 
@@ -323,20 +329,36 @@ async function GetMessageData( uri )
 */
 
 const msgHistory = [];
-async function GetMessages()
+async function GetMessages( )
 {
-    const cfgPollrate = store.get( 'pollrate' ) || _Pollrate;
-    const cfgTopics = store.get( 'topics' );
     const cfgInstanceURL = store.get( 'instanceURL' );
+    const cfgTopics = store.get( 'topics' );
+    const cfgPollrate = store.get( 'pollrate' ) || defPollrate;
 
-    if ( cfgInstanceURL === '' || cfgInstanceURL === null )
+    /*
+        Instance url missing
+    */
+
+    if ( !cfgInstanceURL || cfgInstanceURL === '' || cfgInstanceURL === null )
     {
-        console.log( `URL Missing, skipping GetMessages(): ${ uri }` );
+        Log.error( `core`, chalk.redBright( `[messages]` ), chalk.white( `:  ` ),
+            chalk.redBright( `<msg>` ), chalk.gray( `Aborting attempt to fetch new messages; instance url missing` ),
+            chalk.redBright( `<func>` ), chalk.gray( `GetMessages()` ) );
+
         return;
     }
 
+    /*
+        Concatenate instance query url
+    */
+
     let uri = `${ cfgInstanceURL }/${ cfgTopics }/json?since=${ cfgPollrate }s&poll=1`;
-    console.log( `URL: ${ uri }` );
+
+    Log.debug( `core`, chalk.yellow( `[messages]` ), chalk.white( `⚙️` ),
+        chalk.blueBright( `<msg>` ), chalk.gray( `fetching messages from url` ),
+        chalk.blueBright( `<url>` ), chalk.gray( `${ cfgInstanceURL }` ),
+        chalk.blueBright( `<topics>` ), chalk.gray( `${ cfgTopics }` ),
+        chalk.blueBright( `<pollrate>` ), chalk.gray( `${ cfgPollrate }` ) );
 
     /*
         For the official ntfy.sh API, url must be changed internally
@@ -344,9 +366,7 @@ async function GetMessages()
     */
 
     if ( uri.includes( 'ntfy.sh/app' ) )
-    {
         uri = uri.replace( 'ntfy.sh/app', 'ntfy.sh' );
-    }
 
     /*
         Bad URL detected, skip polling
@@ -354,9 +374,17 @@ async function GetMessages()
 
     if ( statusBadURL === true )
     {
-        console.error( `Invalid instance URL specified, skipping polling` );
+        Log.error( `core`, chalk.redBright( `[messages]` ), chalk.white( `:  ` ),
+            chalk.redBright( `<msg>` ), chalk.gray( `Could not resolve specified instance url; aborting attempt to poll for messages` ),
+            chalk.redBright( `<url>` ), chalk.gray( `${ uri }` ),
+            chalk.redBright( `<func>` ), chalk.gray( `GetMessages()` ) );
+
         return;
     }
+
+    /*
+        get pending messages from polling
+    */
 
     const json = await GetMessageData( uri );
 
@@ -366,25 +394,32 @@ async function GetMessages()
 
     if ( isJsonString( json ) === false )
     {
-        console.error( `Specified  instance URL not returning valid json. Change your instance URL to a valid Ntfy instance` );
+        Log.error( `core`, chalk.redBright( `[messages]` ), chalk.white( `:  ` ),
+            chalk.redBright( `<msg>` ), chalk.gray( `Polling for new messages returned invalid json; skipping fetch. Change your instance URL to a valid ntfy instance.` ),
+            chalk.redBright( `<func>` ), chalk.gray( `GetMessages()` ) );
+
         return;
     }
 
-    console.log( `CHECKING FOR NEW MESSAGES` );
-    console.log( `---------------------------------------------------------` );
-    console.log( `InstanceURL ........... ${ cfgInstanceURL }` );
-    console.log( `Query ................. ${ uri }` );
-    console.log( `Topics ................ ${ cfgTopics }` );
+    Log.info( `core`, chalk.yellow( `[messages]` ), chalk.white( `:  ` ),
+        chalk.blueBright( `<msg>` ), chalk.gray( `Fetching new messages` ),
+        chalk.blueBright( `<instance>` ), chalk.gray( `${ cfgInstanceURL }` ),
+        chalk.blueBright( `<query>` ), chalk.gray( `${ uri }` ),
+        chalk.blueBright( `<topics>` ), chalk.gray( `${ cfgTopics }` ) );
 
     /*
         Loop ntfy api results.
         only items with event = 'message' will be allowed through to display in a notification.
     */
 
-    console.log( `---------------------------------------------------------` );
-    console.log( `History ............... ${ msgHistory }` );
-    console.log( `Messages .............. ${ JSON.stringify( json ) }` );
-    console.log( `---------------------------------------------------------\n` );
+    Log.debug( `core`, chalk.yellow( `[messages]` ), chalk.white( `:  ` ),
+        chalk.blueBright( `<msg>` ), chalk.gray( `Ntfy server query response` ),
+        chalk.blueBright( `<history>` ), chalk.gray( `${ msgHistory }` ),
+        chalk.blueBright( `<messages>` ), chalk.gray( `${ JSON.stringify( json ) }` ) );
+
+    /*
+        Loop all messages to send to user notifications
+    */
 
     for ( let i = 0;i < json.length;i++ )
     {
@@ -452,20 +487,26 @@ async function GetMessages()
         */
 
         // eslint-disable-next-line no-constant-binary-expression
-        const dateHuman = moment.unix( time ).format( store.get( 'datetime' || _Datetime ) );
+        const dateHuman = moment.unix( time ).format( store.get( 'datetime' || defDatetime ) );
 
         /*
             debugging to console to show the status of messages
         */
 
         const msgStatus = msgHistory.includes( id ) === true ? 'already sent, skipping' : 'pending send';
-        console.log( `Messages .............. ${ type }:${ id } ${ msgStatus }` );
+
+        Log.info( `core`, chalk.yellow( `[messages]` ), chalk.white( `:  ` ),
+            chalk.blueBright( `<msg>` ), chalk.gray( `Pending messages received` ),
+            chalk.blueBright( `<type>` ), chalk.gray( `${ type }` ),
+            chalk.blueBright( `<id>` ), chalk.gray( `${ id }` ),
+            chalk.blueBright( `<status>` ), chalk.gray( `${ msgStatus }` ) );
 
         /*
             @ref    : https://github.com/Aetherinox/toasted-notifier
         */
 
         const cfgPersistent = store.getInt( 'bPersistentNoti' ) !== 0;
+        const cfgInstanceURL = store.get( 'instanceURL' );
 
         if ( !msgHistory.includes( id ) )
         {
@@ -481,16 +522,19 @@ async function GetMessages()
 
             msgHistory.push( id );
 
-            console.log( `   Topic .............. ${ type }:${ id } ${ topic }` );
-            console.log( `   Date ............... ${ type }:${ id } ${ dateHuman }` );
-            console.log( `   InstanceURL ........ ${ type }:${ id } ${ cfgInstanceURL }` );
-            console.log( `   Persistent ......... ${ type }:${ id } ${ cfgPersistent }` );
+            Log.debug( `core`, chalk.yellow( `[messages]` ), chalk.white( `:  ` ),
+                chalk.blueBright( `<msg>` ), chalk.gray( `Sent pending ntfy messages to client` ),
+                chalk.blueBright( `<type>` ), chalk.gray( `${ type }` ),
+                chalk.blueBright( `<id>` ), chalk.gray( `${ id }` ),
+                chalk.blueBright( `<date>` ), chalk.gray( `${ dateHuman }` ),
+                chalk.blueBright( `<topic>` ), chalk.gray( `${ topic }` ),
+                chalk.blueBright( `<instance>` ), chalk.gray( `${ cfgInstanceURL }` ) );
         }
-
-        console.log( `Messages .............. ${ type }:${ id } sent` );
     }
 
-    console.log( `\n\n` );
+    Log.ok( `core`, chalk.yellow( `[instance]` ), chalk.white( `:  ` ),
+        chalk.greenBright( `<msg>` ), chalk.gray( `Messages checked` ),
+        chalk.greenBright( `<instance>` ), chalk.gray( `${ uri }` ) );
 
     return json;
 }
@@ -565,7 +609,7 @@ const menuMain = [
                                 }
                             ]
                     },
-                    winMain
+                    guiMain
                 )
                 .then( ( response ) =>
                 {
@@ -583,16 +627,10 @@ const menuMain = [
                         store.set( 'bStartHidden', response[ 3 ] );
                     }
                 })
-                .catch( ( response ) =>
+                .catch( ( resp ) =>
                 {
                     console.error;
                 });
-
-                /*
-                setTimeout(function (){
-                    BrowserWindow.getFocusedWindow().webContents.openDevTools();
-                }, 3000);
-                */
             }
         },
         {
@@ -702,7 +740,7 @@ const menuMain = [
                             type: 'text'
                         }
                     },
-                    winMain
+                    guiMain
                 )
                 .then( ( response ) =>
                 {
@@ -737,7 +775,7 @@ const menuMain = [
                             type: 'text'
                         }
                     },
-                    winMain
+                    guiMain
                 )
                 .then( ( response ) =>
                 {
@@ -750,10 +788,10 @@ const menuMain = [
 
                             if ( typeof ( store.get( 'instanceURL' ) ) !== 'string' || store.get( 'instanceURL' ) === '' || store.get( 'instanceURL' ) === null )
                             {
-                                store.set( 'instanceURL', _Instance );
+                                store.set( 'instanceURL', defInstanceUrl );
                             }
 
-                            winMain.loadURL( store.get( 'instanceURL' ) );
+                            guiMain.loadURL( store.get( 'instanceURL' ) );
                         }
                     }
                 })
@@ -788,16 +826,16 @@ const menuMain = [
                                 },
                                 {
                                     label: 'Datetime format for notification title',
-                                    value: store.get( 'datetime' ) || _Datetime,
+                                    value: store.get( 'datetime' ) || defDatetime,
                                     inputAttrs:
                                     {
-                                        placeholder: `${ _Datetime }`,
+                                        placeholder: `${ defDatetime }`,
                                         required: true
                                     }
                                 },
                                 {
                                     label: 'Polling rate / fetch messages (seconds)',
-                                    value: store.get( 'pollrate' ) || _Pollrate,
+                                    value: store.get( 'pollrate' ) || defPollrate,
                                     inputAttrs: {
                                         type: 'number',
                                         required: true,
@@ -807,7 +845,7 @@ const menuMain = [
                                 }
                             ]
                     },
-                    winMain
+                    guiMain
                 )
                 .then( ( response ) =>
                 {
@@ -817,10 +855,10 @@ const menuMain = [
                         store.set( 'datetime', response[ 1 ] );
                         store.set( 'pollrate', response[ 2 ] );
 
-                        const cfgPollrate = ( store.get( 'pollrate' ) || _Pollrate );
+                        let cfgPollrate = ( store.get( 'pollrate' ) || defPollrate );
                         const fetchInterval = ( cfgPollrate * 1000 ) + 600;
-                        clearInterval( timerPollrate );
-                        timerPollrate = setInterval( GetMessages, fetchInterval );
+                        clearInterval( cfgPollrate );
+                        cfgPollrate = setInterval( GetMessages, fetchInterval );
                     }
                 })
                 .catch( ( response ) =>
@@ -847,12 +885,12 @@ const menuMain = [
             click()
             {
                 const aboutTitle = `About`;
-                winAbout = new BrowserWindow({
+                guiAbout = new BrowserWindow({
                     width: 480,
                     height: 440,
                     title: `${ aboutTitle }`,
                     icon: appIcon,
-                    parent: winMain,
+                    parent: guiMain,
                     center: true,
                     resizable: false,
                     fullscreenable: false,
@@ -867,9 +905,9 @@ const menuMain = [
                     }
                 });
 
-                winAbout.loadFile( path.join( __dirname, `pages`, `about.html` ) ).then( () =>
+                guiAbout.loadFile( path.join( __dirname, `pages`, `about.html` ) ).then( () =>
                 {
-                    winAbout.webContents
+                    guiAbout.webContents
                         .executeJavaScript(
                             `
                 setTitle('${ aboutTitle }');
@@ -880,14 +918,14 @@ const menuMain = [
                         .catch( console.error );
                 });
 
-                winAbout.webContents.on( 'new-window', ( e, url ) =>
+                guiAbout.webContents.on( 'new-window', ( e, url ) =>
                 {
                     e.preventDefault();
                     require( 'electron' ).shell.openExternal( url );
                 });
 
                 // Remove menubar from about window
-                winAbout.setMenu( null );
+                guiAbout.setMenu( null );
             }
         },
         {
@@ -910,7 +948,7 @@ const contextMenu = Menu.buildFromTemplate( [
         label: 'Show App',
         click: function ()
         {
-            winMain.show();
+            guiMain.show();
         }
     },
     {
@@ -954,7 +992,7 @@ function activeDevTools()
             accelerator: process.platform === 'darwin' ? 'ALT+CMD+I' : 'CTRL+SHIFT+I',
             click: () =>
             {
-                winMain.webContents.toggleDevTools();
+                guiMain.webContents.toggleDevTools();
             }
         },
         {
@@ -969,7 +1007,7 @@ function activeDevTools()
 
 function ready()
 {
-    Log.info( `core`, chalk.yellow( `[info]` ), chalk.white( `:  ` ),
+    Log.info( `core`, chalk.yellow( `[initiate]` ), chalk.white( `:  ` ),
         chalk.blueBright( `<msg>` ), chalk.gray( `Starting ${ appName }` ),
         chalk.blueBright( `<version>` ), chalk.gray( `${ appVer }` ),
         chalk.blueBright( `<electron>` ), chalk.gray( `${ appElectron }` ) );
@@ -978,7 +1016,7 @@ function ready()
         New Window
     */
 
-    winMain = new BrowserWindow({
+    guiMain = new BrowserWindow({
         title: `${ appName }`,
         width: 1280,
         height: 720,
@@ -1045,7 +1083,7 @@ function ready()
         Event > Page Title Update
     */
 
-    winMain.on( 'page-title-updated', ( e ) =>
+    guiMain.on( 'page-title-updated', ( e ) =>
     {
         e.preventDefault();
     });
@@ -1057,7 +1095,7 @@ function ready()
         otherwise; app will hide
     */
 
-    winMain.on( 'close', ( e ) =>
+    guiMain.on( 'close', ( e ) =>
     {
         if ( !app.isQuiting )
         {
@@ -1069,7 +1107,7 @@ function ready()
             }
             else
             {
-                winMain.hide();
+                guiMain.hide();
             }
         }
 
@@ -1080,9 +1118,9 @@ function ready()
         Event > Closed
     */
 
-    winMain.on( 'closed', () =>
+    guiMain.on( 'closed', () =>
     {
-        winMain = null;
+        guiMain = null;
     });
 
     /*
@@ -1091,7 +1129,7 @@ function ready()
         buttons leading to external websites should open in user browser
     */
 
-    winMain.webContents.on( 'new-window', ( e, url ) =>
+    guiMain.webContents.on( 'new-window', ( e, url ) =>
     {
         e.preventDefault();
         require( 'electron' ).shell.openExternal( url );
@@ -1102,11 +1140,11 @@ function ready()
         user shouldn't see this unless its something serious
     */
 
-    winMain.webContents.on( 'did-finish-load', ( e, url ) =>
+    guiMain.webContents.on( 'did-finish-load', ( e, url ) =>
     {
-        if ( ( statusHasError === true || statusBadURL === true ) && statusMessage !== '' )
+        if ( ( statusBoolError === true || statusBadURL === true ) && statusStrMsg !== '' )
         {
-            winMain.webContents
+            guiMain.webContents
                 .executeJavaScript(
                 `
                     const div = document.createElement("div");
@@ -1125,7 +1163,7 @@ function ready()
 
                     const span = document.createElement("span");
                     span.setAttribute("class","ntfy-notify error");
-                    span.textContent = '${ statusMessage }';
+                    span.textContent = '${ statusStrMsg }';
 
                     div.appendChild(span);
                     document.body.appendChild(div);
@@ -1138,7 +1176,7 @@ function ready()
         Event > Input
     */
 
-    winMain.webContents.on( 'before-input-event', ( e, input ) =>
+    guiMain.webContents.on( 'before-input-event', ( e, input ) =>
     {
         /*
             Input > Refresh Page (CTRL + r)
@@ -1146,7 +1184,7 @@ function ready()
 
         if ( ( bHotkeysEnabled === 1 || store.getInt( 'bHotkeys' ) === 1 ) && input.type === 'keyDown' && input.control && input.key === 'r' )
         {
-            winMain.webContents.reload();
+            guiMain.webContents.reload();
         }
 
         /*
@@ -1155,7 +1193,7 @@ function ready()
 
         if ( ( bHotkeysEnabled === 1 || store.getInt( 'bHotkeys' ) === 1 ) && input.type === 'keyDown' && input.control && input.key === '=' )
         {
-            winMain.webContents.zoomFactor += 0.1;
+            guiMain.webContents.zoomFactor += 0.1;
         }
 
         /*
@@ -1164,7 +1202,7 @@ function ready()
 
         if ( ( bHotkeysEnabled === 1 || store.getInt( 'bHotkeys' ) === 1 ) && input.type === 'keyDown' && input.control && input.key === '-' )
         {
-            winMain.webContents.zoomFactor -= 0.1;
+            guiMain.webContents.zoomFactor -= 0.1;
         }
 
         /*
@@ -1173,7 +1211,7 @@ function ready()
 
         if ( ( bHotkeysEnabled === 1 || store.getInt( 'bHotkeys' ) === 1 ) && input.type === 'keyDown' && input.control && input.key === '0' )
         {
-            winMain.webContents.zoomFactor = 1;
+            guiMain.webContents.zoomFactor = 1;
         }
 
         /*
@@ -1193,7 +1231,7 @@ function ready()
         if ( ( bHotkeysEnabled === 1 || store.getInt( 'bHotkeys' ) === 1 ) && input.type === 'keyDown' && input.control && input.key === 'm' )
         {
             bWinHidden = 1;
-            winMain.hide();
+            guiMain.hide();
         }
 
         /*
@@ -1204,10 +1242,10 @@ function ready()
         {
             if ( input.type === 'keyDown' && ( input.key === 'I' || input.key === 'F12' ) )
             {
-                winMain.webContents.toggleDevTools();
-                winMain.webContents.on( 'devtools-opened', () =>
+                guiMain.webContents.toggleDevTools();
+                guiMain.webContents.on( 'devtools-opened', () =>
                 {
-                    winMain.webContents.devToolsWebContents
+                    guiMain.webContents.devToolsWebContents
                         .executeJavaScript(
                             `
                             new Promise((resolve)=> {
@@ -1234,7 +1272,7 @@ function ready()
                         )
                         .then( () =>
                         {
-                            winMain.webContents.toggleDevTools();
+                            guiMain.webContents.toggleDevTools();
                         });
                 });
             }
@@ -1248,20 +1286,20 @@ function ready()
         Linux           : left and right click have same functionality
     */
 
-    tray = new Tray( appIcon );
-    tray.setToolTip( `${ appName }` );
-    tray.setContextMenu( contextMenu );
-    tray.on( 'click', () =>
+    guiTray = new Tray( appIcon );
+    guiTray.setToolTip( `${ appName }` );
+    guiTray.setContextMenu( contextMenu );
+    guiTray.on( 'click', () =>
     {
         if ( bWinHidden )
         {
             bWinHidden = 0;
-            winMain.show();
+            guiMain.show();
         }
         else
         {
             bWinHidden = 1;
-            winMain.hide();
+            guiMain.hide();
         }
     });
 
@@ -1298,8 +1336,8 @@ function ready()
         Run timer every X seconds to check for new messages
     */
 
-    const fetchInterval = ( ( store.get( 'pollrate' ) || _Pollrate ) * 1000 ) + 600;
-    timerPollrate = setInterval( GetMessages, fetchInterval );
+    const fetchInterval = ( ( store.get( 'pollrate' ) || defPollrate ) * 1000 ) + 600;
+    setInterval( GetMessages, fetchInterval );
 
     /*
         Check stored setting for developer tools and set state when
@@ -1313,7 +1351,7 @@ function ready()
     */
 
     if ( store.getInt( 'bStartHidden' ) === 1 || bWinHidden === 1 )
-        winMain.hide();
+        guiMain.hide();
 }
 
 /*
