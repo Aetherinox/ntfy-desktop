@@ -31,6 +31,15 @@ class Storage
     }
 
     /*
+        Get Property Value as number
+    */
+
+    getInt( key )
+    {
+        return parseInt( this.data[ key ] );
+    }
+
+    /*
         Set Property Value
     */
 
