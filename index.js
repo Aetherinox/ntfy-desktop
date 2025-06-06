@@ -396,8 +396,53 @@ async function GetMessages()
         const message = object.message;
         const topic = object.topic;
 
-        const cfgPersistent = store.get( 'bPersistentNoti' ) !== 0;
-        const cfgInstanceURL = store.get( 'instanceURL' );
+        /*
+            Auth Error > 401
+                Unauthorized connection
+        */
+
+        if ( object.http === 401 )
+        {
+            Log.warn( `auth`, chalk.yellow( `[messages]` ), chalk.white( `:  ` ),
+                chalk.yellowBright( `<msg>` ), chalk.red( `Unauthorized connection, ensure you set the correct instance URL, and provide your API Token` ),
+                chalk.yellowBright( `<url>` ), chalk.gray( `${ defInstanceUrl }` ),
+                chalk.yellowBright( `<docs>` ), chalk.gray( `${ object.link }` ) );
+
+            continue;
+        }
+
+        /*
+            Auth Error > 429
+                Poll limit reached
+        */
+
+        if ( object.http === 429 )
+        {
+            Log.warn( `auth`, chalk.yellow( `[messages]` ), chalk.white( `:  ` ),
+                chalk.yellowBright( `<msg>` ), chalk.red( `poll limit reached: too many auth failures; increase your limits with a paid plan, see https://ntfy.sh` ),
+                chalk.yellowBright( `<url>` ), chalk.gray( `${ defInstanceUrl }` ),
+                chalk.yellowBright( `<docs>` ), chalk.gray( `${ object.link }` ) );
+
+            continue;
+        }
+
+        /*
+            Other errors
+        */
+
+        if ( object.error )
+        {
+            Log.warn( `auth`, chalk.yellow( `[messages]` ), chalk.white( `:  ` ),
+                chalk.yellowBright( `<msg>` ), chalk.red( `skipped getting pending messages` ),
+                chalk.yellowBright( `<error>` ), chalk.red( `${ object.error }` ),
+                chalk.yellowBright( `<code>` ), chalk.red( `${ object.http }` ),
+                chalk.yellowBright( `<url>` ), chalk.gray( `${ defInstanceUrl }` ),
+                chalk.yellowBright( `<docs>` ), chalk.gray( `${ object.link }` ) );
+        }
+
+        /*
+            skip other notifications that aren't messages
+        */
 
         if ( type !== 'message' )
             continue;
