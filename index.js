@@ -25,6 +25,13 @@ const appAuthor = packageJson.author;
 const appElectron = process.versions.electron;
 const appRepo = packageJson.repository;
 const appIcon = app.getAppPath() + '/assets/icons/ntfy.png';
+
+/*
+    Define > Env Variables
+*/
+
+const LOG_LEVEL = process.env.LOG_LEVEL || 4;
+
 /*
     chalk.level
 
@@ -97,7 +104,88 @@ const _Datetime = 'YYYY-MM-DD hh:mm a';
 const _Pollrate = 60;
 
 /*
-    Declare > Store Values
+    Define > Logs
+
+    When assigning text colors, terminals and the windows command prompt can display any color; however apps
+    such as Portainer console cannot. If you use 16 million colors and are viewing console in Portainer, colors will
+    not be the same as the rgb value. It's best to just stick to Chalk's default colors.
+
+    Various levels of logs with the following usage:
+        Log.verbose(`This is verbose`)
+        Log.debug(`This is debug`)
+        Log.info(`This is info`)
+        Log.ok(`This is ok`)
+        Log.notice(`This is notice`)
+        Log.warn(`This is warn`)
+        Log.error(
+            `Error fetching sports data with error:`,
+            chalk.white(` `),
+            chalk.grey(`This is the error message`)
+        );
+
+        Level               Type
+    -----------------------------------
+        6                   Trace
+        5                   Debug
+        4                   Info
+        3                   Notice
+        2                   Warn
+        1                   Error
+*/
+
+class Log
+{
+    static now()
+    {
+        const now = new Date();
+        return chalk.gray( `[${ now.toLocaleTimeString() }]` );
+    }
+
+    static verbose( ...msg )
+    {
+        if ( LOG_LEVEL >= 6 )
+            console.debug( chalk.white.bgBlack.blackBright.bold( ` ${ appName } ` ), chalk.white( ` ` ), this.now(), chalk.gray( msg.join( ' ' ) ) );
+    }
+
+    static debug( ...msg )
+    {
+        if ( LOG_LEVEL >= 7 )
+            console.trace( chalk.white.bgMagenta.bold( ` ${ appName } ` ), chalk.white( ` ` ), this.now(), chalk.magentaBright( msg.join( ' ' ) ) );
+        else if ( LOG_LEVEL >= 5 )
+            console.debug( chalk.white.bgGray.bold( ` ${ appName } ` ), chalk.white( ` ` ), this.now(), chalk.gray( msg.join( ' ' ) ) );
+    }
+
+    static info( ...msg )
+    {
+        if ( LOG_LEVEL >= 4 )
+            console.log( chalk.white.bgBlueBright.bold( ` ${ appName } ` ), chalk.white( ' ' ), this.now(), chalk.blueBright( msg.join( ' ' ) ) );
+    }
+
+    static ok( ...msg )
+    {
+        if ( LOG_LEVEL >= 4 )
+            console.log( chalk.white.bgGreen.bold( ` ${ appName } ` ), chalk.white( ` ` ), this.now(), chalk.greenBright( msg.join( ' ' ) ) );
+    }
+
+    static notice( ...msg )
+    {
+        if ( LOG_LEVEL >= 3 )
+            console.log( chalk.white.bgYellow.bold( ` ${ appName } ` ), chalk.white( ` ` ), this.now(), chalk.yellowBright( msg.join( ' ' ) ) );
+    }
+
+    static warn( ...msg )
+    {
+        if ( LOG_LEVEL >= 2 )
+            console.warn( chalk.white.bgYellow.bold( ` ${ appName } ` ), chalk.white( ` ` ), this.now(), chalk.yellowBright( msg.join( ' ' ) ) );
+    }
+
+    static error( ...msg )
+    {
+        if ( LOG_LEVEL >= 1 )
+            console.error( chalk.white.bgRedBright.bold( ` ${ appName } ` ), chalk.white( ` ` ), this.now(), chalk.redBright( msg.join( ' ' ) ) );
+    }
+}
+
 
     @note   : defaults will not be set until the first time a user edits any of their settings.
               storage: AppData\Roaming\ntfy-desktop
@@ -808,6 +896,11 @@ function activeDevTools()
 
 function ready()
 {
+    Log.info( `core`, chalk.yellow( `[info]` ), chalk.white( `:  ` ),
+        chalk.blueBright( `<msg>` ), chalk.gray( `Starting ${ appName }` ),
+        chalk.blueBright( `<version>` ), chalk.gray( `${ appVer }` ),
+        chalk.blueBright( `<electron>` ), chalk.gray( `${ appElectron }` ) );
+
     /*
         New Window
     */
@@ -829,10 +922,14 @@ function ready()
 
     if ( typeof ( store.get( 'instanceURL' ) ) !== 'string' || store.get( 'instanceURL' ) === '' || store.get( 'instanceURL' ) === null )
     {
-        store.set( 'instanceURL', _Instance );
+        store.set( 'instanceURL', defInstanceUrl );
 
-        statusHasError = true;
-        statusMessage = `Invalid instance URL specified; defaulting to ${ _Instance }`;
+        statusBoolError = true;
+        statusStrMsg = `Invalid instance URL specified; defaulting to ${ defInstanceUrl }`;
+
+        Log.warn( `core`, chalk.yellow( `[warn]` ), chalk.white( `:  ` ),
+            chalk.yellowBright( `<msg>` ), chalk.yellowBright( `Invalid instance URL specified; setting to default instance url` ),
+            chalk.yellowBright( `<url>` ), chalk.gray( `${ defInstanceUrl }` ) );
     }
 
     /*
