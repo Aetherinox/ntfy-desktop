@@ -465,6 +465,8 @@ async function GetMessages()
             @ref    : https://github.com/Aetherinox/toasted-notifier
         */
 
+        const cfgPersistent = store.getInt( 'bPersistentNoti' ) !== 0;
+
         if ( !msgHistory.includes( id ) )
         {
             toasted.notify({
@@ -509,7 +511,7 @@ const menuMain = [
         {
             label: 'Quit',
             id: 'quit',
-            accelerator: ( bHotkeysEnabled === 1 || store.get( 'bHotkeys' ) === 1 ) ? 'CTRL+Q' : '',
+            accelerator: ( bHotkeysEnabled === 1 || store.getInt( 'bHotkeys' ) === 1 ) ? 'CTRL+Q' : '',
             click: function ()
             {
                 app.isQuiting = true;
@@ -525,7 +527,7 @@ const menuMain = [
         {
             label: 'General',
             id: 'general',
-            accelerator: ( bHotkeysEnabled === 1 || store.get( 'bHotkeys' ) === 1 ) ? 'CTRL+G' : '',
+            accelerator: ( bHotkeysEnabled === 1 || store.getInt( 'bHotkeys' ) === 1 ) ? 'CTRL+G' : '',
             click: function ()
             {
                 prompt(
@@ -682,7 +684,7 @@ const menuMain = [
         },
         {
             label: 'API Token',
-            accelerator: ( bHotkeysEnabled === 1 || store.get( 'bHotkeys' ) === 1 ) ? 'CTRL+T' : '',
+            accelerator: ( bHotkeysEnabled === 1 || store.getInt( 'bHotkeys' ) === 1 ) ? 'CTRL+T' : '',
             click: function ()
             {
                 prompt(
@@ -717,7 +719,7 @@ const menuMain = [
         },
         {
             label: 'Topics',
-            accelerator: ( bHotkeysEnabled === 1 || store.get( 'bHotkeys' ) === 1 ) ? 'CTRL+SHIFT+T' : '',
+            accelerator: ( bHotkeysEnabled === 1 || store.getInt( 'bHotkeys' ) === 1 ) ? 'CTRL+SHIFT+T' : '',
             click: function ()
             {
                 prompt(
@@ -763,7 +765,7 @@ const menuMain = [
         },
         {
             label: 'Notifications',
-            accelerator: ( bHotkeysEnabled === 1 || store.get( 'bHotkeys' ) === 1 ) ? 'CTRL+N' : '',
+            accelerator: ( bHotkeysEnabled === 1 || store.getInt( 'bHotkeys' ) === 1 ) ? 'CTRL+N' : '',
             click: function ()
             {
                 prompt(
@@ -942,7 +944,7 @@ function activeDevTools()
     const menuHeader = Menu.buildFromTemplate( menuMain );
     Menu.setApplicationMenu( menuHeader );
 
-    if ( bDevTools === 1 || store.get( 'bDevTools' ) === 1 )
+    if ( bDevTools === 1 || store.getInt( 'bDevTools' ) === 1 )
     {
         const menuItem = menuHeader.getMenuItemById( 'app' );
 
@@ -1060,7 +1062,7 @@ function ready()
         if ( !app.isQuiting )
         {
             e.preventDefault();
-            if ( bQuitOnClose === 1 || store.get( 'bQuitOnClose' ) === 1 )
+            if ( bQuitOnClose === 1 || store.getInt( 'bQuitOnClose' ) === 1 )
             {
                 app.isQuiting = true;
                 app.quit();
@@ -1142,7 +1144,7 @@ function ready()
             Input > Refresh Page (CTRL + r)
         */
 
-        if ( ( bHotkeysEnabled === 1 || store.get( 'bHotkeys' ) === 1 ) && input.type === 'keyDown' && input.control && input.key === 'r' )
+        if ( ( bHotkeysEnabled === 1 || store.getInt( 'bHotkeys' ) === 1 ) && input.type === 'keyDown' && input.control && input.key === 'r' )
         {
             winMain.webContents.reload();
         }
@@ -1151,7 +1153,7 @@ function ready()
             Input > Zoom In (CTRL + =)
         */
 
-        if ( ( bHotkeysEnabled === 1 || store.get( 'bHotkeys' ) === 1 ) && input.type === 'keyDown' && input.control && input.key === '=' )
+        if ( ( bHotkeysEnabled === 1 || store.getInt( 'bHotkeys' ) === 1 ) && input.type === 'keyDown' && input.control && input.key === '=' )
         {
             winMain.webContents.zoomFactor += 0.1;
         }
@@ -1160,7 +1162,7 @@ function ready()
             Input > Zoom Out (CTRL + -)
         */
 
-        if ( ( bHotkeysEnabled === 1 || store.get( 'bHotkeys' ) === 1 ) && input.type === 'keyDown' && input.control && input.key === '-' )
+        if ( ( bHotkeysEnabled === 1 || store.getInt( 'bHotkeys' ) === 1 ) && input.type === 'keyDown' && input.control && input.key === '-' )
         {
             winMain.webContents.zoomFactor -= 0.1;
         }
@@ -1169,7 +1171,7 @@ function ready()
             Input > Zoom Reset (CTRL + 0)
         */
 
-        if ( ( bHotkeysEnabled === 1 || store.get( 'bHotkeys' ) === 1 ) && input.type === 'keyDown' && input.control && input.key === '0' )
+        if ( ( bHotkeysEnabled === 1 || store.getInt( 'bHotkeys' ) === 1 ) && input.type === 'keyDown' && input.control && input.key === '0' )
         {
             winMain.webContents.zoomFactor = 1;
         }
@@ -1178,7 +1180,7 @@ function ready()
             Input > Quit (CTRL + q)
         */
 
-        if ( ( bHotkeysEnabled === 1 || store.get( 'bHotkeys' ) === 1 ) && input.type === 'keyDown' && input.control && input.key === 'q' )
+        if ( ( bHotkeysEnabled === 1 || store.getInt( 'bHotkeys' ) === 1 ) && input.type === 'keyDown' && input.control && input.key === 'q' )
         {
             app.isQuiting = true;
             app.quit();
@@ -1188,7 +1190,7 @@ function ready()
             Input > Minimize to tray (CTRL + m)
         */
 
-        if ( ( bHotkeysEnabled === 1 || store.get( 'bHotkeys' ) === 1 ) && input.type === 'keyDown' && input.control && input.key === 'm' )
+        if ( ( bHotkeysEnabled === 1 || store.getInt( 'bHotkeys' ) === 1 ) && input.type === 'keyDown' && input.control && input.key === 'm' )
         {
             bWinHidden = 1;
             winMain.hide();
@@ -1198,7 +1200,7 @@ function ready()
             Input > Dev Tools (CTRL + SHIFT + I || F12)
         */
 
-        if ( ( ( bHotkeysEnabled === 1 || store.get( 'bHotkeys' ) === 1 ) && input.control && input.shift ) || input.key === 'F12' )
+        if ( ( ( bHotkeysEnabled === 1 || store.getInt( 'bHotkeys' ) === 1 ) && input.control && input.shift ) || input.key === 'F12' )
         {
             if ( input.type === 'keyDown' && ( input.key === 'I' || input.key === 'F12' ) )
             {
@@ -1310,7 +1312,7 @@ function ready()
         Start minimized in tray
     */
 
-    if ( store.get( 'bStartHidden' ) === 1 || bWinHidden === 1 )
+    if ( store.getInt( 'bStartHidden' ) === 1 || bWinHidden === 1 )
         winMain.hide();
 }
 
