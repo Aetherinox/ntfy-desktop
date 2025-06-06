@@ -191,7 +191,8 @@ class Log
               storage: AppData\Roaming\ntfy-desktop
 */
 
-const store = new Storage({
+const store = new Storage(
+{
     configName: 'prefs',
     defaults: {
         instanceURL: _Instance,
@@ -202,7 +203,7 @@ const store = new Storage({
         bQuitOnClose: 0,
         bStartHidden: 0,
         bPersistentNoti: 0,
-        datetime: _Datetime
+        bLocalhost: 0,
     }
 });
 
@@ -230,18 +231,19 @@ function isJsonString( json )
     helper > validate instance url
 */
 
-function validateUrl( uri, tries, delay )
+function IsValidUrl( uri, tries, delay )
 {
     return new Promise( ( success, reject ) =>
     {
         ( function rec( i )
         {
-            fetch( uri, {
+            fetch( uri,
+            {
                 mode: 'no-cors',
                 redirect: 'follow',
                 headers: {
-                    "accept": '*/*',
-                    "cache-control": 'max-age=0'
+                    accept: '*/*',
+                    'cache-control': 'max-age=0'
                 }
             }).then( ( r ) =>
             {
@@ -547,61 +549,85 @@ const menuMain = [
             }
         },
         {
-            label: 'URL',
-            accelerator: ( bHotkeysEnabled === 1 || store.get( 'bHotkeys' ) === 1 ) ? 'CTRL+U' : '',
+            label: 'Instance',
+            accelerator: ( bHotkeysEnabled === 1 || store.getInt( 'bHotkeys' ) === 1 ) ? 'CTRL+U' : '',
             click: function ()
             {
                 prompt(
                     {
-                        title: 'Set Server Instance',
-                        label: 'Server URL<div class="label-desc">This can either be the URL to the official ntfy.sh server, or your own self-hosted domain / ip.<br><br>Remove everything to set back to official ntfy.sh server.</div>',
+                        title: 'Instance Settings',
+                        label: 'Instance Settings<div class="label-desc">This can either be the official ntfy.sh server, or your own self-hosted domain / ip.</div>',
                         useHtmlLabel: true,
-                        value: store.get( 'instanceURL' ) || _Instance,
                         alwaysOnTop: true,
-                        type: 'input',
+                        type: 'multiInput',
                         customStylesheet: path.join( __dirname, `pages`, `css`, `prompt.css` ),
-                        height: 290,
+                        height: 440,
                         icon: appIcon,
-                        inputAttrs: {
-                            type: 'url'
-                        }
+                        multiInputOptions:
+                            [
+                                {
+                                    label: 'Instance URL',
+                                    description: 'Remove everything to set back to official ntfy.sh server.',
+                                    value: store.get( 'instanceURL' ) || defInstanceUrl,
+                                    inputAttrs: {
+                                        placeholder: 'Enter URL to ntfy server',
+                                        type: 'url',
+                                        required: true,
+                                        min: 5,
+                                        step: 1
+                                    }
+                                },
+                                {
+                                    label: 'Localhost Mode',
+                                    description: 'Enable this if you are running a localhost ntfy server',
+                                    selectOptions: { 0: 'Disabled', 1: 'Enabled' },
+                                    value: store.get( 'bLocalhost' )
+                                }
+                            ]
                     },
-                    winMain
+                    guiMain
                 )
                 .then( ( response ) =>
                 {
                     if ( response !== null )
                     {
-                        const newUrl = ( response === '' ? _Instance : response );
+                        const newUrl = ( response === '' ? defInstanceUrl : response );
                         store.set( 'instanceURL', newUrl );
 
                         /*
                             Validate URL.
                             Invalid URLs should not perform polling.
-                            load default _Instance url
+                            load default defInstanceUrl url
                         */
 
-                        validateUrl( store.get( 'instanceURL' ), 3, 1000 ).then( ( item ) =>
+                        if ( store.getInt( 'bLocalhost' ) === 1 )
                         {
-                            statusBadURL = false;
-                            console.log( `Successfully resolved ` + store.get( 'instanceURL' ) );
-                            winMain.loadURL( store.get( 'instanceURL' ) );
-                        }).catch( ( err ) =>
+                            store.set( 'instanceURL', defInstanceUrl );
+                            guiMain.loadURL( defInstanceUrl );
+                        }
+                        else
                         {
-                            statusBadURL = true;
-                            const msg = `Failed to resolve ` + store.get( 'instanceURL' ) + ` - defaulting to ${ _Instance }`;
-                            statusMessage = `${ msg }`;
-                            console.error( `${ msg }` );
-                            store.set( 'instanceURL', _Instance );
-                            winMain.loadURL( _Instance );
-                        });
+                            IsValidUrl( store.get( 'instanceURL' ), 3, 1000 ).then( ( item ) =>
+                            {
+                                statusBadURL = false;
+                                console.log( `Successfully resolved ` + store.get( 'instanceURL' ) );
+                                guiMain.loadURL( store.get( 'instanceURL' ) );
+                            }).catch( ( err ) =>
+                            {
+                                statusBadURL = true;
+                                const msg = `Failed to resolve ` + store.get( 'instanceURL' ) + ` - defaulting to ${ defInstanceUrl }`;
+                                statusStrMsg = `${ msg }`;
+                                console.error( `${ msg }` );
+                                store.set( 'instanceURL', defInstanceUrl );
+                                guiMain.loadURL( defInstanceUrl );
+                            });
+                        }
                     }
                 })
                 .catch( ( response ) =>
                 {
                     console.error;
                 });
-
                 /*
                 setTimeout(function (){
                     BrowserWindow.getFocusedWindow().webContents.openDevTools();
@@ -935,23 +961,38 @@ function ready()
     /*
         Validate URL.
         Invalid URLs should not perform polling.
-        load default _Instance url
+        load default defInstanceUrl url
     */
 
-    validateUrl( store.get( 'instanceURL' ), 3, 1000 ).then( ( item ) =>
+    if ( store.getInt( 'bLocalhost' ) === 1 )
     {
-        statusBadURL = false;
-        console.log( `Successfully resolved ` + store.get( 'instanceURL' ) );
-        winMain.loadURL( store.get( 'instanceURL' ) );
-    }).catch( ( err ) =>
+        store.set( 'instanceURL', defInstanceUrl );
+        guiMain.loadURL( defInstanceUrl );
+    }
+    else
     {
-        statusBadURL = true;
-        const msg = `Failed to resolve ` + store.get( 'instanceURL' ) + ` - defaulting to ${ _Instance }`;
-        statusMessage = `${ msg }`;
-        console.error( `${ msg }` );
-        store.set( 'instanceURL', _Instance );
-        winMain.loadURL( _Instance );
-    });
+        IsValidUrl( store.get( 'instanceURL' ), 3, 1000 ).then( ( item ) =>
+        {
+            Log.ok( `core`, chalk.yellow( `[instance]` ), chalk.white( `:  ` ),
+                chalk.greenBright( `<msg>` ), chalk.gray( `Specified instance successfully resolves` ),
+                chalk.greenBright( `<instance>` ), chalk.gray( `${ store.get( 'instanceURL' ) }` ) );
+
+            statusBadURL = false;
+            guiMain.loadURL( store.get( 'instanceURL' ) );
+        }).catch( ( err ) =>
+        {
+            Log.error( `core`, chalk.redBright( `[instance]` ), chalk.white( `:  ` ),
+                chalk.redBright( `<msg>` ), chalk.gray( `Failed to resolve instance url; switching to default` ),
+                chalk.redBright( `<instanceBad>` ), chalk.gray( `${ store.get( 'instanceURL' ) }` ),
+                chalk.redBright( `<instanceDef>` ), chalk.gray( `${ defInstanceUrl }` ) );
+
+            statusBadURL = true;
+            statusStrMsg = `Failed to resolve ` + store.get( 'instanceURL' ) + `; defaulting to ${ defInstanceUrl }`;
+
+            store.set( 'instanceURL', defInstanceUrl );
+            guiMain.loadURL( defInstanceUrl );
+        });
+    }
 
     /*
         Event > Page Title Update
