@@ -221,10 +221,17 @@ jobs:
                   always-auth: true
                   scope: '@aetherinox'
 
-            - name: '📦 NPM Actions'
+            - name: '📦 Install NPM & Apt Packages'
               run: |
+                  apt update
+                  apt install git wine64
                   npm install
                   npm install -g electron-packager
+              env:
+                  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+            - name: '📦 Build Packages'
+              run: |
                   npm run build:lin:windows
                   npm run build:lin:linux
                   npm run build:lin:mac
