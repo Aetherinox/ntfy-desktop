@@ -132,7 +132,14 @@ function validateUrl( uri, tries, delay )
     {
         ( function rec( i )
         {
-            fetch( uri, { mode: 'no-cors' }).then( ( r ) =>
+            fetch( uri, {
+                mode: 'no-cors',
+                redirect: 'follow',
+                headers: {
+                    "accept": '*/*',
+                    "cache-control": 'max-age=0'
+                }
+            }).then( ( r ) =>
             {
                 success( r ); // success: resolve promise
             }).catch( ( err ) =>
