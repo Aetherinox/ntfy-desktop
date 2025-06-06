@@ -2,6 +2,7 @@ import { app, BrowserWindow, Tray, shell, Menu, MenuItem } from 'electron';
 import toasted from 'toasted-notifier';
 import path from 'path';
 import moment from 'moment';
+import chalk from 'chalk';
 import { Storage } from './storage.js';
 import { fileURLToPath } from 'url';
 
@@ -24,6 +25,21 @@ const appAuthor = packageJson.author;
 const appElectron = process.versions.electron;
 const appRepo = packageJson.repository;
 const appIcon = app.getAppPath() + '/assets/icons/ntfy.png';
+/*
+    chalk.level
+
+    @ref        https://npmjs.com/package/chalk
+                - 0    All colors disabled
+                - 1    Basic color support (16 colors)
+                - 2    256 color support
+                - 3    Truecolor support (16 million colors)
+
+    When assigning text colors, terminals and the windows command prompt can display any color; however apps
+    such as Portainer console cannot. If you use 16 million colors and are viewing console in Portainer, colors will
+    not be the same as the rgb value. It's best to just stick to Chalk's default colors.
+*/
+
+chalk.level = 3;
 
 /*
     Debug > Print args
