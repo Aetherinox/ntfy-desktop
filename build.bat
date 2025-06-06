@@ -61,14 +61,14 @@ set "IconMacOS=assets/icons/ntfy.icns"
 :: #
 
 IF exist !dir_build! (
-    rm -r !dir_build!/*
+    del /S /Q !dir_build!\*
     echo Folder !dir_build! already exists
 ) ELSE (
     md !dir_build! && echo Folder !dir_build! created
 )
 
 IF exist !dir_dist! (
-    rm -r !dir_dist!/*
+    del /S /Q !dir_dist!\*
     echo Folder !dir_dist! already exists
 ) ELSE (
     md !dir_dist! && echo Folder !dir_dist! created
@@ -95,7 +95,7 @@ for %%a in (%platformWin%) do (
     powershell Compress-Archive -Path "!dir_build!/ntfy-desktop-win32-%%a" -DestinationPath "!dir_dist!/ntfy-desktop-windows-%%a.zip"
 
     if "!bDeleteBuild!" == "true" (
-        rm -rf "!dir_build!/ntfy-desktop-win32-%%a"
+        rd /s /q "!dir_build!/ntfy-desktop-win32-%%a"
     )
     echo -------------------------------------------------------------------------
     echo.
@@ -114,7 +114,7 @@ for %%a in (%platformLinux%) do (
     powershell Compress-Archive -Path "!dir_build!/ntfy-desktop-linux-%%a" -DestinationPath "!dir_dist!/ntfy-desktop-linux-%%a.zip"
 
     if "!bDeleteBuild!" == "true" (
-        rm -rf "!dir_build!/ntfy-desktop-linux-%%a"
+        rd /s /q "!dir_build!/ntfy-desktop-linux-%%a"
     )
     echo -------------------------------------------------------------------------
     echo.
@@ -133,7 +133,7 @@ for %%a in (%platformMac%) do (
     powershell Compress-Archive -Path "!dir_build!/ntfy-desktop-darwin-%%a" -DestinationPath "!dir_dist!/ntfy-desktop-mac-%%a.zip"
 
     if "!bDeleteBuild!" == "true" (
-        rm -rf "!dir_build!/ntfy-desktop-darwin-%%a"
+        rd /s /q "!dir_build!/ntfy-desktop-darwin-%%a"
     )
     echo -------------------------------------------------------------------------
     echo.
