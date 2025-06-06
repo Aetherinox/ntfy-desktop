@@ -164,42 +164,49 @@ function validateUrl( uri, tries, delay )
 
 async function GetMessageData( uri )
 {
-    const cfgApiToken = store.get( 'apiToken' );
-    const req = await fetch( uri,
+    try
     {
-        method: 'GET',
-        headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${ cfgApiToken }`
+        const cfgApiToken = store.get( 'apiToken' );
+        const req = await fetch( uri,
+        {
+            method: 'GET',
+            headers: {
+                Accept: 'application/json',
+                Authorization: `Bearer ${ cfgApiToken }`
+            }
+        });
+    
+        /*
+            ntfy has the option to output message results as json, however the structure of that json
+            is not properly formatted json and adds a newline to the end of each message.
+    
+            bring the json results in as a string, split them at newline and then push them to a new
+            array.
+        */
+    
+        const json = await req.text();
+        const jsonArr = [];
+        const entries = json.split( '\n' );
+        for ( let i = 0;i < entries.length;i++ )
+        {
+            jsonArr.push( entries[ i ] );
         }
-    });
-
-    /*
-        ntfy has the option to output message results as json, however the structure of that json
-        is not properly formatted json and adds a newline to the end of each message.
-
-        bring the json results in as a string, split them at newline and then push them to a new
-        array.
-    */
-
-    const json = await req.text();
-    const jsonArr = [];
-    const entries = json.split( '\n' );
-    for ( let i = 0;i < entries.length;i++ )
-    {
-        jsonArr.push( entries[ i ] );
+    
+        /*
+            Filter out empty entry in array which was caused by the last newline
+        */
+    
+        const jsonResult = jsonArr.filter( ( el ) =>
+        {
+            return el !== null && el !== '';
+        });
+    
+        return jsonResult;
     }
-
-    /*
-        Filter out empty entry in array which was caused by the last newline
-    */
-
-    const jsonResult = jsonArr.filter( ( el ) =>
+    catch (err)
     {
-        return el !== null && el !== '';
-    });
-
-    return jsonResult;
+        alert(err);
+    }
 }
 
 /*
