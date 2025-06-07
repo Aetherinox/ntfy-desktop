@@ -212,10 +212,8 @@ jobs:
             contents: read
             packages: write
         steps:
-            - name: 'Cleanup'
-              run: |
-                  tree /home/runner/work/_temp
-                  rm -rf "/home/runner/work/_temp"
+            - name: '☑️ Checkout'
+              uses: actions/checkout@v4
 
             - name: '⚙️ Setup Node'
               uses: actions/setup-node@v4
@@ -227,6 +225,8 @@ jobs:
 
             - name: '📦 Install NPM & Apt Packages'
               run: |
+                  mkdir -p build
+                  mkdir -p dist
                   sudo apt update
                   sudo apt install git wine64
                   sudo npm install
@@ -420,10 +420,8 @@ jobs:
             contents: read
             packages: write
         steps:
-            - name: 'Cleanup'
-              run: |
-                  tree /home/runner/work/_temp
-                  rm -rf "/home/runner/work/_temp"
+            - name: '☑️ Checkout'
+              uses: actions/checkout@v4
 
             - name: '⚙️ Setup Node'
               uses: actions/setup-node@v4
@@ -435,6 +433,8 @@ jobs:
 
             - name: '📦 Install NPM & Apt Packages'
               run: |
+                  mkdir -p build
+                  mkdir -p dist
                   sudo apt update
                   sudo apt install git wine64
                   sudo npm install
@@ -628,6 +628,9 @@ jobs:
             contents: read
             packages: write
         steps:
+            - name: '☑️ Checkout'
+              uses: actions/checkout@v4
+
             - name: '⚙️ Setup Node'
               uses: actions/setup-node@v4
               with:
