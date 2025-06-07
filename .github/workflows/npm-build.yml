@@ -637,6 +637,7 @@ jobs:
 
             - name: '📦 Install NPM & Apt Packages'
               run: |
+                  brew install tree
                   sudo npm install
                   sudo npm install -g electron-packager
               env:
