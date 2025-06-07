@@ -776,7 +776,7 @@ jobs:
                   retention-days: 30
 
     # #
-    #   Job > Release > Github
+    #   Job > Release › Github
     # #
 
     job-release:
@@ -796,7 +796,7 @@ jobs:
         steps:
 
             # #
-            #   Dist Releases > Checkout
+            #   Release › Checkout
             # #
 
             - name: '☑️ Checkout'
@@ -805,7 +805,7 @@ jobs:
                   fetch-depth: 0
 
             # #
-            #   Dist Releases > Print Version Debug
+            #   Release › Print Version Debug
             # #
 
             - name: '🪪 Test Next Job Version'
@@ -814,7 +814,83 @@ jobs:
                   echo "VERSION: ${{ env.PACKAGE_VERSION }}"
 
             # #
-            #   Dist Releases > Install package via NPM
+            #   Release › Download Artifact › Windows
+            # #
+
+            - name: '📁 Get › Artifact › Stable › Windows › Arm64'
+              uses: actions/download-artifact@v4
+              if: |
+                  startsWith( inputs.RC_RELEASE, false ) ||
+                  startsWith( env.RC_RELEASE, false )
+              with:
+                  name: ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-win32-arm64.zip
+
+            - name: '📁 Get › Artifact › Stable › Windows › Ia32'
+              uses: actions/download-artifact@v4
+              if: |
+                  startsWith( inputs.RC_RELEASE, false ) ||
+                  startsWith( env.RC_RELEASE, false )
+              with:
+                  name: ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-win32-ia32.zip
+
+            - name: '📁 Get › Artifact › Stable › Windows › Amd64'
+              uses: actions/download-artifact@v4
+              if: |
+                  startsWith( inputs.RC_RELEASE, false ) ||
+                  startsWith( env.RC_RELEASE, false )
+              with:
+                  name: ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-win32-amd64.zip
+
+            # #
+            #   Release › Download Artifact › Linux
+            # #
+
+            - name: '📁 Get › Artifact › Stable › Linux › Arm64'
+              uses: actions/download-artifact@v4
+              if: |
+                  startsWith( inputs.RC_RELEASE, false ) ||
+                  startsWith( env.RC_RELEASE, false )
+              with:
+                  name: ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-linux-arm64.zip
+
+            - name: '📁 Get › Artifact › Stable › Linux › Armv7l'
+              uses: actions/download-artifact@v4
+              if: |
+                  startsWith( inputs.RC_RELEASE, false ) ||
+                  startsWith( env.RC_RELEASE, false )
+              with:
+                  name: ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-linux-armv7l.zip
+
+            - name: '📁 Get › Artifact › Stable › Linux › Amd64'
+              uses: actions/download-artifact@v4
+              if: |
+                  startsWith( inputs.RC_RELEASE, false ) ||
+                  startsWith( env.RC_RELEASE, false )
+              with:
+                  name: ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-linux-amd64.zip
+
+            # #
+            #   Release › Download Artifact › Darwin
+            # #
+
+            - name: '📁 Get › Artifact › Stable › Darwin › Arm64'
+              uses: actions/download-artifact@v4
+              if: |
+                  startsWith( inputs.RC_RELEASE, false ) ||
+                  startsWith( env.RC_RELEASE, false )
+              with:
+                  name: ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-darwin-arm64.zip
+
+            - name: '📁 Get › Artifact › Stable › Darwin › Amd64'
+              uses: actions/download-artifact@v4
+              if: |
+                  startsWith( inputs.RC_RELEASE, false ) ||
+                  startsWith( env.RC_RELEASE, false )
+              with:
+                  name: ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-darwin-amd64.zip
+
+            # #
+            #   Release › Install package via NPM
             # #
 
             - name: '🪪 Install Dependencies'
@@ -823,7 +899,7 @@ jobs:
                   npm install
 
             # #
-            #   Dist Releases > Run pretty and lint
+            #   Release › Run pretty and lint
             # #
 
             - name: '🪪 Run Pretty & Linter'
@@ -929,23 +1005,93 @@ jobs:
                   startsWith( inputs.RC_RELEASE, false ) ||
                   startsWith( env.RC_RELEASE, false )
               run: |
-                  filename_zip="${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}.zip"
+                  #  windows
+                  file_win32_arm64="${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-win32-arm64.zip"
+                  file_win32_ia32="${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-win32-ia32.zip"
+                  file_win32_amd64="${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-win32-amd64.zip"
+
+                  #  linux
+                  file_linux_arm64="${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-linux-arm64.zip"
+                  file_linux_armv7l="${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-linux-armv7l.zip"
+                  file_linux_amd64="${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-linux-amd64.zip"
+
+                  #  macos
+                  file_macos_arm64="${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-darwin-arm64.zip"
+                  file_macos_amd64="${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-darwin-amd64.zip"
 
                   #  get sha1 and sha256 for .zip and .gz files
                   find . -maxdepth 1 \( -name '*.zip' -o -name '*.gz' \) -printf '%P\n' | xargs -r sha1sum | gpg --digest-algo sha256 --clearsign > sha1sum.txt.asc
                   find . -maxdepth 1 \( -name '*.zip' -o -name '*.gz' \) -printf '%P\n' | xargs -r sha256sum | gpg --digest-algo sha256 --clearsign > sha256sum.txt.asc
 
-                  #  get sha1sum; assign to variable
-                  sha1sum="$(shasum --algorithm 1 ${filename_zip} | awk '{ print $1 }')"
-                  echo "SHA1SUM=${sha1sum}" >> $GITHUB_ENV
 
-                  #  get sha256sum; assign to variable
-                  sha256sum="$(shasum --algorithm 256 ${filename_zip} | awk '{ print $1 }')"
-                  echo "SHA256SUM=${sha256sum}" >> $GITHUB_ENV
+                  #  SHA1SUM > Windows
+                  sha1sum_win32_arm64="$(shasum --algorithm 1 ${file_win32_arm64} | awk '{ print $1 }')"
+                  echo "SHA1SUM_WIN32_ARM64=${sha1sum_win32_arm64}" >> $GITHUB_ENV
+
+                  sha1sum_win32_ia32="$(shasum --algorithm 1 ${file_win32_ia32} | awk '{ print $1 }')"
+                  echo "SHA1SUM_WIN32_IA32=${sha1sum_win32_ia32}" >> $GITHUB_ENV
+
+                  sha1sum_win32_amd64="$(shasum --algorithm 1 ${file_win32_amd64} | awk '{ print $1 }')"
+                  echo "SHA1SUM_WIN32_AMD64=${sha1sum_win32_amd64}" >> $GITHUB_ENV
+
+                  #  SHA1SUM > Linux
+                  sha1sum_linux_arm64="$(shasum --algorithm 1 ${file_linux_arm64} | awk '{ print $1 }')"
+                  echo "SHA1SUM_LINUX_ARM64=${sha1sum_linux_arm64}" >> $GITHUB_ENV
+
+                  sha1sum_linux_armv7l="$(shasum --algorithm 1 ${file_linux_armv7l} | awk '{ print $1 }')"
+                  echo "SHA1SUM_LINUX_ARMV7L=${sha1sum_linux_armv7l}" >> $GITHUB_ENV
+
+                  sha1sum_linux_amd64="$(shasum --algorithm 1 ${file_linux_amd64} | awk '{ print $1 }')"
+                  echo "SHA1SUM_LINUX_AMD64=${sha1sum_linux_amd64}" >> $GITHUB_ENV
+
+                  #  SHA1SUM > Darwin
+                  sha1sum_macos_arm64="$(shasum --algorithm 1 ${file_macos_arm64} | awk '{ print $1 }')"
+                  echo "SHA1SUM_MACOS_ARM64=${sha1sum_macos_arm64}" >> $GITHUB_ENV
+
+                  sha1sum_macos_amd64="$(shasum --algorithm 1 ${file_macos_amd64} | awk '{ print $1 }')"
+                  echo "SHA1SUM_MACOS_AMD64=${sha1sum_macos_amd64}" >> $GITHUB_ENV
+
+
+                  #  SHA256SUM > Windows
+                  sha256sum_win32_arm64="$(shasum --algorithm 256 ${file_win32_arm64} | awk '{ print $1 }')"
+                  echo "SHA256SUM_WIN32_ARM64=${sha256sum_win32_arm64}" >> $GITHUB_ENV
+
+                  sha256sum_win32_ia32="$(shasum --algorithm 256 ${file_win32_ia32} | awk '{ print $1 }')"
+                  echo "SHA256SUM_WIN32_IA32=${sha256sum_win32_ia32}" >> $GITHUB_ENV
+
+                  sha256sum_win32_amd64="$(shasum --algorithm 256 ${file_win32_amd64} | awk '{ print $1 }')"
+                  echo "SHA256SUM_WIN32_AMD64=${sha256sum_win32_amd64}" >> $GITHUB_ENV
+
+                  #  SHA256SUM > Linux
+                  sha256sum_linux_arm64="$(shasum --algorithm 256 ${file_linux_arm64} | awk '{ print $1 }')"
+                  echo "SHA256SUM_LINUX_ARM64=${sha256sum_linux_arm64}" >> $GITHUB_ENV
+
+                  sha256sum_linux_armv7l="$(shasum --algorithm 256 ${file_linux_armv7l} | awk '{ print $1 }')"
+                  echo "SHA256SUM_LINUX_ARMV7L=${sha256sum_linux_armv7l}" >> $GITHUB_ENV
+
+                  sha256sum_linux_amd64="$(shasum --algorithm 256 ${file_linux_amd64} | awk '{ print $1 }')"
+                  echo "SHA256SUM_LINUX_AMD64=${sha256sum_linux_amd64}" >> $GITHUB_ENV
+
+                  #  SHA256SUM > Darwin
+                  sha256sum_macos_arm64="$(shasum --algorithm 256 ${file_macos_arm64} | awk '{ print $1 }')"
+                  echo "SHA256SUM_MACOS_ARM64=${sha256sum_macos_arm64}" >> $GITHUB_ENV
+
+                  sha256sum_macos_amd64="$(shasum --algorithm 256 ${file_macos_amd64} | awk '{ print $1 }')"
+                  echo "SHA256SUM_MACOS_AMD64=${sha256sum_macos_amd64}" >> $GITHUB_ENV
+
 
                   #  no longer needed, replaced by find . command
-                  #  shasum --algorithm 256 ${filename_zip} > SHA256SUMS.txt
-                  echo "FILE_ZIP=${filename_zip}" >> $GITHUB_ENV
+                  #  shasum --algorithm 256 ${file_win32_arm64} > SHA256SUMS.txt
+                  echo "FILE_WIN32_ARM64=${file_win32_arm64}" >> $GITHUB_ENV
+                  echo "FILE_WIN32_IA32=${file_win32_ia32}" >> $GITHUB_ENV
+                  echo "FILE_WIN32_AMD64=${file_win32_amd64}" >> $GITHUB_ENV
+
+                  echo "FILE_LINUX_ARM64=${file_linux_arm64}" >> $GITHUB_ENV
+                  echo "FILE_LINUX_ARMV7L=${file_linux_armv7l}" >> $GITHUB_ENV
+                  echo "FILE_LINUX_AMD64=${file_linux_amd64}" >> $GITHUB_ENV
+
+                  echo "FILE_MACOS_ARM64=${file_macos_arm64}" >> $GITHUB_ENV
+                  echo "FILE_MACOS_AMD64=${file_macos_amd64}" >> $GITHUB_ENV
 
             - name: '🆔 Checksum › Release Candidate'
               id: task_release_checksum_rc_set
@@ -953,32 +1099,112 @@ jobs:
                   startsWith( inputs.RC_RELEASE, true ) ||
                   startsWith( env.RC_RELEASE, true )
               run: |
-                  filename_zip="${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}.zip"
+                  #  windows
+                  file_win32_arm64="${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-win32-arm64.zip"
+                  file_win32_ia32="${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-win32-ia32.zip"
+                  file_win32_amd64="${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-win32-amd64.zip"
+
+                  #  linux
+                  file_linux_arm64="${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-linux-arm64.zip"
+                  file_linux_armv7l="${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-linux-armv7l.zip"
+                  file_linux_amd64="${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-linux-amd64.zip"
+
+                  #  macos
+                  file_macos_arm64="${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-darwin-arm64.zip"
+                  file_macos_amd64="${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-darwin-amd64.zip"
+
 
                   #  get sha1 and sha256 for .zip and .gz files
                   find . -maxdepth 1 \( -name '*.zip' -o -name '*.gz' \) -printf '%P\n' | xargs -r sha1sum | gpg --digest-algo sha256 --clearsign > sha1sum.txt.asc
                   find . -maxdepth 1 \( -name '*.zip' -o -name '*.gz' \) -printf '%P\n' | xargs -r sha256sum | gpg --digest-algo sha256 --clearsign > sha256sum.txt.asc
 
-                  #  get sha1sum; assign to variable
-                  sha1sum="$(shasum --algorithm 1 ${filename_zip} | awk '{ print $1 }')"
-                  echo "SHA1SUM=${sha1sum}" >> $GITHUB_ENV
 
-                  #  get sha256sum; assign to variable
-                  sha256sum="$(shasum --algorithm 256 ${filename_zip} | awk '{ print $1 }')"
-                  echo "SHA256SUM=${sha256sum}" >> $GITHUB_ENV
+                  #  SHA1SUM > Windows
+                  sha1sum_win32_arm64="$(shasum --algorithm 1 ${file_win32_arm64} | awk '{ print $1 }')"
+                  echo "SHA1SUM_WIN32_ARM64=${sha1sum_win32_arm64}" >> $GITHUB_ENV
+
+                  sha1sum_win32_ia32="$(shasum --algorithm 1 ${file_win32_ia32} | awk '{ print $1 }')"
+                  echo "SHA1SUM_WIN32_IA32=${sha1sum_win32_ia32}" >> $GITHUB_ENV
+
+                  sha1sum_win32_amd64="$(shasum --algorithm 1 ${file_win32_amd64} | awk '{ print $1 }')"
+                  echo "SHA1SUM_WIN32_AMD64=${sha1sum_win32_amd64}" >> $GITHUB_ENV
+
+                  #  SHA1SUM > Linux
+                  sha1sum_linux_arm64="$(shasum --algorithm 1 ${file_linux_arm64} | awk '{ print $1 }')"
+                  echo "SHA1SUM_LINUX_ARM64=${sha1sum_linux_arm64}" >> $GITHUB_ENV
+
+                  sha1sum_linux_armv7l="$(shasum --algorithm 1 ${file_linux_armv7l} | awk '{ print $1 }')"
+                  echo "SHA1SUM_LINUX_ARMV7L=${sha1sum_linux_armv7l}" >> $GITHUB_ENV
+
+                  sha1sum_linux_amd64="$(shasum --algorithm 1 ${file_linux_amd64} | awk '{ print $1 }')"
+                  echo "SHA1SUM_LINUX_AMD64=${sha1sum_linux_amd64}" >> $GITHUB_ENV
+
+                  #  SHA1SUM > Darwin
+                  sha1sum_macos_arm64="$(shasum --algorithm 1 ${file_macos_arm64} | awk '{ print $1 }')"
+                  echo "SHA1SUM_MACOS_ARM64=${sha1sum_macos_arm64}" >> $GITHUB_ENV
+
+                  sha1sum_macos_amd64="$(shasum --algorithm 1 ${file_macos_amd64} | awk '{ print $1 }')"
+                  echo "SHA1SUM_MACOS_AMD64=${sha1sum_macos_amd64}" >> $GITHUB_ENV
+
+
+                  #  SHA256SUM > Windows
+                  sha256sum_win32_arm64="$(shasum --algorithm 256 ${file_win32_arm64} | awk '{ print $1 }')"
+                  echo "SHA256SUM_WIN32_ARM64=${sha256sum_win32_arm64}" >> $GITHUB_ENV
+
+                  sha256sum_win32_ia32="$(shasum --algorithm 256 ${file_win32_ia32} | awk '{ print $1 }')"
+                  echo "SHA256SUM_WIN32_IA32=${sha256sum_win32_ia32}" >> $GITHUB_ENV
+
+                  sha256sum_win32_amd64="$(shasum --algorithm 256 ${file_win32_amd64} | awk '{ print $1 }')"
+                  echo "SHA256SUM_WIN32_AMD64=${sha256sum_win32_amd64}" >> $GITHUB_ENV
+
+                  #  SHA256SUM > Linux
+                  sha256sum_linux_arm64="$(shasum --algorithm 256 ${file_linux_arm64} | awk '{ print $1 }')"
+                  echo "SHA256SUM_LINUX_ARM64=${sha256sum_linux_arm64}" >> $GITHUB_ENV
+
+                  sha256sum_linux_armv7l="$(shasum --algorithm 256 ${file_linux_armv7l} | awk '{ print $1 }')"
+                  echo "SHA256SUM_LINUX_ARMV7L=${sha256sum_linux_armv7l}" >> $GITHUB_ENV
+
+                  sha256sum_linux_amd64="$(shasum --algorithm 256 ${file_linux_amd64} | awk '{ print $1 }')"
+                  echo "SHA256SUM_LINUX_AMD64=${sha256sum_linux_amd64}" >> $GITHUB_ENV
+
+                  #  SHA256SUM > Darwin
+                  sha256sum_macos_arm64="$(shasum --algorithm 256 ${file_macos_arm64} | awk '{ print $1 }')"
+                  echo "SHA256SUM_MACOS_ARM64=${sha256sum_macos_arm64}" >> $GITHUB_ENV
+
+                  sha256sum_macos_amd64="$(shasum --algorithm 256 ${file_macos_amd64} | awk '{ print $1 }')"
+                  echo "SHA256SUM_MACOS_AMD64=${sha256sum_macos_amd64}" >> $GITHUB_ENV
+
 
                   #  no longer needed, replaced by find . command
-                  #  shasum --algorithm 256 ${filename_zip} > SHA256SUMS.txt
-                  echo "FILE_ZIP=${filename_zip}" >> $GITHUB_ENV
+                  #  shasum --algorithm 256 ${file_win32_arm64} > SHA256SUMS.txt
+                  echo "FILE_WIN32_ARM64=${file_win32_arm64}" >> $GITHUB_ENV
+                  echo "FILE_WIN32_IA32=${file_win32_ia32}" >> $GITHUB_ENV
+                  echo "FILE_WIN32_AMD64=${file_win32_amd64}" >> $GITHUB_ENV
+
+                  echo "FILE_LINUX_ARM64=${file_linux_arm64}" >> $GITHUB_ENV
+                  echo "FILE_LINUX_ARMV7L=${file_linux_armv7l}" >> $GITHUB_ENV
+                  echo "FILE_LINUX_AMD64=${file_linux_amd64}" >> $GITHUB_ENV
+
+                  echo "FILE_MACOS_ARM64=${file_macos_arm64}" >> $GITHUB_ENV
+                  echo "FILE_MACOS_AMD64=${file_macos_amd64}" >> $GITHUB_ENV
 
             # #
             #   Release › Checksum › Print
             # #
 
             - name: '🆔 Checksum › Print'
-              id: task_release_checksum_st_get
+              id: task_release_checksum_get
               run: |
-                  echo "${{ env.SHA256SUM }}"
+                  echo "${{ env.FILE_WIN32_ARM64 }}                 ${{ env.SHA256SUM_WIN32_ARM64 }}"
+                  echo "${{ env.FILE_WIN32_IA32 }}                  ${{ env.SHA256SUM_WIN32_IA32 }}"
+                  echo "${{ env.FILE_WIN32_AMD64 }}                 ${{ env.SHA256SUM_WIN32_AMD64 }}"
+
+                  echo "${{ env.FILE_LINUX_ARM64 }}                 ${{ env.SHA256SUM_LINUX_ARM64 }}"
+                  echo "${{ env.FILE_LINUX_ARMV7L }}                ${{ env.SHA256SUM_LINUX_ARMV7L }}"
+                  echo "${{ env.FILE_LINUX_AMD64 }}                 ${{ env.SHA256SUM_LINUX_AMD64 }}"
+
+                  echo "${{ env.FILE_MACOS_ARM64 }}                 ${{ env.SHA256SUM_MACOS_ARM64 }}"
+                  echo "${{ env.FILE_MACOS_AMD64 }}                 ${{ env.SHA256SUM_MACOS_AMD64 }}"
 
             # #
             #   Release › Contributor Images
@@ -991,34 +1217,6 @@ jobs:
                   filter-author: (renovate\[bot\]|renovate-bot|dependabot\[bot\])
                   output: CONTRIBUTORS.svg
                   avatarSize: 42
-
-            # #
-            #   Release › Checksum › Add (Stable)
-            # #
-
-            - name: '📦 Zip › Add Checksum › Stable'
-              id: task_release_zip_st
-              if: |
-                  startsWith( inputs.RC_RELEASE, false ) ||
-                  startsWith( env.RC_RELEASE, false )
-              run: |
-                  echo Zipping STABLE Package .zip ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}.zip
-                  zip -jr ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}.zip sha1sum.txt.asc sha256sum.txt.asc
-                  ls
-
-            # #
-            #   Release › Checksum › Add (Release Candidate)
-            # #
-
-            - name: '📦 Zip › Add Checksum › RC'
-              id: task_release_zip_rc
-              if: |
-                  startsWith( inputs.RC_RELEASE, true ) ||
-                  startsWith( env.RC_RELEASE, true )
-              run: |
-                  echo Zipping PRE-RELEASE Package .zip ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}.zip
-                  zip -jr ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}.zip sha1sum.txt.asc sha256sum.txt.asc
-                  ls
 
             # #
             #   Release › Changelog › Generate Tags
@@ -1063,7 +1261,7 @@ jobs:
                   fetchViaCommits: true
                   configurationJson: |
                     {
-                      "template": "## Release Info \n| Item | Value |\n| --- | --- |\n|<sub>📄 ${{ env.FILE_ZIP }}</sub>|<sub>Compiled Packages</sub>|\n|<sub>📄 sha256sum.txt.asc</sub>|<sub>Signed SHA256 hash digest</sub>|\n|<sub>📄 sha1sum.txt.asc</sub>|<sub>Signed SHA1 hash digest</sub>|\n|<sub>🏷️ SHA256</sub>|<sub>`${{ env.SHA256SUM }}`</sub>|\n|<sub>🏷️ GUID</sub>|<sub>`${{ steps.task_release_dotenv_get.outputs.GUID }}`</sub>|\n|<sub>🏷️ UUID</sub>|<sub>`${{ steps.task_release_dotenv_get.outputs.UUID }}`</sub>|\n|<sub>🕟 Stamp</sub>|<sub>`#{{FROM_TAG}}-#{{FROM_TAG_DATE}} 🔺 #{{TO_TAG}}-#{{TO_TAG_DATE}}`</sub>|\n|<sub>📅 Last Release</sub>|<sub>`#{{DAYS_SINCE}} days ago`</sub>|\n\n<br>\n\n---\n\n<br>\n\n### What's New\nThis release contains the following changes:\n\n<br>\n\n---\n\n<br>\n\n### Statistics\nHow the files have changed:\n<ul><li><a href='#{{RELEASE_DIFF}}'>Changed files</a> : <b>#{{CHANGED_FILES}}</b></li><li>Changes : <b>#{{CHANGES}}</b></li><li>Commits : <b>#{{COMMITS}}</b></li><li>Additions : <b>#{{ADDITIONS}}</b></li><li>Deletions : <b>#{{DELETIONS}}</b></li><li>PRs (categorized) : <b>#{{CATEGORIZED_COUNT}}</b></li><li>PRs (uncategorized) : <b>#{{UNCATEGORIZED_COUNT}}</b></li><li>PRs (open) : <b>#{{OPEN_COUNT}}</b></li>\n<br />\n</ul>\n\n<br>\n\n---\n\n<br>\n\n### Pull Requests\nThis release is associated with the following pull requests:\n#{{CHANGELOG}}\n\n<br>\n\n---\n\n<br>\n\n"
+                      "template": "## Release Info \n| Item | Value |\n| --- | --- |\n|<sub>📄 ${{ env.FILE_WIN32_ARM64 }}</sub>|<sub>Compiled Packages</sub>|\n|<sub>📄 sha256sum.txt.asc</sub>|<sub>Signed SHA256 hash digest</sub>|\n|<sub>📄 sha1sum.txt.asc</sub>|<sub>Signed SHA1 hash digest</sub>|\n|<sub>🏷️ SHA256</sub>|<sub>`${{ env.SHA256SUM_WIN32_ARM64 }}`</sub>|\n|<sub>🏷️ GUID</sub>|<sub>`${{ steps.task_release_dotenv_get.outputs.GUID }}`</sub>|\n|<sub>🏷️ UUID</sub>|<sub>`${{ steps.task_release_dotenv_get.outputs.UUID }}`</sub>|\n|<sub>🕟 Stamp</sub>|<sub>`#{{FROM_TAG}}-#{{FROM_TAG_DATE}} 🔺 #{{TO_TAG}}-#{{TO_TAG_DATE}}`</sub>|\n|<sub>📅 Last Release</sub>|<sub>`#{{DAYS_SINCE}} days ago`</sub>|\n\n<br>\n\n---\n\n<br>\n\n### What's New\nThis release contains the following changes:\n\n<br>\n\n---\n\n<br>\n\n### Statistics\nHow the files have changed:\n<ul><li><a href='#{{RELEASE_DIFF}}'>Changed files</a> : <b>#{{CHANGED_FILES}}</b></li><li>Changes : <b>#{{CHANGES}}</b></li><li>Commits : <b>#{{COMMITS}}</b></li><li>Additions : <b>#{{ADDITIONS}}</b></li><li>Deletions : <b>#{{DELETIONS}}</b></li><li>PRs (categorized) : <b>#{{CATEGORIZED_COUNT}}</b></li><li>PRs (uncategorized) : <b>#{{UNCATEGORIZED_COUNT}}</b></li><li>PRs (open) : <b>#{{OPEN_COUNT}}</b></li>\n<br />\n</ul>\n\n<br>\n\n---\n\n<br>\n\n### Pull Requests\nThis release is associated with the following pull requests:\n#{{CHANGELOG}}\n\n<br>\n\n---\n\n<br>\n\n"
                     }
               env:
                   GITHUB_TOKEN: ${{ secrets.ADMINSERV_TOKEN }}
@@ -1099,7 +1297,7 @@ jobs:
                   fetchViaCommits: true
                   configurationJson: |
                     {
-                      "template": "## Release Info \n| Item | Value |\n| --- | --- |\n|<sub>📄 ${{ env.FILE_ZIP }}</sub>|<sub>Compiled Packages library</sub>|\n|<sub>📄 sha256sum.txt.asc</sub>|<sub>Signed SHA256 hash digest</sub>|\n|<sub>📄 sha1sum.txt.asc</sub>|<sub>Signed SHA1 hash digest</sub>|\n|<sub>🏷️ SHA256</sub>|<sub>`${{ env.SHA256SUM }}`</sub>|\n|<sub>🏷️ GUID</sub>|<sub>`${{ steps.task_release_dotenv_get.outputs.GUID }}`</sub>|\n|<sub>🏷️ UUID</sub>|<sub>`${{ steps.task_release_dotenv_get.outputs.UUID }}`</sub>|\n|<sub>🕟 Stamp</sub>|<sub>`#{{FROM_TAG}}-#{{FROM_TAG_DATE}} 🔺 #{{TO_TAG}}-#{{TO_TAG_DATE}}`</sub>|\n|<sub>📅 Last Release</sub>|<sub>`#{{DAYS_SINCE}} days ago`</sub>|\n\n<br>\n\n---\n\n<br>\n\n### What's New\nThis release contains the following changes:\n\n<br>\n\n---\n\n<br>\n\n### Statistics\nHow the files have changed:\n<ul><li><a href='#{{RELEASE_DIFF}}'>Changed files</a> : <b>#{{CHANGED_FILES}}</b></li><li>Changes : <b>#{{CHANGES}}</b></li><li>Commits : <b>#{{COMMITS}}</b></li><li>Additions : <b>#{{ADDITIONS}}</b></li><li>Deletions : <b>#{{DELETIONS}}</b></li><li>PRs (categorized) : <b>#{{CATEGORIZED_COUNT}}</b></li><li>PRs (uncategorized) : <b>#{{UNCATEGORIZED_COUNT}}</b></li><li>PRs (open) : <b>#{{OPEN_COUNT}}</b></li>\n<br />\n</ul>\n\n<br>\n\n---\n\n<br>\n\n### Commits (#{{UNCATEGORIZED_COUNT}})\nThe following commits are uncategorized:\n#{{UNCATEGORIZED}}\n\n<br>\n\n---\n\n<br>\n\n### Pull Requests\nThis release is associated with the following pull requests:\n#{{CHANGELOG}}\n\n<br>\n\n"
+                      "template": "## Release Info \n| Item | Value |\n| --- | --- |\n|<sub>📄 ${{ env.FILE_WIN32_ARM64 }}</sub>|<sub>Compiled Packages library</sub>|\n|<sub>📄 sha256sum.txt.asc</sub>|<sub>Signed SHA256 hash digest</sub>|\n|<sub>📄 sha1sum.txt.asc</sub>|<sub>Signed SHA1 hash digest</sub>|\n|<sub>🏷️ SHA256</sub>|<sub>`${{ env.SHA256SUM_WIN32_ARM64 }}`</sub>|\n|<sub>🏷️ GUID</sub>|<sub>`${{ steps.task_release_dotenv_get.outputs.GUID }}`</sub>|\n|<sub>🏷️ UUID</sub>|<sub>`${{ steps.task_release_dotenv_get.outputs.UUID }}`</sub>|\n|<sub>🕟 Stamp</sub>|<sub>`#{{FROM_TAG}}-#{{FROM_TAG_DATE}} 🔺 #{{TO_TAG}}-#{{TO_TAG_DATE}}`</sub>|\n|<sub>📅 Last Release</sub>|<sub>`#{{DAYS_SINCE}} days ago`</sub>|\n\n<br>\n\n---\n\n<br>\n\n### What's New\nThis release contains the following changes:\n\n<br>\n\n---\n\n<br>\n\n### Statistics\nHow the files have changed:\n<ul><li><a href='#{{RELEASE_DIFF}}'>Changed files</a> : <b>#{{CHANGED_FILES}}</b></li><li>Changes : <b>#{{CHANGES}}</b></li><li>Commits : <b>#{{COMMITS}}</b></li><li>Additions : <b>#{{ADDITIONS}}</b></li><li>Deletions : <b>#{{DELETIONS}}</b></li><li>PRs (categorized) : <b>#{{CATEGORIZED_COUNT}}</b></li><li>PRs (uncategorized) : <b>#{{UNCATEGORIZED_COUNT}}</b></li><li>PRs (open) : <b>#{{OPEN_COUNT}}</b></li>\n<br />\n</ul>\n\n<br>\n\n---\n\n<br>\n\n### Commits (#{{UNCATEGORIZED_COUNT}})\nThe following commits are uncategorized:\n#{{UNCATEGORIZED}}\n\n<br>\n\n---\n\n<br>\n\n### Pull Requests\nThis release is associated with the following pull requests:\n#{{CHANGELOG}}\n\n<br>\n\n"
                     }
               env:
                   GITHUB_TOKEN: ${{ secrets.ADMINSERV_TOKEN }}
@@ -1219,7 +1417,17 @@ jobs:
                   draft: false
                   generate_release_notes: false
                   files: |
-                      ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}.zip
+                      ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-win32-arm64.zip
+                      ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-win32-ia32.zip
+                      ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-win32-amd64.zip
+
+                      ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-linux-arm64.zip
+                      ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-linux-armv7l.zip
+                      ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-linux-amd64.zip
+
+                      ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-darwin-arm64.zip
+                      ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-darwin-amd64.zip
+
                       sha1sum.txt.asc
                       sha256sum.txt.asc
                   prerelease: false
@@ -1245,7 +1453,17 @@ jobs:
                   draft: false
                   generate_release_notes: false
                   files: |
-                      ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}.zip
+                      ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-win32-arm64.zip
+                      ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-win32-ia32.zip
+                      ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-win32-amd64.zip
+
+                      ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-linux-arm64.zip
+                      ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-linux-armv7l.zip
+                      ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-linux-amd64.zip
+
+                      ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-darwin-arm64.zip
+                      ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-darwin-amd64.zip
+
                       sha1sum.txt.asc
                       sha256sum.txt.asc
                   prerelease: false
@@ -1289,36 +1507,3 @@ jobs:
                   echo "ST Output ID ............... ${{ steps.task_release_bundle_st.outputs.id }}"
                   echo "RC Output ID ............... ${{ steps.task_release_bundle_rc.outputs.id }}"
                   echo "---- CHANGELOG ---------------------------------------------------------------"
-
-            # #
-            #   Release › Upload Artifacts › Release Files › Stable
-            # #
-
-            - name: >-
-                📋 Upload Artifacts › Stable › ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}.zip
-              id: task_release_artifact_stable
-              uses: actions/upload-artifact@v4
-              if: |
-                  startsWith( inputs.RC_RELEASE, false ) ||
-                  startsWith( env.RC_RELEASE, false )
-              with:
-                  name: "${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}"
-                  path: ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}.zip
-                  retention-days: 30
-
-            # #
-            #   Release › Upload Artifacts › Release Files › Release Candidate
-            # #
-
-            - name: >-
-                📋 Upload Artifacts › RC › ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}.zip
-              id: task_release_artifact_rc
-              uses: actions/upload-artifact@v4
-              if: |
-                  startsWith( inputs.RC_RELEASE, true ) ||
-                  startsWith( env.RC_RELEASE, true )
-              with:
-                  name: "${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}"
-                  path: ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}.zip
-                  retention-days: 30
-
