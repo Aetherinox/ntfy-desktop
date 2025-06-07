@@ -2,8 +2,8 @@
     "name": "ntfy-desktop",
     "version": "2.1.0",
     "description": "Ntfy.sh desktop client for Windows, Linux, and MacOS with push notifications. Supports official ntfy.sh website and self-hosted instances.",
-    "homepage": "https://github.com/aetherinox/ntfy-desktop",
     "author": "Aetherinox",
+    "homepage": "https://github.com/aetherinox/ntfy-desktop",
     "license": "GPLv3",
     "main": "index.js",
     "type": "module",
@@ -102,6 +102,6 @@
         "custom-electron-prompt": "^1.5.8",
         "moment": "2.30.1",
         "semver": "^7.7.2",
-        "toasted-notifier": "^10.0.2"
+        "toasted-notifier": "^10.1.0"
     }
 }
