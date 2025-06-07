@@ -203,7 +203,7 @@ jobs:
 
     job-build-windows:
         name: >-
-          📦 Publish › Build
+          📦 Publish › Build › Windows
         needs: job-initialize
         runs-on: ubuntu-latest
         permissions:
@@ -243,8 +243,6 @@ jobs:
               continue-on-error: true
               run: |
                   npm run build:lin:windows
-                # npm run build:lin:linux
-                # npm run build:lin:mac
 
             # #
             #   Release › Verbose › List Tree
@@ -278,23 +276,6 @@ jobs:
                   echo Building STABLE Package ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-win32-amd64.zip
                   zip -r ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-win32-amd64.zip build/ntfy-desktop-win32-x64 *
 
-                  #  linux
-                  #  echo Building STABLE Package ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-linux-arm64.zip
-                  #  zip -r ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-linux-arm64.zip build/ntfy-desktop-linux-arm64 *
-
-                  #  echo Building STABLE Package ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-linux-armv7l.zip
-                  #  zip -r ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-linux-armv7l.zip build/ntfy-desktop-linux-armv7l *
-
-                  #  echo Building STABLE Package ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-linux-amd64.zip
-                  #  zip -r ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-linux-amd64.zip build/ntfy-desktop-linux-x64 *
-
-                  #  mac
-                  #  echo Building STABLE Package ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-darwin-arm64.zip
-                  #  zip -r ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-darwin-arm64.zip build/ntfy-desktop-darwin-arm64 *
-
-                  #  echo Building STABLE Package ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-darwin-amd64.zip
-                  #  zip -r ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-darwin-amd64.zip build/ntfy-desktop-darwin-x64 *
-
                   ls
 
             # #
@@ -319,6 +300,139 @@ jobs:
                   echo Building STABLE Package ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-win32-amd64.zip
                   zip -r ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-win32-amd64.zip build/ntfy-desktop-win32-x64 *
 
+                  ls
+
+            # #
+            #   Build › Upload Artifacts › Release Files › Stable
+            # #
+
+            - name: >-
+                📋 Upload Artifacts › Stable › ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}.zip
+              id: task_build_artifact_stable
+              uses: actions/upload-artifact@v4
+              if: |
+                  startsWith( inputs.RC_RELEASE, false ) ||
+                  startsWith( env.RC_RELEASE, false )
+              with:
+                  path: "*.zip"
+                  retention-days: 30
+
+            # #
+            #   Build › Upload Artifacts › Release Files › Release Candidate
+            # #
+
+            - name: >-
+                📋 Upload Artifacts › RC › ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}.zip
+              id: task_build_artifact_rc
+              uses: actions/upload-artifact@v4
+              if: |
+                  startsWith( inputs.RC_RELEASE, true ) ||
+                  startsWith( env.RC_RELEASE, true )
+              with:
+                  path: "*.zip"
+                  retention-days: 30
+
+    # #
+    #   JOB > BUILD > Linux
+    # #
+
+    job-build-linux:
+        name: >-
+          📦 Publish › Build › Linux
+        needs: job-initialize
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+            packages: write
+        steps:
+            - name: '☑️ Checkout'
+              uses: actions/checkout@v4
+
+            - name: '⚙️ Setup Node'
+              uses: actions/setup-node@v4
+              with:
+                  node-version: '20.x'
+                  registry-url: 'https://registry.npmjs.org/'
+                  always-auth: true
+                  scope: '@aetherinox'
+
+            - name: '📦 Install NPM & Apt Packages'
+              run: |
+                  sudo apt update
+                  sudo apt install git wine64
+                  sudo npm install -g electron-packager
+                  sudo ln -s /usr/bin/wine /usr/bin/wine64
+              env:
+                  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+            # #
+            #   Release › Verbose › List Tree
+            # #
+
+            - name: '⚙️ Verbose › Tree Listing'
+              id: task_build_verbose_tree_1
+              run: |
+                  tree
+
+            - name: '📦 Build Packages'
+              continue-on-error: true
+              run: |
+                  npm run build:lin:linux
+                # npm run build:lin:mac
+
+            # #
+            #   Release › Verbose › List Tree
+            # #
+
+            - name: '⚙️ Verbose › Tree Listing'
+              continue-on-error: true
+              id: task_build_verbose_tree_2
+              run: |
+                  tree
+
+            # #
+            #   Release › Build › Stable
+            # #
+
+            - name: '🔨 Build › Stable › ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}.zip'
+              id: task_build_st
+              if: |
+                  startsWith( inputs.RC_RELEASE, false ) ||
+                  startsWith( env.RC_RELEASE, false )
+              run: |
+                  BASE_PATH="${GITHUB_WORKSPACE}"
+
+                  #  linux
+                  echo Building STABLE Package ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-linux-arm64.zip
+                  zip -r ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-linux-arm64.zip build/ntfy-desktop-linux-arm64 *
+
+                  echo Building STABLE Package ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-linux-armv7l.zip
+                  zip -r ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-linux-armv7l.zip build/ntfy-desktop-linux-armv7l *
+
+                  echo Building STABLE Package ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-linux-amd64.zip
+                  zip -r ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-linux-amd64.zip build/ntfy-desktop-linux-x64 *
+
+                  #  mac
+                  #  echo Building STABLE Package ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-darwin-arm64.zip
+                  #  zip -r ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-darwin-arm64.zip build/ntfy-desktop-darwin-arm64 *
+
+                  #  echo Building STABLE Package ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-darwin-amd64.zip
+                  #  zip -r ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-darwin-amd64.zip build/ntfy-desktop-darwin-x64 *
+
+                  ls
+
+            # #
+            #   Release › Build › Release Candidate
+            # #
+
+            - name: '🔨 Build › Release Candidate › ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}.zip'
+              id: task_build_rc
+              if: |
+                  startsWith( inputs.RC_RELEASE, true ) ||
+                  startsWith( env.RC_RELEASE, true )
+              run: |
+                  BASE_PATH="${GITHUB_WORKSPACE}"
+
                   #  linux
                   echo Building STABLE Package ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-linux-arm64.zip
                   zip -r ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-linux-arm64.zip build/ntfy-desktop-linux-arm64 *
@@ -328,13 +442,6 @@ jobs:
 
                   echo Building STABLE Package ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-linux-amd64.zip
                   zip -r ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-linux-amd64.zip build/ntfy-desktop-linux-x64 *
-
-                  #  mac
-                  echo Building STABLE Package ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-darwin-arm64.zip
-                  zip -r ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-darwin-arm64.zip build/ntfy-desktop-darwin-arm64 *
-
-                  echo Building STABLE Package ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-darwin-amd64.zip
-                  zip -r ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-darwin-amd64.zip build/ntfy-desktop-darwin-x64 *
 
                   ls
 
@@ -376,7 +483,7 @@ jobs:
         name: >-
             📦 Publish › Release
         runs-on: ubuntu-latest
-        needs: [ job-initialize, job-build ]
+        needs: [ job-initialize, job-build-windows, job-build-linux ]
         env:
             PACKAGE_VERSION: ${{ needs.job-initialize.outputs.package_version }}
         if: |
