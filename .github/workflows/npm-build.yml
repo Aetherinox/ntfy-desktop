@@ -234,6 +234,145 @@ jobs:
             - name: '📦 Build Packages'
               run: |
                   npm run build:lin:windows
+                  npm run build:lin:linux
+                  npm run build:lin:mac
+
+            # #
+            #   Release › Verbose › List Tree
+            # #
+
+            - name: '⚙️ Verbose › Tree Listing'
+              id: task_build_verbose_tree
+              run: |
+                  tree
+
+            # #
+            #   Release › Build › Stable
+            # #
+
+            - name: '🔨 Build › Stable › ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}.zip'
+              id: task_build_st
+              if: |
+                  startsWith( inputs.RC_RELEASE, false ) ||
+                  startsWith( env.RC_RELEASE, false )
+              run: |
+                  #  windows
+                  echo Building STABLE Package ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-win32-arm64.zip
+                  zip -r ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-win32-arm64.zip build/ntfy-desktop-win32-arm64 *
+
+                  echo Building STABLE Package ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-win32-ia32.zip
+                  zip -r ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-win32-ia32.zip build/ntfy-desktop-win32-ia32 *
+
+                  echo Building STABLE Package ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-win32-amd64.zip
+                  zip -r ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-win32-amd64.zip build/ntfy-desktop-win32-x64 *
+
+                  #  linux
+                  echo Building STABLE Package ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-linux-arm64.zip
+                  zip -r ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-linux-arm64.zip build/ntfy-desktop-linux-arm64 *
+
+                  echo Building STABLE Package ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-linux-armv7l.zip
+                  zip -r ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-linux-armv7l.zip build/ntfy-desktop-linux-armv7l *
+
+                  echo Building STABLE Package ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-linux-amd64.zip
+                  zip -r ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-linux-amd64.zip build/ntfy-desktop-linux-x64 *
+
+                  #  mac
+                  echo Building STABLE Package ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-darwin-arm64.zip
+                  zip -r ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-darwin-arm64.zip build/ntfy-desktop-darwin-arm64 *
+
+                  echo Building STABLE Package ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-darwin-amd64.zip
+                  zip -r ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-darwin-amd64.zip build/ntfy-desktop-darwin-x64 *
+
+                  ls
+              env:
+                  NODE_AUTH_TOKEN: ${{ secrets.ADMINSERV_TOKEN_CL }}
+
+            # #
+            #   Release › Build › Release Candidate
+            # #
+
+            - name: '🔨 Build › Release Candidate › ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}.zip'
+              id: task_build_rc
+              if: |
+                  startsWith( inputs.RC_RELEASE, true ) ||
+                  startsWith( env.RC_RELEASE, true )
+              run: |
+                  #  windows
+                  echo Building STABLE Package ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-win32-arm64.zip
+                  zip -r ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-win32-arm64.zip build/ntfy-desktop-win32-arm64 *
+
+                  echo Building STABLE Package ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-win32-ia32.zip
+                  zip -r ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-win32-ia32.zip build/ntfy-desktop-win32-ia32 *
+
+                  echo Building STABLE Package ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-win32-amd64.zip
+                  zip -r ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-win32-amd64.zip build/ntfy-desktop-win32-x64 *
+
+                  #  linux
+                  echo Building STABLE Package ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-linux-arm64.zip
+                  zip -r ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-linux-arm64.zip build/ntfy-desktop-linux-arm64 *
+
+                  echo Building STABLE Package ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-linux-armv7l.zip
+                  zip -r ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-linux-armv7l.zip build/ntfy-desktop-linux-armv7l *
+
+                  echo Building STABLE Package ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-linux-amd64.zip
+                  zip -r ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-linux-amd64.zip build/ntfy-desktop-linux-x64 *
+
+                  #  mac
+                  echo Building STABLE Package ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-darwin-arm64.zip
+                  zip -r ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-darwin-arm64.zip build/ntfy-desktop-darwin-arm64 *
+
+                  echo Building STABLE Package ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-darwin-amd64.zip
+                  zip -r ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-darwin-amd64.zip build/ntfy-desktop-darwin-x64 *
+
+                  ls
+              env:
+                  NODE_AUTH_TOKEN: ${{ secrets.ADMINSERV_TOKEN_CL }}
+
+            # #
+            #   Build › Upload Artifacts › Release Files › Stable
+            # #
+
+            - name: >-
+                📋 Upload Artifacts › Stable › ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}.zip
+              id: task_build_artifact_stable
+              uses: actions/upload-artifact@v4
+              if: |
+                  startsWith( inputs.RC_RELEASE, false ) ||
+                  startsWith( env.RC_RELEASE, false )
+              with:
+                  path: |
+                      ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-win32-arm64.zip
+                      ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-win32-ia32.zip
+                      ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-win32-amd64.zip
+                      ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-linux-arm64.zip
+                      ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-linux-armv7l.zip
+                      ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-linux-amd64.zip
+                      ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-darwin-arm64.zip
+                      ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-darwin-amd64.zip
+                  retention-days: 30
+
+            # #
+            #   Build › Upload Artifacts › Release Files › Release Candidate
+            # #
+
+            - name: >-
+                📋 Upload Artifacts › RC › ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}.zip
+              id: task_build_artifact_rc
+              uses: actions/upload-artifact@v4
+              if: |
+                  startsWith( inputs.RC_RELEASE, true ) ||
+                  startsWith( env.RC_RELEASE, true )
+              with:
+                  path: |
+                      ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-win32-arm64.zip
+                      ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-win32-ia32.zip
+                      ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-win32-amd64.zip
+                      ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-linux-arm64.zip
+                      ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-linux-armv7l.zip
+                      ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-linux-amd64.zip
+                      ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-darwin-arm64.zip
+                      ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-darwin-amd64.zip
+                  retention-days: 30
 
     # #
     #   Job > Release > Github
@@ -322,38 +461,6 @@ jobs:
               run: |
                   echo "GUID: ${{ steps.task_release_dotenv_get.outputs.GUID }}"
                   echo "UUID: ${{ steps.task_release_dotenv_get.outputs.UUID }}"
-
-            # #
-            #   Release › Build › Stable
-            # #
-
-            - name: '🔨 Build › Stable › ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}.zip'
-              id: task_release_build_st
-              if: |
-                  startsWith( inputs.RC_RELEASE, false ) ||
-                  startsWith( env.RC_RELEASE, false )
-              run: |
-                  echo Building STABLE Package ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}.zip
-                  zip -r ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}.zip package.json README.md LICENSE src -x src/tests/**\*
-                  ls
-              env:
-                  NODE_AUTH_TOKEN: ${{ secrets.ADMINSERV_TOKEN_CL }}
-
-            # #
-            #   Release › Build › Release Candidate
-            # #
-
-            - name: '🔨 Build › Release Candidate › ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}.zip'
-              id: task_release_build_rc
-              if: |
-                  startsWith( inputs.RC_RELEASE, true ) ||
-                  startsWith( env.RC_RELEASE, true )
-              run: |
-                  echo Building PRE-RELEASE Package ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}.zip
-                  zip -r ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}.zip package.json README.md LICENSE src -x src/tests/**\*
-                  ls
-              env:
-                  NODE_AUTH_TOKEN: ${{ secrets.ADMINSERV_TOKEN_CL }}
 
             # #
             #   Release › Tag › Pre Create
