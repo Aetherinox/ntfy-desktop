@@ -638,8 +638,8 @@ jobs:
             - name: '📦 Install NPM & Apt Packages'
               run: |
                   brew install tree
-                  sudo npm install
-                  sudo npm install -g electron-packager
+                  npm install
+                  npm install -g electron-packager
               env:
                   NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
