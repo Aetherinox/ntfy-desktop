@@ -240,7 +240,7 @@ jobs:
             - name: '⚙️ Verbose › Tree Listing'
               id: task_build_verbose_tree_1
               run: |
-                  tree
+                  tree -I node_modules
 
             # #
             #   Release › Build Binary
@@ -259,7 +259,7 @@ jobs:
               continue-on-error: true
               id: task_build_verbose_tree_2
               run: |
-                  tree
+                  tree -I node_modules
 
             # #
             #   Release › Build › Stable
@@ -281,7 +281,7 @@ jobs:
                   (cd build/${{ env.PROJECT_NAME }}-win32-ia32 && zip -r - .) >${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-win32-ia32.zip
 
                   echo Building STABLE Package ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-win32-amd64.zip
-                  (cd build/${{ env.PROJECT_NAME }}-win32-amd64 && zip -r - .) >${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-win32-amd64.zip
+                  (cd build/${{ env.PROJECT_NAME }}-win32-x64 && zip -r - .) >${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-win32-amd64.zip
 
                   ls
 
@@ -305,7 +305,7 @@ jobs:
                   (cd build/${{ env.PROJECT_NAME }}-win32-ia32 && zip -r - .) >${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-win32-ia32.zip
 
                   echo Building RC Package ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-win32-amd64.zip
-                  (cd build/${{ env.PROJECT_NAME }}-win32-amd64 && zip -r - .) >${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-win32-amd64.zip
+                  (cd build/${{ env.PROJECT_NAME }}-win32-x64 && zip -r - .) >${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-win32-amd64.zip
 
                   ls
 
@@ -448,7 +448,7 @@ jobs:
             - name: '⚙️ Verbose › Tree Listing'
               id: task_build_verbose_tree_1
               run: |
-                  tree
+                  tree -I node_modules
 
             # #
             #   Release › Build Binary
@@ -467,7 +467,7 @@ jobs:
               continue-on-error: true
               id: task_build_verbose_tree_2
               run: |
-                  tree
+                  tree -I node_modules
 
             # #
             #   Release › Build › Stable
@@ -489,7 +489,7 @@ jobs:
                   (cd build/${{ env.PROJECT_NAME }}-linux-armv7l && zip -r - .) >${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-linux-armv7l.zip
 
                   echo Building STABLE Package ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-linux-amd64.zip
-                  (cd build/${{ env.PROJECT_NAME }}-linux-amd64 && zip -r - .) >${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-linux-amd64.zip
+                  (cd build/${{ env.PROJECT_NAME }}-linux-x64 && zip -r - .) >${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-linux-amd64.zip
 
                   ls
 
@@ -513,7 +513,7 @@ jobs:
                   (cd build/${{ env.PROJECT_NAME }}-linux-armv7l && zip -r - .) >${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-linux-armv7l.zip
 
                   echo Building RC Package ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-linux-amd64.zip
-                  (cd build/${{ env.PROJECT_NAME }}-linux-amd64 && zip -r - .) >${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-linux-amd64.zip
+                  (cd build/${{ env.PROJECT_NAME }}-linux-x64 && zip -r - .) >${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-linux-amd64.zip
 
                   ls
 
@@ -986,7 +986,7 @@ jobs:
             - name: '⚙️ Verbose › Tree Listing'
               id: task_release_verbose_tree
               run: |
-                  tree
+                  tree -I node_modules
 
             # #
             #   Release › Verbose › Changelog › Print Categorized
