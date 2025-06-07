@@ -614,6 +614,176 @@ jobs:
                   retention-days: 30
 
     # #
+    #   JOB > BUILD > Darwin (MacOS)
+    # #
+
+    job-build-darwin:
+        name: >-
+          📦 Publish › Build › Darwin
+        needs: job-initialize
+        runs-on: macos-latest
+        env:
+            PACKAGE_VERSION: ${{ needs.job-initialize.outputs.package_version }}
+        permissions:
+            contents: read
+            packages: write
+        steps:
+            - name: '☑️ Checkout'
+              uses: actions/checkout@v4
+
+            - name: '⚙️ Setup Node'
+              uses: actions/setup-node@v4
+              with:
+                  node-version: '20.x'
+                  registry-url: 'https://registry.npmjs.org/'
+                  always-auth: true
+                  scope: '@aetherinox'
+
+            - name: '📦 Install NPM & Apt Packages'
+              run: |
+                  sudo apt update
+                  sudo apt install git wine64
+                  sudo npm install
+                  sudo npm install -g electron-packager
+                  sudo ln -s /usr/bin/wine /usr/bin/wine64
+              env:
+                  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+            # #
+            #   Release › Verbose › List Tree
+            # #
+
+            - name: '⚙️ Verbose › Tree Listing'
+              id: task_build_verbose_tree_1
+              run: |
+                  tree -I node_modules
+
+            # #
+            #   Release › Build Binary
+            # #
+
+            - name: '📦 Build Binaries'
+              continue-on-error: true
+              run: |
+                  npm run build:lin:mac
+
+            # #
+            #   Release › Verbose › List Tree
+            # #
+
+            - name: '⚙️ Verbose › Tree Listing'
+              continue-on-error: true
+              id: task_build_verbose_tree_2
+              run: |
+                  tree -I node_modules
+
+            # #
+            #   Release › Build › Stable
+            # #
+
+            - name: '🔨 Build › Stable › ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}.zip'
+              id: task_build_st
+              if: |
+                  startsWith( inputs.RC_RELEASE, false ) ||
+                  startsWith( env.RC_RELEASE, false )
+              run: |
+                  BASE_PATH="${GITHUB_WORKSPACE}"
+
+                  #  darwin / mac
+                  echo Building STABLE Package ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-darwin-arm64.zip
+                  (cd build/${{ env.PROJECT_NAME }}-darwin-arm64 && zip -r - .) >${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-darwin-arm64.zip
+
+                  echo Building STABLE Package ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-darwin-amd64.zip
+                  (cd build/${{ env.PROJECT_NAME }}-darwin-x64 && zip -r - .) >${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-darwin-amd64.zip
+
+                  ls
+
+            # #
+            #   Release › Build › Release Candidate
+            # #
+
+            - name: '🔨 Build › Release Candidate › ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}.zip'
+              id: task_build_rc
+              if: |
+                  startsWith( inputs.RC_RELEASE, true ) ||
+                  startsWith( env.RC_RELEASE, true )
+              run: |
+                  BASE_PATH="${GITHUB_WORKSPACE}"
+
+                  #  darwin / mac
+                  echo Building RC Package ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-darwin-arm64.zip
+                  (cd build/${{ env.PROJECT_NAME }}-darwin-arm64 && zip -r - .) >${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-darwin-arm64.zip
+
+                  echo Building RC Package ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-darwin-amd64.zip
+                  (cd build/${{ env.PROJECT_NAME }}-darwin-x64 && zip -r - .) >${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-darwin-amd64.zip
+
+                  ls
+
+            # #
+            #   Build › Upload Artifacts › Release Files › Stable › Arm64
+            # #
+
+            - name: >-
+                📋 Upload Artifacts › Stable › ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-darwin-arm64.zip
+              id: task_build_artifact_stable_arm64
+              uses: actions/upload-artifact@v4
+              if: |
+                  startsWith( inputs.RC_RELEASE, false ) ||
+                  startsWith( env.RC_RELEASE, false )
+              with:
+                  name: "${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-darwin-arm64"
+                  path: "${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-darwin-arm64.zip"
+                  retention-days: 30
+
+            # #
+            #   Build › Upload Artifacts › Release Files › Stable › amd64
+            # #
+
+            - name: >-
+                📋 Upload Artifacts › Stable › ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-darwin-amd64.zip
+              id: task_build_artifact_stable_amd64
+              uses: actions/upload-artifact@v4
+              if: |
+                  startsWith( inputs.RC_RELEASE, false ) ||
+                  startsWith( env.RC_RELEASE, false )
+              with:
+                  name: "${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-darwin-amd64"
+                  path: "${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-darwin-amd64.zip"
+                  retention-days: 30
+
+            # #
+            #   Build › Upload Artifacts › Release Files › Release Candidate › arm64
+            # #
+
+            - name: >-
+                📋 Upload Artifacts › RC › ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-darwin-arm64.zip
+              id: task_build_artifact_rc_arm64
+              uses: actions/upload-artifact@v4
+              if: |
+                  startsWith( inputs.RC_RELEASE, true ) ||
+                  startsWith( env.RC_RELEASE, true )
+              with:
+                  name: "${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-darwin-arm64"
+                  path: "${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-darwin-arm64.zip"
+                  retention-days: 30
+
+            # #
+            #   Build › Upload Artifacts › Release Files › Release Candidate › amd64
+            # #
+
+            - name: >-
+                📋 Upload Artifacts › RC › ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-darwin-amd64.zip
+              id: task_build_artifact_rc_amd64
+              uses: actions/upload-artifact@v4
+              if: |
+                  startsWith( inputs.RC_RELEASE, true ) ||
+                  startsWith( env.RC_RELEASE, true )
+              with:
+                  name: "${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-darwin-amd64"
+                  path: "${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-darwin-amd64.zip"
+                  retention-days: 30
+
+    # #
     #   Job > Release > Github
     # #
 
@@ -621,7 +791,7 @@ jobs:
         name: >-
             📦 Publish › Release
         runs-on: ubuntu-latest
-        needs: [ job-initialize, job-build-windows ]
+        needs: [ job-initialize, job-build-windows, job-build-linux, job-build-darwin ]
         env:
             PACKAGE_VERSION: ${{ needs.job-initialize.outputs.package_version }}
         if: |
