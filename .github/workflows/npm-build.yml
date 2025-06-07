@@ -227,6 +227,7 @@ jobs:
               run: |
                   sudo apt update
                   sudo apt install git wine64
+                  sudo npm install
                   sudo npm install -g electron-packager
                   sudo ln -s /usr/bin/wine /usr/bin/wine64
               env:
