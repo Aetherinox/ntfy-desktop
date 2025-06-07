@@ -225,18 +225,15 @@ jobs:
               run: |
                   sudo apt update
                   sudo apt install git wine64
-                  npm install
-                  npm install -g electron-packager
+                  sudo npm install
+                  sudo npm install -g electron-packager
+                  sudo ln -s /usr/bin/wine /usr/bin/wine64
               env:
                   NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
             - name: '📦 Build Packages'
               run: |
                   npm run build:lin:windows
-                  npm run build:lin:linux
-                  npm run build:lin:mac
-              env:
-                  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
     # #
     #   Job > Release > Github
