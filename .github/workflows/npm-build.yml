@@ -234,8 +234,6 @@ jobs:
             - name: '📦 Build Packages'
               run: |
                   npm run build:lin:windows
-                  npm run build:lin:linux
-                  npm run build:lin:mac
 
             # #
             #   Release › Verbose › List Tree
