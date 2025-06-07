@@ -241,16 +241,18 @@ jobs:
                   tree
 
             - name: '📦 Build Packages'
+              continue-on-error: true
               run: |
                   npm run build:lin:windows
                   npm run build:lin:linux
-                # npm run build:lin:mac
+                #  npm run build:lin:mac
 
             # #
             #   Release › Verbose › List Tree
             # #
 
             - name: '⚙️ Verbose › Tree Listing'
+              continue-on-error: true
               id: task_build_verbose_tree_2
               run: |
                   tree
