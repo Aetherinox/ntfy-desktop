@@ -198,10 +198,10 @@ jobs:
                   echo "VERSION: ${{ env.PACKAGE_VERSION }}"
 
     # #
-    #   JOB > BUILD
+    #   JOB > BUILD > Windows
     # #
 
-    job-build:
+    job-build-windows:
         name: >-
           📦 Publish › Build
         needs: job-initialize
@@ -225,7 +225,6 @@ jobs:
               run: |
                   sudo apt update
                   sudo apt install git wine64
-                  sudo npm install
                   sudo npm install -g electron-packager
                   sudo ln -s /usr/bin/wine /usr/bin/wine64
               env:
@@ -244,8 +243,8 @@ jobs:
               continue-on-error: true
               run: |
                   npm run build:lin:windows
-                  npm run build:lin:linux
-                #  npm run build:lin:mac
+                # npm run build:lin:linux
+                # npm run build:lin:mac
 
             # #
             #   Release › Verbose › List Tree
@@ -267,6 +266,8 @@ jobs:
                   startsWith( inputs.RC_RELEASE, false ) ||
                   startsWith( env.RC_RELEASE, false )
               run: |
+                  BASE_PATH="${GITHUB_WORKSPACE}"
+
                   #  windows
                   echo Building STABLE Package ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-win32-arm64.zip
                   zip -r ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-win32-arm64.zip build/ntfy-desktop-win32-arm64 *
@@ -278,21 +279,21 @@ jobs:
                   zip -r ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-win32-amd64.zip build/ntfy-desktop-win32-x64 *
 
                   #  linux
-                  echo Building STABLE Package ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-linux-arm64.zip
-                  zip -r ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-linux-arm64.zip build/ntfy-desktop-linux-arm64 *
+                  #  echo Building STABLE Package ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-linux-arm64.zip
+                  #  zip -r ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-linux-arm64.zip build/ntfy-desktop-linux-arm64 *
 
-                  echo Building STABLE Package ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-linux-armv7l.zip
-                  zip -r ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-linux-armv7l.zip build/ntfy-desktop-linux-armv7l *
+                  #  echo Building STABLE Package ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-linux-armv7l.zip
+                  #  zip -r ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-linux-armv7l.zip build/ntfy-desktop-linux-armv7l *
 
-                  echo Building STABLE Package ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-linux-amd64.zip
-                  zip -r ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-linux-amd64.zip build/ntfy-desktop-linux-x64 *
+                  #  echo Building STABLE Package ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-linux-amd64.zip
+                  #  zip -r ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-linux-amd64.zip build/ntfy-desktop-linux-x64 *
 
                   #  mac
-                  echo Building STABLE Package ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-darwin-arm64.zip
-                  zip -r ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-darwin-arm64.zip build/ntfy-desktop-darwin-arm64 *
+                  #  echo Building STABLE Package ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-darwin-arm64.zip
+                  #  zip -r ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-darwin-arm64.zip build/ntfy-desktop-darwin-arm64 *
 
-                  echo Building STABLE Package ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-darwin-amd64.zip
-                  zip -r ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-darwin-amd64.zip build/ntfy-desktop-darwin-x64 *
+                  #  echo Building STABLE Package ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-darwin-amd64.zip
+                  #  zip -r ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-darwin-amd64.zip build/ntfy-desktop-darwin-x64 *
 
                   ls
 
@@ -306,6 +307,8 @@ jobs:
                   startsWith( inputs.RC_RELEASE, true ) ||
                   startsWith( env.RC_RELEASE, true )
               run: |
+                  BASE_PATH="${GITHUB_WORKSPACE}"
+
                   #  windows
                   echo Building STABLE Package ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-win32-arm64.zip
                   zip -r ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-win32-arm64.zip build/ntfy-desktop-win32-arm64 *
@@ -347,15 +350,7 @@ jobs:
                   startsWith( inputs.RC_RELEASE, false ) ||
                   startsWith( env.RC_RELEASE, false )
               with:
-                  path: |
-                      ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-win32-arm64.zip
-                      ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-win32-ia32.zip
-                      ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-win32-amd64.zip
-                      ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-linux-arm64.zip
-                      ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-linux-armv7l.zip
-                      ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-linux-amd64.zip
-                      ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-darwin-arm64.zip
-                      ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-darwin-amd64.zip
+                  path: "*.zip"
                   retention-days: 30
 
             # #
@@ -370,15 +365,7 @@ jobs:
                   startsWith( inputs.RC_RELEASE, true ) ||
                   startsWith( env.RC_RELEASE, true )
               with:
-                  path: |
-                      ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-win32-arm64.zip
-                      ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-win32-ia32.zip
-                      ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-win32-amd64.zip
-                      ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-linux-arm64.zip
-                      ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-linux-armv7l.zip
-                      ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-linux-amd64.zip
-                      ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-darwin-arm64.zip
-                      ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-darwin-amd64.zip
+                  path: "*.zip"
                   retention-days: 30
 
     # #
