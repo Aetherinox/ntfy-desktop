@@ -195,7 +195,7 @@ jobs:
             - name: '👁️‍🗨️ Get Package Version › Print'
               id: task_initialize_package_getversion_debug
               run: |
-                  echo "VERSION: ${{ env.PACKAGE_VERSION }}"
+                  echo "VERSION: ${{ steps.task_initialize_package_getversion.outputs.PACKAGE_VERSION }}"
 
     # #
     #   JOB > BUILD > Windows
