@@ -247,7 +247,6 @@ jobs:
             # #
 
             - name: '📦 Build Binaries'
-              continue-on-error: true
               run: |
                   npm run build:lin:windows
 
@@ -256,7 +255,6 @@ jobs:
             # #
 
             - name: '⚙️ Verbose › Tree Listing'
-              continue-on-error: true
               id: task_build_verbose_tree_2
               run: |
                   tree -I node_modules
@@ -455,7 +453,6 @@ jobs:
             # #
 
             - name: '📦 Build Binaries'
-              continue-on-error: true
               run: |
                   npm run build:lin:linux
 
@@ -464,7 +461,6 @@ jobs:
             # #
 
             - name: '⚙️ Verbose › Tree Listing'
-              continue-on-error: true
               id: task_build_verbose_tree_2
               run: |
                   tree -I node_modules
@@ -660,7 +656,6 @@ jobs:
             # #
 
             - name: '📦 Build Binaries'
-              continue-on-error: true
               run: |
                   npm run build:lin:mac
 
@@ -669,7 +664,6 @@ jobs:
             # #
 
             - name: '⚙️ Verbose › Tree Listing'
-              continue-on-error: true
               id: task_build_verbose_tree_2
               run: |
                   tree -I node_modules
