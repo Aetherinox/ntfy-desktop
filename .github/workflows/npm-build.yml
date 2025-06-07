@@ -231,16 +231,27 @@ jobs:
               env:
                   NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
+            # #
+            #   Release › Verbose › List Tree
+            # #
+
+            - name: '⚙️ Verbose › Tree Listing'
+              id: task_build_verbose_tree_1
+              run: |
+                  tree
+
             - name: '📦 Build Packages'
               run: |
                   npm run build:lin:windows
+                  npm run build:lin:linux
+                  npm run build:lin:mac
 
             # #
             #   Release › Verbose › List Tree
             # #
 
             - name: '⚙️ Verbose › Tree Listing'
-              id: task_build_verbose_tree
+              id: task_build_verbose_tree_2
               run: |
                   tree
 
