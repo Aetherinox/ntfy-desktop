@@ -412,7 +412,7 @@ jobs:
     job-build-linux:
         name: >-
           📦 Publish › Build › Linux
-        needs: [ job-initialize ]
+        needs: [ job-initialize, job-build-windows ]
         runs-on: ubuntu-latest
         env:
             PACKAGE_VERSION: ${{ needs.job-initialize.outputs.package_version }}
@@ -620,7 +620,7 @@ jobs:
     job-build-darwin:
         name: >-
           📦 Publish › Build › Darwin
-        needs: [ job-initialize ]
+        needs: [ job-initialize, job-build-windows, job-build-linux ]
         runs-on: macos-latest
         env:
             PACKAGE_VERSION: ${{ needs.job-initialize.outputs.package_version }}
