@@ -76,6 +76,7 @@
 !eslintrc
 !eslint.config.mjs
 !npmignore
+!.npmrc
 !.all-contributorsrc
 !.editorconfig
 !*ntfy.js
