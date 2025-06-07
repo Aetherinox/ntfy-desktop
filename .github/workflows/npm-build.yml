@@ -213,8 +213,17 @@ jobs:
             contents: read
             packages: write
         steps:
+
+            # #
+            #   Windows › Checkout
+            # #
+
             - name: '☑️ Checkout'
               uses: actions/checkout@v4
+
+            # #
+            #   Windows › Setup NodeJS
+            # #
 
             - name: '⚙️ Setup Node'
               uses: actions/setup-node@v4
@@ -223,6 +232,10 @@ jobs:
                   registry-url: 'https://registry.npmjs.org/'
                   always-auth: true
                   scope: '@aetherinox'
+
+            # #
+            #   Windows › Setup Packages
+            # #
 
             - name: '📦 Install NPM & Apt Packages'
               run: |
@@ -237,7 +250,7 @@ jobs:
                   NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
             # #
-            #   Release › Verbose › List Tree
+            #   Windows › Verbose › List Tree
             # #
 
             - name: '⚙️ Verbose › Tree Listing'
@@ -246,7 +259,7 @@ jobs:
                   tree -I node_modules
 
             # #
-            #   Release › Build Binary
+            #   Windows › Build Binary
             # #
 
             - name: '📦 Build Binaries'
@@ -254,7 +267,7 @@ jobs:
                   npm run build:lin:windows
 
             # #
-            #   Release › Verbose › List Tree
+            #   Windows › Verbose › List Tree
             # #
 
             - name: '⚙️ Verbose › Tree Listing'
@@ -263,7 +276,7 @@ jobs:
                   tree -I node_modules
 
             # #
-            #   Release › Build › Stable
+            #   Windows › Build › Stable
             # #
 
             - name: '🔨 Build › Stable › ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}.zip'
@@ -287,7 +300,7 @@ jobs:
                   ls
 
             # #
-            #   Release › Build › Release Candidate
+            #   Windows › Build › Release Candidate
             # #
 
             - name: '🔨 Build › Release Candidate › ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}.zip'
@@ -311,7 +324,7 @@ jobs:
                   ls
 
             # #
-            #   Build › Upload Artifacts › Release Files › Stable › Arm64
+            #   Windows › Upload Artifacts › Release Files › Stable › Arm64
             # #
 
             - name: >-
@@ -327,7 +340,7 @@ jobs:
                   retention-days: 30
 
             # #
-            #   Build › Upload Artifacts › Release Files › Stable › ia32
+            #   Windows › Upload Artifacts › Release Files › Stable › ia32
             # #
 
             - name: >-
@@ -343,7 +356,7 @@ jobs:
                   retention-days: 30
 
             # #
-            #   Build › Upload Artifacts › Release Files › Stable › amd64
+            #   Windows › Upload Artifacts › Release Files › Stable › amd64
             # #
 
             - name: >-
@@ -359,7 +372,7 @@ jobs:
                   retention-days: 30
 
             # #
-            #   Build › Upload Artifacts › Release Files › Release Candidate › arm64
+            #   Windows › Upload Artifacts › Release Files › Release Candidate › arm64
             # #
 
             - name: >-
@@ -375,7 +388,7 @@ jobs:
                   retention-days: 30
 
             # #
-            #   Build › Upload Artifacts › Release Files › Release Candidate › ia32
+            #   Windows › Upload Artifacts › Release Files › Release Candidate › ia32
             # #
 
             - name: >-
@@ -391,7 +404,7 @@ jobs:
                   retention-days: 30
 
             # #
-            #   Build › Upload Artifacts › Release Files › Release Candidate › amd64
+            #   Windows › Upload Artifacts › Release Files › Release Candidate › amd64
             # #
 
             - name: >-
@@ -407,6 +420,406 @@ jobs:
                   retention-days: 30
 
     # #
+    #   JOB > BUILD > Linux
+    # #
+
+    job-build-linux:
+        name: >-
+          📦 Publish › Build › Linux
+        needs: [ job-initialize, job-build-windows ]
+        runs-on: ubuntu-latest
+        env:
+            PACKAGE_VERSION: ${{ needs.job-initialize.outputs.package_version }}
+        permissions:
+            contents: read
+            packages: write
+        steps:
+
+            # #
+            #   Linux › Checkout
+            # #
+
+            - name: '☑️ Checkout'
+              uses: actions/checkout@v4
+
+            # #
+            #   Linux › Setup NodeJS
+            # #
+
+            - name: '⚙️ Setup Node'
+              uses: actions/setup-node@v4
+              with:
+                  node-version: '20.x'
+                  registry-url: 'https://registry.npmjs.org/'
+                  always-auth: true
+                  scope: '@aetherinox'
+
+            # #
+            #   Linux › Setup Packages
+            # #
+
+            - name: '📦 Install NPM & Apt Packages'
+              run: |
+                  mkdir -p build
+                  mkdir -p dist
+                  sudo apt update
+                  sudo apt install git wine64
+                  sudo npm install
+                  sudo npm install -g electron-packager
+                  sudo ln -s /usr/bin/wine /usr/bin/wine64
+              env:
+                  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+            # #
+            #   Linux › Verbose › List Tree
+            # #
+
+            - name: '⚙️ Verbose › Tree Listing'
+              id: task_build_verbose_tree_1
+              run: |
+                  tree -I node_modules
+
+            # #
+            #   Linux › Build Binary
+            # #
+
+            - name: '📦 Build Binaries'
+              run: |
+                  npm run build:lin:linux
+
+            # #
+            #   Linux › Verbose › List Tree
+            # #
+
+            - name: '⚙️ Verbose › Tree Listing'
+              id: task_build_verbose_tree_2
+              run: |
+                  tree -I node_modules
+
+            # #
+            #   Linux › Build › Stable
+            # #
+
+            - name: '🔨 Build › Stable › ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}.zip'
+              id: task_build_st
+              if: |
+                  startsWith( inputs.RC_RELEASE, false ) ||
+                  startsWith( env.RC_RELEASE, false )
+              run: |
+                  BASE_PATH="${GITHUB_WORKSPACE}"
+
+                  #  windows
+                  echo Building STABLE Package ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-linux-arm64.zip
+                  (cd build/${{ env.PROJECT_NAME }}-linux-arm64 && zip -r - .) >${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-linux-arm64.zip
+
+                  echo Building STABLE Package ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-linux-armv7l.zip
+                  (cd build/${{ env.PROJECT_NAME }}-linux-armv7l && zip -r - .) >${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-linux-armv7l.zip
+
+                  echo Building STABLE Package ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-linux-amd64.zip
+                  (cd build/${{ env.PROJECT_NAME }}-linux-x64 && zip -r - .) >${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-linux-amd64.zip
+
+                  ls
+
+            # #
+            #   Linux › Build › Release Candidate
+            # #
+
+            - name: '🔨 Build › Release Candidate › ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}.zip'
+              id: task_build_rc
+              if: |
+                  startsWith( inputs.RC_RELEASE, true ) ||
+                  startsWith( env.RC_RELEASE, true )
+              run: |
+                  BASE_PATH="${GITHUB_WORKSPACE}"
+
+                  #  windows
+                  echo Building RC Package ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-linux-arm64.zip
+                  (cd build/${{ env.PROJECT_NAME }}-linux-arm64 && zip -r - .) >${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-linux-arm64.zip
+
+                  echo Building RC Package ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-linux-armv7l.zip
+                  (cd build/${{ env.PROJECT_NAME }}-linux-armv7l && zip -r - .) >${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-linux-armv7l.zip
+
+                  echo Building RC Package ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-linux-amd64.zip
+                  (cd build/${{ env.PROJECT_NAME }}-linux-x64 && zip -r - .) >${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-linux-amd64.zip
+
+                  ls
+
+            # #
+            #   Linux › Upload Artifacts › Release Files › Stable › Arm64
+            # #
+
+            - name: >-
+                📋 Upload Artifacts › Stable › ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-linux-arm64.zip
+              id: task_build_artifact_stable_arm64
+              uses: actions/upload-artifact@v4
+              if: |
+                  startsWith( inputs.RC_RELEASE, false ) ||
+                  startsWith( env.RC_RELEASE, false )
+              with:
+                  name: "${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-linux-arm64"
+                  path: "${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-linux-arm64.zip"
+                  retention-days: 30
+
+            # #
+            #   Linux › Upload Artifacts › Release Files › Stable › armv7l
+            # #
+
+            - name: >-
+                📋 Upload Artifacts › Stable › ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-linux-armv7l.zip
+              id: task_build_artifact_stable_armv7l
+              uses: actions/upload-artifact@v4
+              if: |
+                  startsWith( inputs.RC_RELEASE, false ) ||
+                  startsWith( env.RC_RELEASE, false )
+              with:
+                  name: "${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-linux-armv7l"
+                  path: "${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-linux-armv7l.zip"
+                  retention-days: 30
+
+            # #
+            #   Linux › Upload Artifacts › Release Files › Stable › amd64
+            # #
+
+            - name: >-
+                📋 Upload Artifacts › Stable › ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-linux-amd64.zip
+              id: task_build_artifact_stable_amd64
+              uses: actions/upload-artifact@v4
+              if: |
+                  startsWith( inputs.RC_RELEASE, false ) ||
+                  startsWith( env.RC_RELEASE, false )
+              with:
+                  name: "${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-linux-amd64"
+                  path: "${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-linux-amd64.zip"
+                  retention-days: 30
+
+            # #
+            #   Linux › Upload Artifacts › Release Files › Release Candidate › arm64
+            # #
+
+            - name: >-
+                📋 Upload Artifacts › RC › ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-linux-arm64.zip
+              id: task_build_artifact_rc_arm64
+              uses: actions/upload-artifact@v4
+              if: |
+                  startsWith( inputs.RC_RELEASE, true ) ||
+                  startsWith( env.RC_RELEASE, true )
+              with:
+                  name: "${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-linux-arm64"
+                  path: "${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-linux-arm64.zip"
+                  retention-days: 30
+
+            # #
+            #   Linux › Upload Artifacts › Release Files › Release Candidate › armv7l
+            # #
+
+            - name: >-
+                📋 Upload Artifacts › RC › ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-linux-armv7l.zip
+              id: task_build_artifact_rc_armv7l
+              uses: actions/upload-artifact@v4
+              if: |
+                  startsWith( inputs.RC_RELEASE, true ) ||
+                  startsWith( env.RC_RELEASE, true )
+              with:
+                  name: "${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-linux-armv7l"
+                  path: "${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-linux-armv7l.zip"
+                  retention-days: 30
+
+            # #
+            #   Linux › Upload Artifacts › Release Files › Release Candidate › amd64
+            # #
+
+            - name: >-
+                📋 Upload Artifacts › RC › ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-linux-amd64.zip
+              id: task_build_artifact_rc_amd64
+              uses: actions/upload-artifact@v4
+              if: |
+                  startsWith( inputs.RC_RELEASE, true ) ||
+                  startsWith( env.RC_RELEASE, true )
+              with:
+                  name: "${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-linux-amd64"
+                  path: "${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-linux-amd64.zip"
+                  retention-days: 30
+
+    # #
+    #   JOB > BUILD > Darwin (MacOS)
+    # #
+
+    job-build-darwin:
+        name: >-
+          📦 Publish › Build › Darwin
+        needs: [ job-initialize, job-build-windows, job-build-linux ]
+        runs-on: macos-latest
+        env:
+            PACKAGE_VERSION: ${{ needs.job-initialize.outputs.package_version }}
+        permissions:
+            contents: read
+            packages: write
+        steps:
+
+            # #
+            #   Darwin › Checkout
+            # #
+
+            - name: '☑️ Checkout'
+              uses: actions/checkout@v4
+
+            # #
+            #   Darwin › Setup NodeJS
+            # #
+
+            - name: '⚙️ Setup Node'
+              uses: actions/setup-node@v4
+              with:
+                  node-version: '20.x'
+                  registry-url: 'https://registry.npmjs.org/'
+                  always-auth: true
+                  scope: '@aetherinox'
+
+            # #
+            #   Darwin › Setup Packages
+            # #
+
+            - name: '📦 Install NPM & Apt Packages'
+              run: |
+                  brew install tree
+                  npm install
+                  npm install -g electron-packager
+              env:
+                  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+            # #
+            #   Darwin › Verbose › List Tree
+            # #
+
+            - name: '⚙️ Verbose › Tree Listing'
+              id: task_build_verbose_tree_1
+              run: |
+                  tree -I node_modules
+
+            # #
+            #   Darwin › Build Binary
+            # #
+
+            - name: '📦 Build Binaries'
+              run: |
+                  npm run build:lin:mac
+
+            # #
+            #   Darwin › Verbose › List Tree
+            # #
+
+            - name: '⚙️ Verbose › Tree Listing'
+              id: task_build_verbose_tree_2
+              run: |
+                  tree -I node_modules
+
+            # #
+            #   Darwin › Build › Stable
+            # #
+
+            - name: '🔨 Build › Stable › ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}.zip'
+              id: task_build_st
+              if: |
+                  startsWith( inputs.RC_RELEASE, false ) ||
+                  startsWith( env.RC_RELEASE, false )
+              run: |
+                  BASE_PATH="${GITHUB_WORKSPACE}"
+
+                  #  darwin / mac
+                  echo Building STABLE Package ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-darwin-arm64.zip
+                  (cd build/${{ env.PROJECT_NAME }}-darwin-arm64 && zip -r - .) >${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-darwin-arm64.zip
+
+                  echo Building STABLE Package ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-darwin-amd64.zip
+                  (cd build/${{ env.PROJECT_NAME }}-darwin-x64 && zip -r - .) >${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-darwin-amd64.zip
+
+                  ls
+
+            # #
+            #   Darwin › Build › Release Candidate
+            # #
+
+            - name: '🔨 Build › Release Candidate › ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}.zip'
+              id: task_build_rc
+              if: |
+                  startsWith( inputs.RC_RELEASE, true ) ||
+                  startsWith( env.RC_RELEASE, true )
+              run: |
+                  BASE_PATH="${GITHUB_WORKSPACE}"
+
+                  #  darwin / mac
+                  echo Building RC Package ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-darwin-arm64.zip
+                  (cd build/${{ env.PROJECT_NAME }}-darwin-arm64 && zip -r - .) >${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-darwin-arm64.zip
+
+                  echo Building RC Package ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-darwin-amd64.zip
+                  (cd build/${{ env.PROJECT_NAME }}-darwin-x64 && zip -r - .) >${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-darwin-amd64.zip
+
+                  ls
+
+            # #
+            #   Darwin › Upload Artifacts › Release Files › Stable › Arm64
+            # #
+
+            - name: >-
+                📋 Upload Artifacts › Stable › ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-darwin-arm64.zip
+              id: task_build_artifact_stable_arm64
+              uses: actions/upload-artifact@v4
+              if: |
+                  startsWith( inputs.RC_RELEASE, false ) ||
+                  startsWith( env.RC_RELEASE, false )
+              with:
+                  name: "${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-darwin-arm64"
+                  path: "${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-darwin-arm64.zip"
+                  retention-days: 30
+
+            # #
+            #   Darwin › Upload Artifacts › Release Files › Stable › amd64
+            # #
+
+            - name: >-
+                📋 Upload Artifacts › Stable › ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-darwin-amd64.zip
+              id: task_build_artifact_stable_amd64
+              uses: actions/upload-artifact@v4
+              if: |
+                  startsWith( inputs.RC_RELEASE, false ) ||
+                  startsWith( env.RC_RELEASE, false )
+              with:
+                  name: "${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-darwin-amd64"
+                  path: "${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-darwin-amd64.zip"
+                  retention-days: 30
+
+            # #
+            #   Darwin › Upload Artifacts › Release Files › Release Candidate › arm64
+            # #
+
+            - name: >-
+                📋 Upload Artifacts › RC › ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-darwin-arm64.zip
+              id: task_build_artifact_rc_arm64
+              uses: actions/upload-artifact@v4
+              if: |
+                  startsWith( inputs.RC_RELEASE, true ) ||
+                  startsWith( env.RC_RELEASE, true )
+              with:
+                  name: "${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-darwin-arm64"
+                  path: "${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-darwin-arm64.zip"
+                  retention-days: 30
+
+            # #
+            #   Darwin › Upload Artifacts › Release Files › Release Candidate › amd64
+            # #
+
+            - name: >-
+                📋 Upload Artifacts › RC › ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-darwin-amd64.zip
+              id: task_build_artifact_rc_amd64
+              uses: actions/upload-artifact@v4
+              if: |
+                  startsWith( inputs.RC_RELEASE, true ) ||
+                  startsWith( env.RC_RELEASE, true )
+              with:
+                  name: "${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-darwin-amd64"
+                  path: "${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-darwin-amd64.zip"
+                  retention-days: 30
+
+    # #
     #   Job > Release › Github
     # #
 
@@ -414,7 +827,7 @@ jobs:
         name: >-
             📦 Publish › Release
         runs-on: ubuntu-latest
-        needs: [ job-initialize, job-build-windows ]
+        needs: [ job-initialize, job-build-windows, job-build-linux, job-build-darwin ]
         env:
             PACKAGE_VERSION: ${{ needs.job-initialize.outputs.package_version }}
         if: |
@@ -445,14 +858,11 @@ jobs:
                   echo "VERSION: ${{ env.PACKAGE_VERSION }}"
 
             # #
-            #   Release › Download Artifact › Windows
+            #   Release › Download Artifact
             # #
 
             - name: '📁 Download › Artifacts'
               uses: actions/download-artifact@v4
-              if: |
-                  startsWith( inputs.RC_RELEASE, false ) ||
-                  startsWith( env.RC_RELEASE, false )
               with:
                   path: ./
                   merge-multiple: true
@@ -843,7 +1253,7 @@ jobs:
                   fetchViaCommits: true
                   configurationJson: |
                     {
-                      "template": "## Release Info \n| Item | SHA1 | Desc |\n| --- | --- | --- |\n|<sub>📄 ${{ env.FILE_WIN32_ARM64 }}</sub>|<sub>`${{ env.SHA1SUM_WIN32_ARM64 }}`</sub>|<sub>Windows arm64 (64-bit) binaries</sub>|\n|<sub>📄 ${{ env.FILE_WIN32_IA32 }}</sub>|<sub>`${{ env.SHA1SUM_WIN32_IA32 }}`</sub>|<sub>Windows ia32 (32-bit) binaries</sub>|\n|<sub>📄 ${{ env.FILE_WIN32_AMD64 }}</sub>|<sub>`${{ env.SHA1SUM_WIN32_AMD64 }}`</sub>|<sub>Windows x64 (64-bit) binaries</sub>|\n|<sub>📄 ${{ env.FILE_LINUX_ARM64 }}</sub>|<sub>`${{ env.SHA1SUM_LINUX_ARM64 }}`</sub>|<sub>Linux arm64 (64-bit) binaries</sub>|\n|<sub>📄 ${{ env.FILE_LINUX_ARMV7L }}</sub>|<sub>`${{ env.SHA1SUM_LINUX_ARMV7L }}`</sub>|<sub>Linux armv7l (32-bit) binaries</sub>|\n|<sub>📄 ${{ env.FILE_LINUX_AMD64 }}</sub>|<sub>`${{ env.SHA1SUM_LINUX_ARM64 }}`</sub>|<sub>Linux x64 (64-bit) binaries</sub>|\n|<sub>📄 ${{ env.FILE_MACOS_ARM64 }}</sub>|<sub>`${{ env.SHA1SUM_MACOS_ARM64 }}`</sub>|<sub>Darwin / macOS arm64 (64-bit) binaries</sub>|\n|<sub>📄 ${{ env.FILE_MACOS_AMD64 }}</sub>|<sub>`${{ env.SHA1SUM_MACOS_ARM64 }}`</sub>|<sub>Darwin / macOS x64 (64-bit) binaries</sub>|\n|<sub>📄 sha256sum.txt.asc</sub>|<sub>Signed SHA256 hash digest</sub>|\n|<sub>📄 sha1sum.txt.asc</sub>|<sub>Signed SHA1 hash digest</sub>|\n|<sub>🏷️ GUID</sub>|<sub>`${{ steps.task_release_dotenv_get.outputs.GUID }}`</sub>|\n|<sub>🏷️ UUID</sub>|<sub>`${{ steps.task_release_dotenv_get.outputs.UUID }}`</sub>|\n|<sub>🕟 Stamp</sub>|<sub>`#{{FROM_TAG}}-#{{FROM_TAG_DATE}} 🔺 #{{TO_TAG}}-#{{TO_TAG_DATE}}`</sub>|\n|<sub>📅 Last Release</sub>|<sub>`#{{DAYS_SINCE}} days ago`</sub>|\n\n<br>\n\n---\n\n<br>\n\n### What's New\nThis release contains the following changes:\n\n<br>\n\n---\n\n<br>\n\n### Statistics\nHow the files have changed:\n<ul><li><a href='#{{RELEASE_DIFF}}'>Changed files</a> : <b>#{{CHANGED_FILES}}</b></li><li>Changes : <b>#{{CHANGES}}</b></li><li>Commits : <b>#{{COMMITS}}</b></li><li>Additions : <b>#{{ADDITIONS}}</b></li><li>Deletions : <b>#{{DELETIONS}}</b></li><li>PRs (categorized) : <b>#{{CATEGORIZED_COUNT}}</b></li><li>PRs (uncategorized) : <b>#{{UNCATEGORIZED_COUNT}}</b></li><li>PRs (open) : <b>#{{OPEN_COUNT}}</b></li>\n<br />\n</ul>\n\n<br>\n\n---\n\n<br>\n\n### Pull Requests\nThis release is associated with the following pull requests:\n#{{CHANGELOG}}\n\n<br>\n\n---\n\n<br>\n\n"
+                      "template": "## Release Info \n| Item | SHA-256 | Desc |\n| --- | --- | --- |\n|<sub>📄 ${{ env.FILE_WIN32_ARM64 }}</sub>|<sub>`${{ env.SHA256SUM_WIN32_ARM64 }}`</sub>|<sub>Windows arm64 (64-bit) binaries</sub>|\n|<sub>📄 ${{ env.FILE_WIN32_IA32 }}</sub>|<sub>`${{ env.SHA256SUM_WIN32_IA32 }}`</sub>|<sub>Windows ia32 (32-bit) binaries</sub>|\n|<sub>📄 ${{ env.FILE_WIN32_AMD64 }}</sub>|<sub>`${{ env.SHA256SUM_WIN32_AMD64 }}`</sub>|<sub>Windows x64 (64-bit) binaries</sub>|\n|<sub>📄 ${{ env.FILE_LINUX_ARM64 }}</sub>|<sub>`${{ env.SHA256SUM_LINUX_ARM64 }}`</sub>|<sub>Linux arm64 (64-bit) binaries</sub>|\n|<sub>📄 ${{ env.FILE_LINUX_ARMV7L }}</sub>|<sub>`${{ env.SHA256SUM_LINUX_ARMV7L }}`</sub>|<sub>Linux armv7l (32-bit) binaries</sub>|\n|<sub>📄 ${{ env.FILE_LINUX_AMD64 }}</sub>|<sub>`${{ env.SHA256SUM_LINUX_ARM64 }}`</sub>|<sub>Linux x64 (64-bit) binaries</sub>|\n|<sub>📄 ${{ env.FILE_MACOS_ARM64 }}</sub>|<sub>`${{ env.SHA256SUM_MACOS_ARM64 }}`</sub>|<sub>Darwin / macOS arm64 (64-bit) binaries</sub>|\n|<sub>📄 ${{ env.FILE_MACOS_AMD64 }}</sub>|<sub>`${{ env.SHA256SUM_MACOS_ARM64 }}`</sub>|<sub>Darwin / macOS x64 (64-bit) binaries</sub>|\n|<sub>📄 sha256sum.txt.asc</sub>|<sub>Signed SHA256 hash digest</sub>|\n|<sub>📄 sha1sum.txt.asc</sub>|<sub>Signed SHA1 hash digest</sub>|\n|<sub>🏷️ GUID</sub>|<sub>`${{ steps.task_release_dotenv_get.outputs.GUID }}`</sub>|\n|<sub>🏷️ UUID</sub>|<sub>`${{ steps.task_release_dotenv_get.outputs.UUID }}`</sub>|\n|<sub>🕟 Stamp</sub>|<sub>`#{{FROM_TAG}}-#{{FROM_TAG_DATE}} 🔺 #{{TO_TAG}}-#{{TO_TAG_DATE}}`</sub>|\n|<sub>📅 Last Release</sub>|<sub>`#{{DAYS_SINCE}} days ago`</sub>|\n\n<br>\n\n---\n\n<br>\n\n### What's New\nThis release contains the following changes:\n\n<br>\n\n---\n\n<br>\n\n### Statistics\nHow the files have changed:\n<ul><li><a href='#{{RELEASE_DIFF}}'>Changed files</a> : <b>#{{CHANGED_FILES}}</b></li><li>Changes : <b>#{{CHANGES}}</b></li><li>Commits : <b>#{{COMMITS}}</b></li><li>Additions : <b>#{{ADDITIONS}}</b></li><li>Deletions : <b>#{{DELETIONS}}</b></li><li>PRs (categorized) : <b>#{{CATEGORIZED_COUNT}}</b></li><li>PRs (uncategorized) : <b>#{{UNCATEGORIZED_COUNT}}</b></li><li>PRs (open) : <b>#{{OPEN_COUNT}}</b></li>\n<br />\n</ul>\n\n<br>\n\n---\n\n<br>\n\n### Pull Requests\nThis release is associated with the following pull requests:\n#{{CHANGELOG}}\n\n<br>\n\n---\n\n<br>\n\n"
                     }
               env:
                   GITHUB_TOKEN: ${{ secrets.ADMINSERV_TOKEN }}
@@ -879,7 +1289,7 @@ jobs:
                   fetchViaCommits: true
                   configurationJson: |
                     {
-                      "template": "## Release Info \n| Item | Value |\n| --- | --- |\n|<sub>📄 ${{ env.FILE_WIN32_ARM64 }}</sub>|<sub>Compiled Packages library</sub>|\n|<sub>📄 sha256sum.txt.asc</sub>|<sub>Signed SHA256 hash digest</sub>|\n|<sub>📄 sha1sum.txt.asc</sub>|<sub>Signed SHA1 hash digest</sub>|\n|<sub>🏷️ SHA256</sub>|<sub>`${{ env.SHA256SUM_WIN32_ARM64 }}`</sub>|\n|<sub>🏷️ GUID</sub>|<sub>`${{ steps.task_release_dotenv_get.outputs.GUID }}`</sub>|\n|<sub>🏷️ UUID</sub>|<sub>`${{ steps.task_release_dotenv_get.outputs.UUID }}`</sub>|\n|<sub>🕟 Stamp</sub>|<sub>`#{{FROM_TAG}}-#{{FROM_TAG_DATE}} 🔺 #{{TO_TAG}}-#{{TO_TAG_DATE}}`</sub>|\n|<sub>📅 Last Release</sub>|<sub>`#{{DAYS_SINCE}} days ago`</sub>|\n\n<br>\n\n---\n\n<br>\n\n### What's New\nThis release contains the following changes:\n\n<br>\n\n---\n\n<br>\n\n### Statistics\nHow the files have changed:\n<ul><li><a href='#{{RELEASE_DIFF}}'>Changed files</a> : <b>#{{CHANGED_FILES}}</b></li><li>Changes : <b>#{{CHANGES}}</b></li><li>Commits : <b>#{{COMMITS}}</b></li><li>Additions : <b>#{{ADDITIONS}}</b></li><li>Deletions : <b>#{{DELETIONS}}</b></li><li>PRs (categorized) : <b>#{{CATEGORIZED_COUNT}}</b></li><li>PRs (uncategorized) : <b>#{{UNCATEGORIZED_COUNT}}</b></li><li>PRs (open) : <b>#{{OPEN_COUNT}}</b></li>\n<br />\n</ul>\n\n<br>\n\n---\n\n<br>\n\n### Commits (#{{UNCATEGORIZED_COUNT}})\nThe following commits are uncategorized:\n#{{UNCATEGORIZED}}\n\n<br>\n\n---\n\n<br>\n\n### Pull Requests\nThis release is associated with the following pull requests:\n#{{CHANGELOG}}\n\n<br>\n\n"
+                      "template": "## Release Info \n| Item | SHA-256 | Desc |\n| --- | --- | --- |\n|<sub>📄 ${{ env.FILE_WIN32_ARM64 }}</sub>|<sub>`${{ env.SHA256SUM_WIN32_ARM64 }}`</sub>|<sub>Windows arm64 (64-bit) binaries</sub>|\n|<sub>📄 ${{ env.FILE_WIN32_IA32 }}</sub>|<sub>`${{ env.SHA256SUM_WIN32_IA32 }}`</sub>|<sub>Windows ia32 (32-bit) binaries</sub>|\n|<sub>📄 ${{ env.FILE_WIN32_AMD64 }}</sub>|<sub>`${{ env.SHA256SUM_WIN32_AMD64 }}`</sub>|<sub>Windows x64 (64-bit) binaries</sub>|\n|<sub>📄 ${{ env.FILE_LINUX_ARM64 }}</sub>|<sub>`${{ env.SHA256SUM_LINUX_ARM64 }}`</sub>|<sub>Linux arm64 (64-bit) binaries</sub>|\n|<sub>📄 ${{ env.FILE_LINUX_ARMV7L }}</sub>|<sub>`${{ env.SHA256SUM_LINUX_ARMV7L }}`</sub>|<sub>Linux armv7l (32-bit) binaries</sub>|\n|<sub>📄 ${{ env.FILE_LINUX_AMD64 }}</sub>|<sub>`${{ env.SHA256SUM_LINUX_ARM64 }}`</sub>|<sub>Linux x64 (64-bit) binaries</sub>|\n|<sub>📄 ${{ env.FILE_MACOS_ARM64 }}</sub>|<sub>`${{ env.SHA256SUM_MACOS_ARM64 }}`</sub>|<sub>Darwin / macOS arm64 (64-bit) binaries</sub>|\n|<sub>📄 ${{ env.FILE_MACOS_AMD64 }}</sub>|<sub>`${{ env.SHA256SUM_MACOS_ARM64 }}`</sub>|<sub>Darwin / macOS x64 (64-bit) binaries</sub>|\n|<sub>📄 sha256sum.txt.asc</sub>|<sub>Signed SHA256 hash digest</sub>|\n|<sub>📄 sha1sum.txt.asc</sub>|<sub>Signed SHA1 hash digest</sub>|\n|<sub>🏷️ GUID</sub>|<sub>`${{ steps.task_release_dotenv_get.outputs.GUID }}`</sub>|\n|<sub>🏷️ UUID</sub>|<sub>`${{ steps.task_release_dotenv_get.outputs.UUID }}`</sub>|\n|<sub>🕟 Stamp</sub>|<sub>`#{{FROM_TAG}}-#{{FROM_TAG_DATE}} 🔺 #{{TO_TAG}}-#{{TO_TAG_DATE}}`</sub>|\n|<sub>📅 Last Release</sub>|<sub>`#{{DAYS_SINCE}} days ago`</sub>|\n\n<br>\n\n---\n\n<br>\n\n### What's New\nThis release contains the following changes:\n\n<br>\n\n---\n\n<br>\n\n### Statistics\nHow the files have changed:\n<ul><li><a href='#{{RELEASE_DIFF}}'>Changed files</a> : <b>#{{CHANGED_FILES}}</b></li><li>Changes : <b>#{{CHANGES}}</b></li><li>Commits : <b>#{{COMMITS}}</b></li><li>Additions : <b>#{{ADDITIONS}}</b></li><li>Deletions : <b>#{{DELETIONS}}</b></li><li>PRs (categorized) : <b>#{{CATEGORIZED_COUNT}}</b></li><li>PRs (uncategorized) : <b>#{{UNCATEGORIZED_COUNT}}</b></li><li>PRs (open) : <b>#{{OPEN_COUNT}}</b></li>\n<br />\n</ul>\n\n<br>\n\n---\n\n<br>\n\n### Commits (#{{UNCATEGORIZED_COUNT}})\nThe following commits are uncategorized:\n#{{UNCATEGORIZED}}\n\n<br>\n\n---\n\n<br>\n\n### Pull Requests\nThis release is associated with the following pull requests:\n#{{CHANGELOG}}\n\n<br>\n\n"
                     }
               env:
                   GITHUB_TOKEN: ${{ secrets.ADMINSERV_TOKEN }}
