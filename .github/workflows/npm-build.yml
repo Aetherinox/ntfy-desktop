@@ -39,6 +39,10 @@
 name: '📦 Package › Release'
 run-name: '📦 Package › Release'
 
+# #
+#   triggers
+# #
+
 on:
     workflow_dispatch:
         inputs:
@@ -133,26 +137,14 @@ jobs:
         name: >-
             📦 Publish › Initialize
         runs-on: ubuntu-latest
+      # runs-on: apollo-x64
+        timeout-minutes: 5
         outputs:
             package_version: ${{ steps.task_initialize_package_getversion.outputs.PACKAGE_VERSION }}
         permissions:
             contents: write
             packages: write
         steps:
-
-            # #
-            #   Release › Set Env Variables
-            # #
-
-            - name: >-
-                🕛 Get Timestamp
-              id: task_initialize_label_set_timestamp
-              run: |
-                  echo "YEAR=$(date +'%Y')" >> $GITHUB_ENV
-                  echo "NOW=$(date +'%m-%d-%Y %H:%M:%S')" >> $GITHUB_ENV
-                  echo "NOW_SHORT=$(date +'%m-%d-%Y')" >> $GITHUB_ENV
-                  echo "NOW_LONG=$(date +'%m-%d-%Y %H:%M')" >> $GITHUB_ENV
-                  echo "NOW_DOCKER_LABEL=$(date +'%Y%m%d')" >> $GITHUB_ENV
 
             # #
             #   Release › Checkout
@@ -165,23 +157,90 @@ jobs:
                   fetch-depth: 0
 
             # #
-            #   Release › Start
+            #   Initialize › Job Information
             # #
 
             - name: >-
-                ✅ Start
-              id: task_initialize_start
+                  🔄 Load Job
+              uses: qoomon/actions--context@v4
+              id: 'context'
+
+            # #
+            #   Initialize › Start
+            # #
+
+            - name: >-
+                  ✅ Start
               run: |
-                echo "―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――"
-                echo " Starting Documentation Build script"
-                echo " Runner .............. ${{ runner.name }}"
-                echo " Workflow ............ ${{ github.workflow }} (#${{ github.workflow_ref }})"
-                echo " Run Number .......... #${{ github.run_number }}"
-                echo " Run ID .............. https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-                echo " Triggered By ........ ${{ github.actor }}"
-                echo " Time ................ ${{ env.NOW_LONG }}"
-                echo " Path ................ ${{ github.workspace }}"
-                echo "―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――"
+                  echo "―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――"
+                  echo " Starting Job ${{ steps.context.outputs.job_name }}"
+                  echo "―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――"
+
+                  year="$(date +'%Y')"
+                  echo "YEAR=${year}" >> $GITHUB_ENV
+
+                  now="$(date +'%m-%d-%Y %H:%M:%S')"
+                  echo "NOW=${now}" >> $GITHUB_ENV
+
+                  now_short="$(date +'%m-%d-%Y')"
+                  echo "now_short=${now_short}" >> $GITHUB_ENV
+
+                  now_long="$(date +'%m-%d-%Y %H:%M')"
+                  echo "now_long=${now_long}" >> $GITHUB_ENV
+
+                  now_docker="$(date +'%Y%m%d')"
+                  echo "now_docker=${now_docker}" >> $GITHUB_ENV
+
+                  now_docker_ts="$(date -u +'%FT%T.%3NZ')"
+                  echo "now_docker_ts=${now_docker}" >> $GITHUB_ENV
+
+                  echo "―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――"
+                  echo -e
+                  sudo apt -qq update
+                  sudo apt -qq install tree
+                  echo -e
+                  echo "―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――"
+                  echo -e
+                  echo " Runner .............. ${{ runner.name }}"
+                  echo " Workflow ............ ${{ github.workflow }} (#${{ github.workflow_ref }})"
+                  echo " Run Number .......... #${{ github.run_number }}"
+                  echo " Ref ................. #${{ github.ref }}"
+                  echo " Ref Name ............ #${{ github.ref_name }}"
+                  echo " Event Name .......... #${{ github.event_name }}"
+                  echo " Repo ................ #${{ github.repository }}"
+                  echo " Repo Owner .......... #${{ github.repository_owner }}"
+                  echo " Run ID .............. https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                  echo " Triggered By ........ ${{ github.actor }}"
+                  echo " SHA 1 ............... ${GITHUB_SHA}"
+                  echo " SHA 2 ............... ${{ github.sha }}"
+                  echo " Workspace ........... ${{ github.workspace }}"
+                  echo " PWD ................. ${PWD}"
+                  echo " Job Name ............ ${{ steps.context.outputs.job_name }}"
+                  echo " Job ID .............. ${{ steps.context.outputs.job_id }}"
+                  echo " Job URL ............. ${{ steps.context.outputs.job_url }}"
+                  echo " Run ID .............. ${{ steps.context.outputs.run_id }}"
+                  echo " Run Attempt ......... ${{ steps.context.outputs.run_attempt }}"
+                  echo " Run Number .......... ${{ steps.context.outputs.run_number }}"
+                  echo " Run URL ............. ${{ steps.context.outputs.run_url }}"
+                  echo " Run Env ............. ${{ steps.context.outputs.environment }}"
+                  echo " Run Env URL ......... ${{ steps.context.outputs.environment_url }}"
+                  echo " Run Deployment ...... ${{ steps.context.outputs.deployment_id }}"
+                  echo " Run Deployment URL .. ${{ steps.context.outputs.deployment_url }}"
+                  echo " Run Deployment ...... ${{ steps.context.outputs.deployment_id }}"
+                  echo " Run Runner Name ..... ${{ steps.context.outputs.runner_name }}"
+                  echo " Run Runner ID ....... ${{ steps.context.outputs.runner_id }}"
+                  echo " Year ................ ${year}"
+                  echo " Now ................. ${now}"
+                  echo " Now (Short) ......... ${now_short}"
+                  echo " Now (Long) .......... ${now_long}"
+                  echo " Now (Docker) ........ ${now_docker}"
+                  echo " Now (Docker TS) ..... ${now_docker_ts}"
+                  echo -e
+                  echo "―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――"
+                  echo -e
+                  tree -I node_modules -I .git
+                  echo -e
+                  echo "―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――"
 
             # #
             #   Get version from package.json VERSION value
@@ -199,14 +258,16 @@ jobs:
                   echo "VERSION: ${{ steps.task_initialize_package_getversion.outputs.PACKAGE_VERSION }}"
 
     # #
-    #   JOB > BUILD > Windows
+    #   Job › Build › Windows
     # #
 
     job-build-windows:
         name: >-
-          📦 Publish › Build › Windows
+            📦 Publish › Build › Windows
         needs: job-initialize
         runs-on: ubuntu-latest
+      # runs-on: apollo-x64
+        timeout-minutes: 5
         env:
             PACKAGE_VERSION: ${{ needs.job-initialize.outputs.package_version }}
         permissions:
@@ -215,11 +276,99 @@ jobs:
         steps:
 
             # #
-            #   Windows › Checkout
+            #   Build › Checkout
             # #
 
             - name: '☑️ Checkout'
               uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
+
+            # #
+            #   Build › Job Information
+            # #
+
+            - name: >-
+                  🔄 Load Job
+              uses: qoomon/actions--context@v4
+              id: 'context'
+
+            # #
+            #   Build › Start
+            # #
+
+            - name: >-
+                  ✅ Start
+              run: |
+                  echo "―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――"
+                  echo " Starting Job ${{ steps.context.outputs.job_name }}"
+                  echo "―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――"
+
+                  year="$(date +'%Y')"
+                  echo "YEAR=${year}" >> $GITHUB_ENV
+
+                  now="$(date +'%m-%d-%Y %H:%M:%S')"
+                  echo "NOW=${now}" >> $GITHUB_ENV
+
+                  now_short="$(date +'%m-%d-%Y')"
+                  echo "now_short=${now_short}" >> $GITHUB_ENV
+
+                  now_long="$(date +'%m-%d-%Y %H:%M')"
+                  echo "now_long=${now_long}" >> $GITHUB_ENV
+
+                  now_docker="$(date +'%Y%m%d')"
+                  echo "now_docker=${now_docker}" >> $GITHUB_ENV
+
+                  now_docker_ts="$(date -u +'%FT%T.%3NZ')"
+                  echo "now_docker_ts=${now_docker}" >> $GITHUB_ENV
+
+                  echo "―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――"
+                  echo -e
+                  sudo apt -qq update
+                  sudo apt -qq install tree
+                  echo -e
+                  echo "―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――"
+                  echo -e
+                  echo " Runner .............. ${{ runner.name }}"
+                  echo " Workflow ............ ${{ github.workflow }} (#${{ github.workflow_ref }})"
+                  echo " Run Number .......... #${{ github.run_number }}"
+                  echo " Ref ................. #${{ github.ref }}"
+                  echo " Ref Name ............ #${{ github.ref_name }}"
+                  echo " Event Name .......... #${{ github.event_name }}"
+                  echo " Repo ................ #${{ github.repository }}"
+                  echo " Repo Owner .......... #${{ github.repository_owner }}"
+                  echo " Run ID .............. https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                  echo " Triggered By ........ ${{ github.actor }}"
+                  echo " SHA 1 ............... ${GITHUB_SHA}"
+                  echo " SHA 2 ............... ${{ github.sha }}"
+                  echo " Workspace ........... ${{ github.workspace }}"
+                  echo " PWD ................. ${PWD}"
+                  echo " Job Name ............ ${{ steps.context.outputs.job_name }}"
+                  echo " Job ID .............. ${{ steps.context.outputs.job_id }}"
+                  echo " Job URL ............. ${{ steps.context.outputs.job_url }}"
+                  echo " Run ID .............. ${{ steps.context.outputs.run_id }}"
+                  echo " Run Attempt ......... ${{ steps.context.outputs.run_attempt }}"
+                  echo " Run Number .......... ${{ steps.context.outputs.run_number }}"
+                  echo " Run URL ............. ${{ steps.context.outputs.run_url }}"
+                  echo " Run Env ............. ${{ steps.context.outputs.environment }}"
+                  echo " Run Env URL ......... ${{ steps.context.outputs.environment_url }}"
+                  echo " Run Deployment ...... ${{ steps.context.outputs.deployment_id }}"
+                  echo " Run Deployment URL .. ${{ steps.context.outputs.deployment_url }}"
+                  echo " Run Deployment ...... ${{ steps.context.outputs.deployment_id }}"
+                  echo " Run Runner Name ..... ${{ steps.context.outputs.runner_name }}"
+                  echo " Run Runner ID ....... ${{ steps.context.outputs.runner_id }}"
+                  echo " Year ................ ${year}"
+                  echo " Now ................. ${now}"
+                  echo " Now (Short) ......... ${now_short}"
+                  echo " Now (Long) .......... ${now_long}"
+                  echo " Now (Docker) ........ ${now_docker}"
+                  echo " Now (Docker TS) ..... ${now_docker_ts}"
+                  echo -e
+                  echo "―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――"
+                  echo -e
+                  tree -I node_modules -I .git
+                  echo -e
+                  echo "―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――"
 
             # #
             #   Windows › Setup NodeJS
@@ -253,8 +402,7 @@ jobs:
             #   Windows › Verbose › List Tree
             # #
 
-            - name: '⚙️ Verbose › Tree Listing'
-              id: task_build_verbose_tree_1
+            - name: '🌲 Verbose › Tree Listing'
               run: |
                   tree -I node_modules
 
@@ -270,8 +418,7 @@ jobs:
             #   Windows › Verbose › List Tree
             # #
 
-            - name: '⚙️ Verbose › Tree Listing'
-              id: task_build_verbose_tree_2
+            - name: '🌲 Verbose › Tree Listing'
               run: |
                   tree -I node_modules
 
@@ -443,6 +590,92 @@ jobs:
               uses: actions/checkout@v4
 
             # #
+            #   Build › Job Information
+            # #
+
+            - name: >-
+                  🔄 Load Job
+              uses: qoomon/actions--context@v4
+              id: 'context'
+
+            # #
+            #   Build › Start
+            # #
+
+            - name: >-
+                  ✅ Start
+              run: |
+                  echo "―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――"
+                  echo " Starting Job ${{ steps.context.outputs.job_name }}"
+                  echo "―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――"
+
+                  year="$(date +'%Y')"
+                  echo "YEAR=${year}" >> $GITHUB_ENV
+
+                  now="$(date +'%m-%d-%Y %H:%M:%S')"
+                  echo "NOW=${now}" >> $GITHUB_ENV
+
+                  now_short="$(date +'%m-%d-%Y')"
+                  echo "now_short=${now_short}" >> $GITHUB_ENV
+
+                  now_long="$(date +'%m-%d-%Y %H:%M')"
+                  echo "now_long=${now_long}" >> $GITHUB_ENV
+
+                  now_docker="$(date +'%Y%m%d')"
+                  echo "now_docker=${now_docker}" >> $GITHUB_ENV
+
+                  now_docker_ts="$(date -u +'%FT%T.%3NZ')"
+                  echo "now_docker_ts=${now_docker}" >> $GITHUB_ENV
+
+                  echo "―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――"
+                  echo -e
+                  sudo apt -qq update
+                  sudo apt -qq install tree
+                  echo -e
+                  echo "―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――"
+                  echo -e
+                  echo " Runner .............. ${{ runner.name }}"
+                  echo " Workflow ............ ${{ github.workflow }} (#${{ github.workflow_ref }})"
+                  echo " Run Number .......... #${{ github.run_number }}"
+                  echo " Ref ................. #${{ github.ref }}"
+                  echo " Ref Name ............ #${{ github.ref_name }}"
+                  echo " Event Name .......... #${{ github.event_name }}"
+                  echo " Repo ................ #${{ github.repository }}"
+                  echo " Repo Owner .......... #${{ github.repository_owner }}"
+                  echo " Run ID .............. https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                  echo " Triggered By ........ ${{ github.actor }}"
+                  echo " SHA 1 ............... ${GITHUB_SHA}"
+                  echo " SHA 2 ............... ${{ github.sha }}"
+                  echo " Workspace ........... ${{ github.workspace }}"
+                  echo " PWD ................. ${PWD}"
+                  echo " Job Name ............ ${{ steps.context.outputs.job_name }}"
+                  echo " Job ID .............. ${{ steps.context.outputs.job_id }}"
+                  echo " Job URL ............. ${{ steps.context.outputs.job_url }}"
+                  echo " Run ID .............. ${{ steps.context.outputs.run_id }}"
+                  echo " Run Attempt ......... ${{ steps.context.outputs.run_attempt }}"
+                  echo " Run Number .......... ${{ steps.context.outputs.run_number }}"
+                  echo " Run URL ............. ${{ steps.context.outputs.run_url }}"
+                  echo " Run Env ............. ${{ steps.context.outputs.environment }}"
+                  echo " Run Env URL ......... ${{ steps.context.outputs.environment_url }}"
+                  echo " Run Deployment ...... ${{ steps.context.outputs.deployment_id }}"
+                  echo " Run Deployment URL .. ${{ steps.context.outputs.deployment_url }}"
+                  echo " Run Deployment ...... ${{ steps.context.outputs.deployment_id }}"
+                  echo " Run Runner Name ..... ${{ steps.context.outputs.runner_name }}"
+                  echo " Run Runner ID ....... ${{ steps.context.outputs.runner_id }}"
+                  echo " Year ................ ${year}"
+                  echo " Now ................. ${now}"
+                  echo " Now (Short) ......... ${now_short}"
+                  echo " Now (Long) .......... ${now_long}"
+                  echo " Now (Docker) ........ ${now_docker}"
+                  echo " Now (Docker TS) ..... ${now_docker_ts}"
+                  echo -e
+                  echo "―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――"
+                  echo -e
+                  tree -I node_modules -I .git
+                  echo -e
+                  echo "―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――"
+
+            # #
             #   Linux › Setup NodeJS
             # #
 
@@ -474,8 +707,7 @@ jobs:
             #   Linux › Verbose › List Tree
             # #
 
-            - name: '⚙️ Verbose › Tree Listing'
-              id: task_build_verbose_tree_1
+            - name: '🌲 Verbose › Tree Listing'
               run: |
                   tree -I node_modules
 
@@ -491,8 +723,7 @@ jobs:
             #   Linux › Verbose › List Tree
             # #
 
-            - name: '⚙️ Verbose › Tree Listing'
-              id: task_build_verbose_tree_2
+            - name: '🌲 Verbose › Tree Listing'
               run: |
                   tree -I node_modules
 
@@ -664,6 +895,92 @@ jobs:
               uses: actions/checkout@v4
 
             # #
+            #   Build › Job Information
+            # #
+
+            - name: >-
+                  🔄 Load Job
+              uses: qoomon/actions--context@v4
+              id: 'context'
+
+            # #
+            #   Build › Start
+            # #
+
+            - name: >-
+                  ✅ Start
+              run: |
+                  echo "―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――"
+                  echo " Starting Job ${{ steps.context.outputs.job_name }}"
+                  echo "―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――"
+
+                  year="$(date +'%Y')"
+                  echo "YEAR=${year}" >> $GITHUB_ENV
+
+                  now="$(date +'%m-%d-%Y %H:%M:%S')"
+                  echo "NOW=${now}" >> $GITHUB_ENV
+
+                  now_short="$(date +'%m-%d-%Y')"
+                  echo "now_short=${now_short}" >> $GITHUB_ENV
+
+                  now_long="$(date +'%m-%d-%Y %H:%M')"
+                  echo "now_long=${now_long}" >> $GITHUB_ENV
+
+                  now_docker="$(date +'%Y%m%d')"
+                  echo "now_docker=${now_docker}" >> $GITHUB_ENV
+
+                  now_docker_ts="$(date -u +'%FT%T.%3NZ')"
+                  echo "now_docker_ts=${now_docker}" >> $GITHUB_ENV
+
+                  echo "―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――"
+                  echo -e
+                  sudo apt -qq update
+                  sudo apt -qq install tree
+                  echo -e
+                  echo "―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――"
+                  echo -e
+                  echo " Runner .............. ${{ runner.name }}"
+                  echo " Workflow ............ ${{ github.workflow }} (#${{ github.workflow_ref }})"
+                  echo " Run Number .......... #${{ github.run_number }}"
+                  echo " Ref ................. #${{ github.ref }}"
+                  echo " Ref Name ............ #${{ github.ref_name }}"
+                  echo " Event Name .......... #${{ github.event_name }}"
+                  echo " Repo ................ #${{ github.repository }}"
+                  echo " Repo Owner .......... #${{ github.repository_owner }}"
+                  echo " Run ID .............. https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                  echo " Triggered By ........ ${{ github.actor }}"
+                  echo " SHA 1 ............... ${GITHUB_SHA}"
+                  echo " SHA 2 ............... ${{ github.sha }}"
+                  echo " Workspace ........... ${{ github.workspace }}"
+                  echo " PWD ................. ${PWD}"
+                  echo " Job Name ............ ${{ steps.context.outputs.job_name }}"
+                  echo " Job ID .............. ${{ steps.context.outputs.job_id }}"
+                  echo " Job URL ............. ${{ steps.context.outputs.job_url }}"
+                  echo " Run ID .............. ${{ steps.context.outputs.run_id }}"
+                  echo " Run Attempt ......... ${{ steps.context.outputs.run_attempt }}"
+                  echo " Run Number .......... ${{ steps.context.outputs.run_number }}"
+                  echo " Run URL ............. ${{ steps.context.outputs.run_url }}"
+                  echo " Run Env ............. ${{ steps.context.outputs.environment }}"
+                  echo " Run Env URL ......... ${{ steps.context.outputs.environment_url }}"
+                  echo " Run Deployment ...... ${{ steps.context.outputs.deployment_id }}"
+                  echo " Run Deployment URL .. ${{ steps.context.outputs.deployment_url }}"
+                  echo " Run Deployment ...... ${{ steps.context.outputs.deployment_id }}"
+                  echo " Run Runner Name ..... ${{ steps.context.outputs.runner_name }}"
+                  echo " Run Runner ID ....... ${{ steps.context.outputs.runner_id }}"
+                  echo " Year ................ ${year}"
+                  echo " Now ................. ${now}"
+                  echo " Now (Short) ......... ${now_short}"
+                  echo " Now (Long) .......... ${now_long}"
+                  echo " Now (Docker) ........ ${now_docker}"
+                  echo " Now (Docker TS) ..... ${now_docker_ts}"
+                  echo -e
+                  echo "―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――"
+                  echo -e
+                  tree -I node_modules -I .git
+                  echo -e
+                  echo "―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――"
+
+            # #
             #   Darwin › Setup NodeJS
             # #
 
@@ -691,8 +1008,7 @@ jobs:
             #   Darwin › Verbose › List Tree
             # #
 
-            - name: '⚙️ Verbose › Tree Listing'
-              id: task_build_verbose_tree_1
+            - name: '🌲 Verbose › Tree Listing'
               run: |
                   tree -I node_modules
 
@@ -708,8 +1024,7 @@ jobs:
             #   Darwin › Verbose › List Tree
             # #
 
-            - name: '⚙️ Verbose › Tree Listing'
-              id: task_build_verbose_tree_2
+            - name: '🌲 Verbose › Tree Listing'
               run: |
                   tree -I node_modules
 
@@ -853,7 +1168,6 @@ jobs:
             # #
 
             - name: '🪪 Test Next Job Version'
-              id: task_release_debug_print_ver
               run: |
                   echo "VERSION: ${{ env.PACKAGE_VERSION }}"
 
@@ -872,7 +1186,6 @@ jobs:
             # #
 
             - name: '🪪 Install Dependencies'
-              id: task_release_npm_install
               run: |
                   npm install
 
@@ -880,8 +1193,7 @@ jobs:
             #   Release › Run pretty and lint
             # #
 
-            - name: '🪪 Run Pretty & Linter'
-              id: task_release_npm_prettylint
+            - name: '🔍 Run Pretty & Linter'
               run: |
                   npm run lint
 
@@ -890,7 +1202,6 @@ jobs:
             # #
 
             - name: '🪪 Generate IDs'
-              id: task_release_npm_env_generate
             # working-directory: ./tvapp2
               run: |
                   npm run root:generate
@@ -912,7 +1223,6 @@ jobs:
             # #
 
             - name: '🪪 .ENV › Read'
-              id: task_dotenv_debug_print
               run: |
                   echo "GUID: ${{ steps.task_release_dotenv_get.outputs.GUID }}"
                   echo "UUID: ${{ steps.task_release_dotenv_get.outputs.UUID }}"
@@ -921,45 +1231,15 @@ jobs:
             #   Release › Verbose › List Tree
             # #
 
-            - name: '⚙️ Verbose › Tree Listing'
-              id: task_release_verbose_tree_1
+            - name: '🌲 Verbose › Tree Listing'
               run: |
-                  echo "--- CURRENT PATH -------------------------------------------------"
+                  echo "―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――"
                   echo " PWD ..................... ${PWD}"
                   echo " GITHUB.WORKSPACE ........ ${{ github.workspace }}"
                   echo -e
                   echo -e
                   tree -I node_modules
-
-            # #
-            #   Release › Tag › Pre Create
-            #
-            #   in order to use the changelog github action, you must pre-create the tag otherwise
-            #   the changelog action will have no idea what tag you are going to be creating and
-            #   the list of commits will not be for the correct release.
-            # #
-
-            - name: '🔖 Tag › Pre Create ${{ env.PACKAGE_VERSION }}'
-              id: task_release_tag_create
-              uses: rickstaa/action-create-tag@v1
-              with:
-                  tag: ${{ env.PACKAGE_VERSION }}
-                  tag_exists_error: false
-                  message: 'Latest release'
-                  gpg_private_key: ${{ secrets.ADMINSERV_GPG_KEY_ASC }}
-                  gpg_passphrase: ${{ secrets.ADMINSERV_GPG_PASSPHRASE }}
-
-            # #
-            #   Release › Tag › Confirm
-            #
-            #   check if tag already exists
-            # #
-
-            - name: '🔖 Tag › Confirm ${{ env.PACKAGE_VERSION }}'
-              id: task_release_tag_get
-              run: |
-                  echo "Tag already present: ${{ env.TAG_EXISTS }}"
-                  echo "Tag already present: ${{ steps.task_release_tag_create.outputs.tag_exists }}"
+                  echo "―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――"
 
             # #
             #   Release › GPG › Import Key (No Passphrase)
@@ -968,7 +1248,6 @@ jobs:
             # #
 
             - name: '🪪 GPG › Import Signing Key › W/o Passphrase'
-              id: task_release_gpg_import_nopass
               if: env.GPG_KEY_BASE64 != '' && env.GPG_KEY_PASSPHRASE == ''
               run: |
                   echo "$GPG_KEY_BASE64" | base64 -di | gpg --import
@@ -980,7 +1259,6 @@ jobs:
             # #
 
             - name: '🪪 GPG › Import Signing Key › w/ Passphrase'
-              id: task_release_gpg_import_withpass
               if: env.GPG_KEY_BASE64 != '' && env.GPG_KEY_PASSPHRASE != ''
               run: |
                   echo "$GPG_KEY_BASE64" | base64 -di > /tmp/signing-key.gpg
@@ -992,7 +1270,6 @@ jobs:
             # #
 
             - name: '🆔 Checksum › Stable'
-              id: task_release_checksum_st_set
               if: |
                   startsWith( inputs.RC_RELEASE, false ) ||
                   startsWith( env.RC_RELEASE, false )
@@ -1085,8 +1362,11 @@ jobs:
                   echo "FILE_MACOS_ARM64=${file_macos_arm64}" >> $GITHUB_ENV
                   echo "FILE_MACOS_AMD64=${file_macos_amd64}" >> $GITHUB_ENV
 
+            # #
+            #   Release › Checksum › RC
+            # #
+
             - name: '🆔 Checksum › Release Candidate'
-              id: task_release_checksum_rc_set
               if: |
                   startsWith( inputs.RC_RELEASE, true ) ||
                   startsWith( env.RC_RELEASE, true )
@@ -1187,16 +1467,22 @@ jobs:
             - name: '🆔 Checksum › Print'
               id: task_release_checksum_get
               run: |
-                  echo "${{ env.FILE_WIN32_ARM64 }}                 ${{ env.SHA256SUM_WIN32_ARM64 }}"
-                  echo "${{ env.FILE_WIN32_IA32 }}                  ${{ env.SHA256SUM_WIN32_IA32 }}"
-                  echo "${{ env.FILE_WIN32_AMD64 }}                 ${{ env.SHA256SUM_WIN32_AMD64 }}"
+                  echo "―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――"
+                  echo " Checksums"
+                  echo "―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――"
+                  echo -e
+                  echo " ${{ env.FILE_WIN32_ARM64 }}                 ${{ env.SHA256SUM_WIN32_ARM64 }}"
+                  echo " ${{ env.FILE_WIN32_IA32 }}                  ${{ env.SHA256SUM_WIN32_IA32 }}"
+                  echo " ${{ env.FILE_WIN32_AMD64 }}                 ${{ env.SHA256SUM_WIN32_AMD64 }}"
 
-                  echo "${{ env.FILE_LINUX_ARM64 }}                 ${{ env.SHA256SUM_LINUX_ARM64 }}"
-                  echo "${{ env.FILE_LINUX_ARMV7L }}                ${{ env.SHA256SUM_LINUX_ARMV7L }}"
-                  echo "${{ env.FILE_LINUX_AMD64 }}                 ${{ env.SHA256SUM_LINUX_AMD64 }}"
+                  echo " ${{ env.FILE_LINUX_ARM64 }}                 ${{ env.SHA256SUM_LINUX_ARM64 }}"
+                  echo " ${{ env.FILE_LINUX_ARMV7L }}                ${{ env.SHA256SUM_LINUX_ARMV7L }}"
+                  echo " ${{ env.FILE_LINUX_AMD64 }}                 ${{ env.SHA256SUM_LINUX_AMD64 }}"
 
-                  echo "${{ env.FILE_MACOS_ARM64 }}                 ${{ env.SHA256SUM_MACOS_ARM64 }}"
-                  echo "${{ env.FILE_MACOS_AMD64 }}                 ${{ env.SHA256SUM_MACOS_AMD64 }}"
+                  echo " ${{ env.FILE_MACOS_ARM64 }}                 ${{ env.SHA256SUM_MACOS_ARM64 }}"
+                  echo " ${{ env.FILE_MACOS_AMD64 }}                 ${{ env.SHA256SUM_MACOS_AMD64 }}"
+                  echo -e
+                  echo "―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――"
 
             # #
             #   Release › Contributor Images
@@ -1217,7 +1503,7 @@ jobs:
             #   out the changes made between the two versions.
             #
             #   outputs:
-            #     ${{ steps.changelog.outputs.changelog }}
+            #       ${{ steps.changelog.outputs.changelog }}
             # #
 
             - name: '📝 Changelog › Pre Setup (Categorized Commits)'
@@ -1335,8 +1621,7 @@ jobs:
             #   Release › Verbose › List Tree
             # #
 
-            - name: '⚙️ Verbose › Tree Listing'
-              id: task_release_verbose_tree
+            - name: '🌲 Verbose › Tree Listing'
               run: |
                   tree -I node_modules
 
