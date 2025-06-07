@@ -275,13 +275,13 @@ jobs:
 
                   #  windows
                   echo Building STABLE Package ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-win32-arm64.zip
-                  (cd build/${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-win32-arm64 && zip -r - .) >${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-win32-arm64.zip
+                  (cd build/${{ env.PROJECT_NAME }}-win32-arm64 && zip -r - .) >${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-win32-arm64.zip
 
                   echo Building STABLE Package ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-win32-ia32.zip
-                  (cd build/${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-win32-ia32 && zip -r - .) >${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-win32-ia32.zip
+                  (cd build/${{ env.PROJECT_NAME }}-win32-ia32 && zip -r - .) >${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-win32-ia32.zip
 
                   echo Building STABLE Package ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-win32-amd64.zip
-                  (cd build/${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-win32-amd64 && zip -r - .) >${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-win32-amd64.zip
+                  (cd build/${{ env.PROJECT_NAME }}-win32-amd64 && zip -r - .) >${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-win32-amd64.zip
 
                   ls
 
@@ -299,13 +299,13 @@ jobs:
 
                   #  windows
                   echo Building RC Package ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-win32-arm64.zip
-                  (cd build/${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-win32-arm64 && zip -r - .) >${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-win32-arm64.zip
+                  (cd build/${{ env.PROJECT_NAME }}-win32-arm64 && zip -r - .) >${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-win32-arm64.zip
 
                   echo Building RC Package ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-win32-ia32.zip
-                  (cd build/${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-win32-ia32 && zip -r - .) >${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-win32-ia32.zip
+                  (cd build/${{ env.PROJECT_NAME }}-win32-ia32 && zip -r - .) >${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-win32-ia32.zip
 
                   echo Building RC Package ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-win32-amd64.zip
-                  (cd build/${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-win32-amd64 && zip -r - .) >${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-win32-amd64.zip
+                  (cd build/${{ env.PROJECT_NAME }}-win32-amd64 && zip -r - .) >${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-win32-amd64.zip
 
                   ls
 
@@ -403,6 +403,214 @@ jobs:
               with:
                   name: "${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-win32-amd64"
                   path: "${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-win32-amd64.zip"
+                  retention-days: 30
+
+    # #
+    #   JOB > BUILD > Linux
+    # #
+
+    job-build-linux:
+        name: >-
+          📦 Publish › Build › Linux
+        needs: job-initialize
+        runs-on: ubuntu-latest
+        env:
+            PACKAGE_VERSION: ${{ needs.job-initialize.outputs.package_version }}
+        permissions:
+            contents: read
+            packages: write
+        steps:
+            - name: '☑️ Checkout'
+              uses: actions/checkout@v4
+
+            - name: '⚙️ Setup Node'
+              uses: actions/setup-node@v4
+              with:
+                  node-version: '20.x'
+                  registry-url: 'https://registry.npmjs.org/'
+                  always-auth: true
+                  scope: '@aetherinox'
+
+            - name: '📦 Install NPM & Apt Packages'
+              run: |
+                  sudo apt update
+                  sudo apt install git wine64
+                  sudo npm install
+                  sudo npm install -g electron-packager
+                  sudo ln -s /usr/bin/wine /usr/bin/wine64
+              env:
+                  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+            # #
+            #   Release › Verbose › List Tree
+            # #
+
+            - name: '⚙️ Verbose › Tree Listing'
+              id: task_build_verbose_tree_1
+              run: |
+                  tree
+
+            # #
+            #   Release › Build Binary
+            # #
+
+            - name: '📦 Build Binaries'
+              continue-on-error: true
+              run: |
+                  npm run build:lin:linux
+
+            # #
+            #   Release › Verbose › List Tree
+            # #
+
+            - name: '⚙️ Verbose › Tree Listing'
+              continue-on-error: true
+              id: task_build_verbose_tree_2
+              run: |
+                  tree
+
+            # #
+            #   Release › Build › Stable
+            # #
+
+            - name: '🔨 Build › Stable › ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}.zip'
+              id: task_build_st
+              if: |
+                  startsWith( inputs.RC_RELEASE, false ) ||
+                  startsWith( env.RC_RELEASE, false )
+              run: |
+                  BASE_PATH="${GITHUB_WORKSPACE}"
+
+                  #  windows
+                  echo Building STABLE Package ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-linux-arm64.zip
+                  (cd build/${{ env.PROJECT_NAME }}-linux-arm64 && zip -r - .) >${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-linux-arm64.zip
+
+                  echo Building STABLE Package ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-linux-armv7l.zip
+                  (cd build/${{ env.PROJECT_NAME }}-linux-armv7l && zip -r - .) >${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-linux-armv7l.zip
+
+                  echo Building STABLE Package ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-linux-amd64.zip
+                  (cd build/${{ env.PROJECT_NAME }}-linux-amd64 && zip -r - .) >${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-linux-amd64.zip
+
+                  ls
+
+            # #
+            #   Release › Build › Release Candidate
+            # #
+
+            - name: '🔨 Build › Release Candidate › ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}.zip'
+              id: task_build_rc
+              if: |
+                  startsWith( inputs.RC_RELEASE, true ) ||
+                  startsWith( env.RC_RELEASE, true )
+              run: |
+                  BASE_PATH="${GITHUB_WORKSPACE}"
+
+                  #  windows
+                  echo Building RC Package ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-linux-arm64.zip
+                  (cd build/${{ env.PROJECT_NAME }}-linux-arm64 && zip -r - .) >${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-linux-arm64.zip
+
+                  echo Building RC Package ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-linux-armv7l.zip
+                  (cd build/${{ env.PROJECT_NAME }}-linux-armv7l && zip -r - .) >${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-linux-armv7l.zip
+
+                  echo Building RC Package ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-linux-amd64.zip
+                  (cd build/${{ env.PROJECT_NAME }}-linux-amd64 && zip -r - .) >${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-linux-amd64.zip
+
+                  ls
+
+            # #
+            #   Build › Upload Artifacts › Release Files › Stable › Arm64
+            # #
+
+            - name: >-
+                📋 Upload Artifacts › Stable › ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-linux-arm64.zip
+              id: task_build_artifact_stable_arm64
+              uses: actions/upload-artifact@v4
+              if: |
+                  startsWith( inputs.RC_RELEASE, false ) ||
+                  startsWith( env.RC_RELEASE, false )
+              with:
+                  name: "${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-linux-arm64"
+                  path: "${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-linux-arm64.zip"
+                  retention-days: 30
+
+            # #
+            #   Build › Upload Artifacts › Release Files › Stable › armv7l
+            # #
+
+            - name: >-
+                📋 Upload Artifacts › Stable › ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-linux-armv7l.zip
+              id: task_build_artifact_stable_armv7l
+              uses: actions/upload-artifact@v4
+              if: |
+                  startsWith( inputs.RC_RELEASE, false ) ||
+                  startsWith( env.RC_RELEASE, false )
+              with:
+                  name: "${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-linux-armv7l"
+                  path: "${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-linux-armv7l.zip"
+                  retention-days: 30
+
+            # #
+            #   Build › Upload Artifacts › Release Files › Stable › amd64
+            # #
+
+            - name: >-
+                📋 Upload Artifacts › Stable › ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-linux-amd64.zip
+              id: task_build_artifact_stable_amd64
+              uses: actions/upload-artifact@v4
+              if: |
+                  startsWith( inputs.RC_RELEASE, false ) ||
+                  startsWith( env.RC_RELEASE, false )
+              with:
+                  name: "${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-linux-amd64"
+                  path: "${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-linux-amd64.zip"
+                  retention-days: 30
+
+            # #
+            #   Build › Upload Artifacts › Release Files › Release Candidate › arm64
+            # #
+
+            - name: >-
+                📋 Upload Artifacts › RC › ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-linux-arm64.zip
+              id: task_build_artifact_rc_arm64
+              uses: actions/upload-artifact@v4
+              if: |
+                  startsWith( inputs.RC_RELEASE, true ) ||
+                  startsWith( env.RC_RELEASE, true )
+              with:
+                  name: "${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-linux-arm64"
+                  path: "${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-linux-arm64.zip"
+                  retention-days: 30
+
+            # #
+            #   Build › Upload Artifacts › Release Files › Release Candidate › armv7l
+            # #
+
+            - name: >-
+                📋 Upload Artifacts › RC › ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-linux-armv7l.zip
+              id: task_build_artifact_rc_armv7l
+              uses: actions/upload-artifact@v4
+              if: |
+                  startsWith( inputs.RC_RELEASE, true ) ||
+                  startsWith( env.RC_RELEASE, true )
+              with:
+                  name: "${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-linux-armv7l"
+                  path: "${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-linux-armv7l.zip"
+                  retention-days: 30
+
+            # #
+            #   Build › Upload Artifacts › Release Files › Release Candidate › amd64
+            # #
+
+            - name: >-
+                📋 Upload Artifacts › RC › ${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-linux-amd64.zip
+              id: task_build_artifact_rc_amd64
+              uses: actions/upload-artifact@v4
+              if: |
+                  startsWith( inputs.RC_RELEASE, true ) ||
+                  startsWith( env.RC_RELEASE, true )
+              with:
+                  name: "${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-linux-amd64"
+                  path: "${{ env.PROJECT_NAME }}-${{ env.PACKAGE_VERSION }}-rc.${{ inputs.RC_VERSION }}-linux-amd64.zip"
                   retention-days: 30
 
     # #
