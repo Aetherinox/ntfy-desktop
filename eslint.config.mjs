@@ -23,7 +23,7 @@ import { FlatCompat } from '@eslint/eslintrc';
 import pluginImport from 'eslint-plugin-import';
 import pluginNode from 'eslint-plugin-n'
 import pluginChaiFriendly from 'eslint-plugin-chai-friendly';
-import pluginStylisticJs from '@stylistic/eslint-plugin-js'
+import pluginStylistic from '@stylistic/eslint-plugin'
 
 /*
     Globals
@@ -75,7 +75,7 @@ export default
         plugins: {
             'n': pluginNode,
             'import': pluginImport,
-            '@stylistic/js': pluginStylisticJs,
+            '@stylistic': pluginStylistic,
             'chai-friendly': pluginChaiFriendly
         },
         linterOptions: {
@@ -160,7 +160,7 @@ export default
             'n/no-extraneous-require': [
                 'error',
                 {
-                    'allowModules': ['electron', 'electron-notarize'],
+                    'allowModules': ['electron', 'electron-notarize', 'prompt', 'uuid' ],
                     'resolvePaths': [],
                     'tryExtensions': []
                 }
@@ -178,11 +178,11 @@ export default
             'n/no-unpublished-bin': 'error',
             'n/no-unpublished-import': [ 'error',
             {
-                "allowModules": [ 'electron' ]
+                "allowModules": [ 'electron', 'electron-notarize', 'prompt', 'uuid' ]
             }],
             'n/no-unpublished-require': [ 'error',
             {
-                "allowModules": [ 'electron' ]
+                "allowModules": [ 'electron', 'electron-notarize', 'prompt', 'uuid' ]
             }],
             'n/no-unsupported-features/es-builtins': 'error',
             'n/no-unsupported-features/es-syntax': 'error',
@@ -198,68 +198,68 @@ export default
             'n/prefer-promises/dns': 'off',
             'n/prefer-promises/fs': 'off',
             'n/process-exit-as-throw': 'error',
-            '@stylistic/js/object-property-newline': 'off',
-            '@stylistic/js/no-multi-spaces': [ 0, { ignoreEOLComments: true } ],
-            '@stylistic/js/arrow-spacing': [ 'error', { before: true, after: true } ],
-            '@stylistic/js/semi-spacing': ['error', {
+            '@stylistic/object-property-newline': 'off',
+            '@stylistic/no-multi-spaces': [ 0, { ignoreEOLComments: true } ],
+            '@stylistic/arrow-spacing': [ 'error', { before: true, after: true } ],
+            '@stylistic/semi-spacing': ['error', {
                 before: false,
                 after: false,
             }],
-            "@stylistic/js/space-before-function-paren": ["error", {
+            "@stylistic/space-before-function-paren": ["error", {
                 anonymous: "always",
                 asyncArrow: "never",
                 named: "never"
             }],
-            '@stylistic/js/padded-blocks': ['error', {
+            '@stylistic/padded-blocks': ['error', {
                 blocks: 'never',
                 switches: 'never',
                 classes: 'never',
             }],
-            '@stylistic/js/arrow-parens': [ 'error', 'always' ],
-            '@stylistic/js/block-spacing': [ 'error', 'always' ],
-            '@stylistic/js/comma-dangle': [ 'error', 'never' ],
-            '@stylistic/js/comma-spacing': [ 'error', { before: false, after: true }],
-            '@stylistic/js/computed-property-spacing': ['error', 'always'],
-            '@stylistic/js/no-mixed-operators': ['off'],
-            '@stylistic/js/eol-last': ['error', 'always'],
-            '@stylistic/js/jsx-quotes': ['error', 'prefer-single'],
-            '@stylistic/js/linebreak-style': ['error', 'unix'],
-            '@stylistic/js/no-mixed-spaces-and-tabs': ['error'],
-            '@stylistic/js/no-tabs': ['error'],
-            '@stylistic/js/no-trailing-spaces': ['error', { skipBlankLines: true, ignoreComments: true }],
-            '@stylistic/js/no-whitespace-before-property': ['error'],
-            '@stylistic/js/object-curly-spacing': ['error', 'always'],
-            '@stylistic/js/quote-props': ['error', 'as-needed'],
-            '@stylistic/js/quotes': ['error', 'single', { allowTemplateLiterals: true }],
-            '@stylistic/js/semi': ['error', 'always'],
-            '@stylistic/js/space-infix-ops': ['error'],
-            '@stylistic/js/template-curly-spacing': ['error', 'always'],
-            '@stylistic/js/template-tag-spacing': ['error', 'always'],
-            '@stylistic/js/space-in-parens': [ 'error', 'always',
+            '@stylistic/arrow-parens': [ 'error', 'always' ],
+            '@stylistic/block-spacing': [ 'error', 'always' ],
+            '@stylistic/comma-dangle': [ 'error', 'never' ],
+            '@stylistic/comma-spacing': [ 'error', { before: false, after: true }],
+            '@stylistic/computed-property-spacing': ['error', 'always'],
+            '@stylistic/no-mixed-operators': ['off'],
+            '@stylistic/eol-last': ['error', 'always'],
+            '@stylistic/jsx-quotes': ['error', 'prefer-single'],
+            '@stylistic/linebreak-style': ['error', 'unix'],
+            '@stylistic/no-mixed-spaces-and-tabs': ['error'],
+            '@stylistic/no-tabs': ['error'],
+            '@stylistic/no-trailing-spaces': ['error', { skipBlankLines: true, ignoreComments: true }],
+            '@stylistic/no-whitespace-before-property': ['error'],
+            '@stylistic/object-curly-spacing': ['error', 'always'],
+            '@stylistic/quote-props': ['error', 'as-needed'],
+            '@stylistic/quotes': ['error', 'single', { allowTemplateLiterals: true }],
+            '@stylistic/semi': ['error', 'always'],
+            '@stylistic/space-infix-ops': ['error'],
+            '@stylistic/template-curly-spacing': ['error', 'always'],
+            '@stylistic/template-tag-spacing': ['error', 'always'],
+            '@stylistic/space-in-parens': [ 'error', 'always',
             {
                 exceptions: ["{}"]
             }],
-            '@stylistic/js/spaced-comment': [ 'error', 'always',
+            '@stylistic/spaced-comment': [ 'error', 'always',
             {
                 markers: ['/']
             }],
-            '@stylistic/js/array-bracket-newline': [ 'warn',
+            '@stylistic/array-bracket-newline': [ 'warn',
             {
                 multiline: true,
                 minItems: 5,
             }],
-            '@stylistic/js/brace-style': [ 'error', 'allman',
+            '@stylistic/brace-style': [ 'error', 'allman',
             {
                 allowSingleLine: true,
             }],
-            '@stylistic/js/array-bracket-spacing': [ 'error', 'always',
+            '@stylistic/array-bracket-spacing': [ 'error', 'always',
             {
                 arraysInArrays: false,
                 objectsInArrays: false,
                 singleValue: false,
             }],
-            '@stylistic/js/wrap-iife': [2, 'inside', { functionPrototypeMethods: true }],
-            '@stylistic/js/keyword-spacing': [ 'error',
+            '@stylistic/wrap-iife': [2, 'inside', { functionPrototypeMethods: true }],
+            '@stylistic/keyword-spacing': [ 'error',
             {
                 before: true,
                 after: true,
