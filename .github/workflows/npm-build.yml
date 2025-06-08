@@ -392,8 +392,8 @@ jobs:
                   mkdir -p dist
                   sudo apt update
                   sudo apt install git wine64
-                  sudo npm install
-                  sudo npm install -g electron-packager
+                  npm install
+                  npm install -g electron-packager
                   sudo ln -s /usr/bin/wine /usr/bin/wine64
               env:
                   NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
@@ -697,8 +697,8 @@ jobs:
                   mkdir -p dist
                   sudo apt update
                   sudo apt install git wine64
-                  sudo npm install
-                  sudo npm install -g electron-packager
+                  npm install -g electron-packager
+                  npm install
                   sudo ln -s /usr/bin/wine /usr/bin/wine64
               env:
                   NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
