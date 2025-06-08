@@ -12,7 +12,8 @@ import { fileURLToPath } from 'url';
     @docs   : https://araxeus.github.io/custom-electron-prompt/
 */
 
-import prompt from 'custom-electron-prompt';
+// eslint-disable-next-line n/no-extraneous-import
+import prompt from 'electron-plugin-prompts';
 
 /*
     Define > Package
@@ -583,27 +584,31 @@ const menuMain = [
                         type: 'multiInput',
                         resizable: false,
                         customStylesheet: path.join( __dirname, `pages`, `css`, `prompt.css` ),
-                        height: 480,
+                        height: 640,
                         icon: appIcon,
                         multiInputOptions:
                             [
                                 {
-                                    label: 'Developer tools in app menu',
+                                    label: 'Enable Developer Tools',
+                                    description: 'Add developer tools to top menu',
                                     selectOptions: { 0: 'Disabled', 1: 'Enabled' },
                                     value: store.get( 'bDevTools' )
                                 },
                                 {
-                                    label: 'Allow usage of hotkeys to navigate',
+                                    label: 'Enable Hotkeys',
+                                    description: 'Enable the ability to use hotkeys to navigate',
                                     selectOptions: { 0: 'Disabled', 1: 'Enabled' },
                                     value: store.get( 'bHotkeys' )
                                 },
                                 {
-                                    label: 'Quit app instead of send-to-tray for close button',
+                                    label: 'Quit on Exit',
+                                    description: 'Quit app instead of send-to-tray for close button',
                                     selectOptions: { 0: 'Disabled', 1: 'Enabled' },
                                     value: store.get( 'bQuitOnClose' )
                                 },
                                 {
-                                    label: 'Start app minimized in tray',
+                                    label: 'Minimize to Tray',
+                                    description: 'Start app minimized in tray',
                                     selectOptions: { 0: 'Disabled', 1: 'Enabled' },
                                     value: store.get( 'bStartHidden' )
                                 }
@@ -611,26 +616,31 @@ const menuMain = [
                     },
                     guiMain
                 )
-                .then( ( response ) =>
+                .then( ( resp ) =>
                 {
-                    if ( response !== null )
+                    if ( resp !== null )
                     {
                         // do not update dev tools if value hasn't changed
-                        if ( store.get( 'bDevTools' ) !== response[ 0 ] )
+                        if ( store.get( 'bDevTools' ) !== resp[ 0 ] )
                         {
-                            store.set( 'bDevTools', response[ 0 ] );
+                            store.set( 'bDevTools', resp[ 0 ] );
                             activeDevTools();
                         }
 
-                        store.set( 'bHotkeys', response[ 1 ] );
-                        store.set( 'bQuitOnClose', response[ 2 ] );
-                        store.set( 'bStartHidden', response[ 3 ] );
+                        store.set( 'bHotkeys', resp[ 1 ] );
+                        store.set( 'bQuitOnClose', resp[ 2 ] );
+                        store.set( 'bStartHidden', resp[ 3 ] );
                     }
                 })
                 .catch( ( resp ) =>
                 {
                     console.error;
                 });
+                /*
+                setTimeout(function (){
+                    BrowserWindow.getFocusedWindow().webContents.openDevTools();
+                }, 3000);
+                */
             }
         },
         {
@@ -645,7 +655,7 @@ const menuMain = [
                         useHtmlLabel: true,
                         alwaysOnTop: true,
                         type: 'multiInput',
-                        customStylesheet: path.join( __dirname, `pages`, `css`, `prompt.css` ),
+                      // customStylesheet: path.join( __dirname, `pages`, `css`, `prompt.css` ),
                         height: 440,
                         icon: appIcon,
                         multiInputOptions:
@@ -672,11 +682,11 @@ const menuMain = [
                     },
                     guiMain
                 )
-                .then( ( response ) =>
+                .then( ( resp ) =>
                 {
-                    if ( response !== null )
+                    if ( resp !== null )
                     {
-                        const newUrl = ( response === '' ? defInstanceUrl : response );
+                        const newUrl = ( resp === '' ? defInstanceUrl : resp );
                         store.set( 'instanceURL', newUrl );
 
                         /*
@@ -709,7 +719,7 @@ const menuMain = [
                         }
                     }
                 })
-                .catch( ( response ) =>
+                .catch( ( resp ) =>
                 {
                     console.error;
                 });
@@ -734,7 +744,7 @@ const menuMain = [
                         alwaysOnTop: true,
                         type: 'input',
                         customStylesheet: path.join( __dirname, `pages`, `css`, `prompt.css` ),
-                        height: 265,
+                        height: 290,
                         icon: appIcon,
                         inputAttrs: {
                             type: 'text'
@@ -742,14 +752,14 @@ const menuMain = [
                     },
                     guiMain
                 )
-                .then( ( response ) =>
+                .then( ( resp ) =>
                 {
-                    if ( response !== null )
+                    if ( resp !== null )
                     {
-                        store.set( 'apiToken', response );
+                        store.set( 'apiToken', resp );
                     }
                 })
-                .catch( ( response ) =>
+                .catch( ( resp ) =>
                 {
                     console.error;
                 });
@@ -769,7 +779,7 @@ const menuMain = [
                         alwaysOnTop: true,
                         type: 'input',
                         customStylesheet: path.join( __dirname, `pages`, `css`, `prompt.css` ),
-                        height: 290,
+                        height: 310,
                         icon: appIcon,
                         inputAttrs: {
                             type: 'text'
@@ -777,14 +787,14 @@ const menuMain = [
                     },
                     guiMain
                 )
-                .then( ( response ) =>
+                .then( ( resp ) =>
                 {
-                    if ( response !== null )
+                    if ( resp !== null )
                     {
                         // do not update topics unless values differ from original, since we need to reload the page
-                        if ( store.get( 'topics' ) !== response )
+                        if ( store.get( 'topics' ) !== resp )
                         {
-                            store.set( 'topics', response );
+                            store.set( 'topics', resp );
 
                             if ( typeof ( store.get( 'instanceURL' ) ) !== 'string' || store.get( 'instanceURL' ) === '' || store.get( 'instanceURL' ) === null )
                             {
@@ -795,7 +805,7 @@ const menuMain = [
                         }
                     }
                 })
-                .catch( ( response ) =>
+                .catch( ( resp ) =>
                 {
                     console.error;
                 });
@@ -815,17 +825,19 @@ const menuMain = [
                         type: 'multiInput',
                         resizable: false,
                         customStylesheet: path.join( __dirname, `pages`, `css`, `prompt.css` ),
-                        height: 400,
+                        height: 550,
                         icon: appIcon,
                         multiInputOptions:
                             [
                                 {
-                                    label: 'Stay on screen until dismissed',
+                                    label: 'Sticky Notifications',
+                                    description: 'Stay on screen until dismissed',
                                     selectOptions: { 0: 'Disabled', 1: 'Enabled' },
                                     value: store.get( 'bPersistentNoti' )
                                 },
                                 {
-                                    label: 'Datetime format for notification title',
+                                    label: 'Datetime Format',
+                                    description: 'Determines the format for date and timestamps',
                                     value: store.get( 'datetime' ) || defDatetime,
                                     inputAttrs:
                                     {
@@ -834,7 +846,8 @@ const menuMain = [
                                     }
                                 },
                                 {
-                                    label: 'Polling rate / fetch messages (seconds)',
+                                    label: 'Polling Rate',
+                                    description: 'The number of seconds between requests to get new notifications.',
                                     value: store.get( 'pollrate' ) || defPollrate,
                                     inputAttrs: {
                                         type: 'number',
@@ -847,13 +860,13 @@ const menuMain = [
                     },
                     guiMain
                 )
-                .then( ( response ) =>
+                .then( ( resp ) =>
                 {
-                    if ( response !== null )
+                    if ( resp !== null )
                     {
-                        store.set( 'bPersistentNoti', response[ 0 ] );
-                        store.set( 'datetime', response[ 1 ] );
-                        store.set( 'pollrate', response[ 2 ] );
+                        store.set( 'bPersistentNoti', resp[ 0 ] );
+                        store.set( 'datetime', resp[ 1 ] );
+                        store.set( 'pollrate', resp[ 2 ] );
 
                         let cfgPollrate = ( store.get( 'pollrate' ) || defPollrate );
                         const fetchInterval = ( cfgPollrate * 1000 ) + 600;
@@ -861,7 +874,7 @@ const menuMain = [
                         cfgPollrate = setInterval( GetMessages, fetchInterval );
                     }
                 })
-                .catch( ( response ) =>
+                .catch( ( resp ) =>
                 {
                     console.error;
                 });
