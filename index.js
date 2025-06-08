@@ -880,6 +880,32 @@ const menuMain = [
     id: 'help',
     submenu: [
         {
+            label: 'Send Test Notification',
+            click()
+            {
+                toasted.notify(
+                {
+                    title: `${ appName } - Test Notification`,
+                    subtitle: `${ appVer }`,
+                    message: `This is a test notification which determines if NtfyToast and toasted-notifier are working on your system. If you can see this, then everything is good.`,
+                    sound: 'Pop',
+                    open: store.get( 'instanceURL' ),
+                    persistent: true,
+                    sticky: true
+                });
+            }
+        },
+        {
+            type: 'separator'
+        },
+        {
+            label: 'View New Releases',
+            click()
+            {
+                shell.openExternal( `${ packageJson.homepage }` );
+            }
+        },
+        {
             id: 'about',
             label: 'About',
             click()
@@ -926,13 +952,6 @@ const menuMain = [
 
                 // Remove menubar from about window
                 guiAbout.setMenu( null );
-            }
-        },
-        {
-            label: 'View New Releases',
-            click()
-            {
-                shell.openExternal( `${ packageJson.homepage }` );
             }
         }
     ]
