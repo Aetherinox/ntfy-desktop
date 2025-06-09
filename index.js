@@ -667,7 +667,6 @@ const menuMain = [
                                     inputAttrs: {
                                         placeholder: 'Enter URL to ntfy server',
                                         type: 'url',
-                                        required: true,
                                         min: 5,
                                         step: 1
                                     }
