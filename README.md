@@ -61,6 +61,9 @@
     - [Linux](#linux-1)
     - [Windows](#windows-1)
     - [MacOSX](#macosx-1)
+- [Tests](#tests)
+  - [Github Workflow](#github-workflow)
+  - [Manual Test](#manual-test)
 - [Contributors ✨](#contributors-)
 
 
@@ -422,6 +425,105 @@ npm run build:win:mac
 
 # build ntfy-desktop from Linux machine
 npm run build:lin:mac
+```
+
+<br />
+
+---
+
+<br />
+
+# Tests
+
+This repository contains tests in order to test the functionality of this project. We utilize a Github workflow to handle the automation, however, you can run the tests locally.
+
+<br />
+
+In order to run these tests, you must have some dependencies installed on your system or runner:
+
+```shell
+sudo apt install xvfb -y
+npm install
+npx playwright install-deps
+```
+
+<br />
+
+If you do not run the command `playwright install-deps`; then you will need to install all of the dependencies manually with the command:
+
+```shell
+sudo apt install xvfb -y
+sudo apt-get install libasound2 libxslt-dev woff2 libevent-dev libopus0 libopus-dev libwebpdemux2 libharfbuzz-dev libharfbuzz0b libwebp-dev libenchant-2-dev libsecret-1-0 libsecret-1-dev libglib2.0-dev libhyphen0 libglfw3-dev libgles2-mesa-dev libudev1 libevdev2 libgles2-mesa yasm libudev1 libudev-dev libgudev-1.0-0 libx264-dev libgconf-2-4 libatk1.0-0 libatk-bridge2.0-0 libgdk-pixbuf2.0-0 libgtk-3-0 libgbm-dev libnss3-dev libxss-dev -y
+
+npx playwright install
+```
+
+<br />
+
+## Github Workflow
+
+You can fork this repository and run the Github workflow
+- https://github.com/Aetherinox/ntfy-desktop/blob/f794bb835cb68a2b6da74d9161e7432c673179ea/.github/workflows/npm-tests.yml
+
+<br />
+
+In order for the workflow to work, your Github or self-hosted runner must have numerous dependencies installed. Ensure you do not remove the `npm install` and `apt install` commands from the workflow; otherwise the tests will fail.
+
+<br />
+
+## Manual Test
+
+You can manually test this project by running the command:
+
+```shell
+npm run test
+```
+
+<br />
+
+You should see numerous windows open and multiple copies of Ntfy Desktop start up. This is normal, and is the test checking out the functionality of the application.
+
+<br />
+
+If you want to run the tests from a CI without having a GUI available to see the tests; you can run the command:
+
+```shell
+xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" npx playwright test --trace on
+```
+
+<br />
+
+If you want to run the tests, while having Electron running in debug / verbose mode; run the command:
+
+```shell
+DISPLAY=:0 DEBUG=pw:browser xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" npx playwright test --trace on
+```
+
+<br />
+
+The tests should show something similar to the following:
+
+```console
+[chromium] › tests/main.spec.js:65:1 › ✅ ensure interface can fully load
+✅ Open New Window: About
+[webkit] › tests/main.spec.js:65:1 › ✅ ensure interface can fully load
+✅ Open New Window: About
+[chromium] › tests/main.spec.js:65:1 › ✅ ensure interface can fully load
+✅ Saved screenshot: test-results/fullload_1749458422355.png
+[webkit] › tests/main.spec.js:65:1 › ✅ ensure interface can fully load
+[SubscriptionManager] No browser subscription currently exists, so web push was never enabled or the notification permission was removed. Skipping.
+✅ Saved screenshot: test-results/fullload_1749458422373.png
+[firefox] › tests/main.spec.js:143:1 › ✅ fail to sign into invalid account
+ntfy
+[chromium] › tests/main.spec.js:143:1 › ✅ fail to sign into invalid account
+ntfy
+[webkit] › tests/main.spec.js:143:1 › ✅ fail to sign into invalid account
+ntfy
+  9 passed (15.3s)
+
+To open last HTML report run:
+
+  npx playwright show-report
 ```
 
 <br />
