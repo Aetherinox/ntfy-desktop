@@ -133,7 +133,7 @@ Be aware that the official [ntfy.sh](https://ntfy/) website will **rate-limit** 
 
 <br />
 
-If you are self-hosting your own copy of Ntfy, you must open the Ntfy Desktop client, click the menu item **Configure** and then click **URL**. You must set your instance URL to your personal self-hosted instance. 
+If you are self-hosting your own copy of Ntfy, you must open the Ntfy Desktop client, click the top menu item **App**, go down to **Settings** and then click **Instance**. You must set your instance URL to your personal self-hosted instance. To set your instance URL back to the official ntfy server, clear the URL box and save.
 
 <p align="center"><img style="width: 80%;text-align: center;" src="docs/img/README/selfhost.gif"></p>
 
