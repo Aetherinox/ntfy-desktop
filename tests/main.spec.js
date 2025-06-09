@@ -16,7 +16,8 @@
     Examples available at: https://github.com/spaceagetv/electron-playwright-example
 */
 
-import { test, expect, _electron, defineConfig, devices } from '@playwright/test';
+import { test, expect, defineConfig, devices } from '@playwright/test';
+import { _electron as electron } from 'playwright'
 import * as eph from 'electron-playwright-helpers';
 
 export default defineConfig(
@@ -38,7 +39,7 @@ export default defineConfig(
 
 test( '✅ launch ntfy-desktop for first time', async() =>
 {
-    const app = await _electron.launch({
+    const app = await electron.launch({
         args: [
             'index.js',
             '--quit'
@@ -67,7 +68,7 @@ test( '✅ ensure interface can fully load', async() =>
         Initialize
     */
 
-    const app = await _electron.launch({
+    const app = await electron.launch({
         args: [
             'index.js',
             '--quit'
@@ -145,7 +146,7 @@ test( '✅ fail to sign into invalid account', async() =>
         Initialize
     */
 
-    const app = await _electron.launch({
+    const app = await electron.launch({
         args: [
             'index.js',
             '--quit'
