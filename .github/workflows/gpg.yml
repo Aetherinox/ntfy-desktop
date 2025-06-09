@@ -95,7 +95,7 @@ jobs:
         steps:
 
             # #
-            #   Release › Checkout
+            #   GPG › Checkout
             # #
 
             - name: '☑️ Checkout'
@@ -105,7 +105,7 @@ jobs:
                   fetch-depth: 0
 
             # #
-            #   Initialize › Job Information
+            #   GPG › Job Information
             # #
 
             - name: >-
@@ -114,7 +114,7 @@ jobs:
               id: 'context'
 
             # #
-            #   Initialize › Start
+            #   GPG › Start
             # #
 
             - name: >-
@@ -191,7 +191,7 @@ jobs:
                   echo "―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――"
 
             # #
-            #   Get version from package.json VERSION value
+            #   GPG › Get version from package.json VERSION value
             # #
 
             - name: '👁️‍🗨️ Get Package Version'
@@ -206,7 +206,7 @@ jobs:
                   echo "VERSION: ${{ steps.task_initialize_package_getversion.outputs.PACKAGE_VERSION }}"
 
             # #
-            #   Release › GPG › Import Key (No Passphrase)
+            #   GPG › Import Key (No Passphrase)
             #
             #   requires your GPG private key, converted to base64 binary .gpg (not armored .asc)
             # #
@@ -217,7 +217,7 @@ jobs:
                   echo "$GPG_KEY_BASE64" | base64 -di | gpg --import
 
             # #
-            #   Release › GPG › Import Key (With Passphrase)
+            #   GPG › Import Key (With Passphrase)
             #
             #   requires your GPG private key, converted to base64 binary .gpg (not armored .asc)
             # #
@@ -230,7 +230,7 @@ jobs:
                   (echo "$GPG_KEY_PASSPHRASE"; echo; echo) | gpg --command-fd 0 --pinentry-mode loopback --change-passphrase $(gpg --list-secret-keys --with-colons 2> /dev/null | grep '^sec:' | cut --delimiter ':' --fields 5 | tail -n 1)
 
             # #
-            #   Release › Checksum › Stable
+            #   GPG › Checksum › Stable
             # #
 
             - name: '🆔 Checksum › Stable'
@@ -238,6 +238,7 @@ jobs:
                   #  windows
                   file_1_example="package.json"
                   file_2_example="package-lock.json"
+
 
                   #  get sha1 and sha256 for .json
                   find . -maxdepth 1 \( -name '*.json' -o -name '*.gz' \) -printf '%P\n' | xargs -r sha1sum | gpg --digest-algo sha256 --clearsign > sha1sum.txt.asc
@@ -262,20 +263,21 @@ jobs:
 
                   #  no longer needed, replaced by find . command
                   #  shasum --algorithm 256 ${file_file_1} > SHA256SUMS.txt
-                  echo "FILE_FILE_1=${file_file_1}" >> $GITHUB_ENV
-                  echo "FILE_FILE_2=${file_file_2}" >> $GITHUB_ENV
+                  echo "FILE_1_EXAMPLE=${file_1_example}" >> $GITHUB_ENV
+                  echo "FILE_2_EXAMPLE=${file_2_example}" >> $GITHUB_ENV
 
 
+                  #  generate sha256sum.sig from sha256sum.txt.asc file
                   gpg --batch --yes --quiet --armor --detach-sig --sign --output sha256sum.sig sha256sum.txt.asc
 
             # #
-            #   Darwin › Verbose › List Tree
+            #   GPG › Verbose › Print Results
             # #
 
-            - name: '🌲 Verbose › Tree Listing'
+            - name: '⚙️ Verbose › Print Results'
               run: |
                   echo "―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――"
-                  echo -e " Tree"
+                  echo -e " 🌲 Tree"
                   echo "―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――"
                   tree -I node_modules
                   echo "―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――"
@@ -283,7 +285,7 @@ jobs:
                   echo -e
                   echo -e
                   echo "―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――"
-                  echo -e " sha256sum.txt.asc"
+                  echo -e " 📄 sha256sum.txt.asc"
                   echo "―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――"
                   cat sha256sum.txt.asc
                   echo "―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――"
@@ -291,18 +293,29 @@ jobs:
                   echo -e
                   echo -e
                   echo "―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――"
-                  echo -e " sha256sum.sig"
+                  echo -e " 📄 sha1sum.txt.asc"
+                  echo "―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――"
+                  cat sha1sum.txt.asc
+                  echo "―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――"
+                  echo -e
+                  echo -e
+                  echo -e
+                  echo "―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――"
+                  echo -e " 📄 sha256sum.sig"
                   echo "―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――"
                   cat sha256sum.sig
+                  echo -e
+                  echo -e
+                  echo "Running command gpg --verify sha256sum.sig sha256sum.txt.asc"
                   gpg --verify sha256sum.sig sha256sum.txt.asc
                   echo "―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――"
                   echo -e
                   echo -e
                   echo -e
                   echo "―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――"
-                  echo -e " List GPG Keys"
+                  echo -e " 🔑 List GPG Keys"
                   echo "―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――"
-                  gpg --list-secret-keys --keyid-format=long
+                  gpg --list-keys --keyid-format=long --fingerprint --with-fingerprint
                   echo "―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――"
                   echo -e
                   echo -e
@@ -310,7 +323,7 @@ jobs:
 
 
             # #
-            #   Release › Checksum › Print
+            #   GPG › Checksum › Print
             # #
 
             - name: '🆔 Checksum › Print'
@@ -319,7 +332,7 @@ jobs:
                   echo " Checksums"
                   echo "―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――"
                   echo -e
-                  echo " ${{ env.FILE_FILE_1 }}                 ${{ env.SHA256SUM_FILE_1 }}"
-                  echo " ${{ env.FILE_FILE_2 }}                 ${{ env.SHA256SUM_FILE_2 }}"
+                  echo " ${{ env.FILE_1_EXAMPLE }}                 ${{ env.SHA256SUM_FILE_1 }}"
+                  echo " ${{ env.FILE_2_EXAMPLE }}                 ${{ env.SHA256SUM_FILE_2 }}"
                   echo -e
                   echo "―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――"
