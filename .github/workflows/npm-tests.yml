@@ -213,7 +213,7 @@ jobs:
                   🧪 Run Test
               id: task_test_run
               run: |
-                  xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" --trace on -- npm run test
+                  xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" -- npm run test
 
             # #
             #   Tests › Upload Report
