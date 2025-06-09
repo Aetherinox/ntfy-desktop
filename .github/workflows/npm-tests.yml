@@ -243,23 +243,5 @@ jobs:
               if: always()
               with:
                   name: Screenshot-${{ matrix.node-version }}
-                  path: test-results/fullload_1.png
-                  retention-days: 30
-
-            - name: >-
-                  🔗 Upload Screenshot 2
-              uses: actions/upload-artifact@v4
-              if: always()
-              with:
-                  name: Screenshot-${{ matrix.node-version }}
-                  path: test-results/fullload_2.png
-                  retention-days: 30
-
-            - name: >-
-                  🔗 Upload Screenshot 3
-              uses: actions/upload-artifact@v4
-              if: always()
-              with:
-                  name: Screenshot-${{ matrix.node-version }}
-                  path: test-results/fullload_3.png
+                  path: test-results/*.png
                   retention-days: 30

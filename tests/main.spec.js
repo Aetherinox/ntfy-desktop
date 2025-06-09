@@ -161,7 +161,8 @@ test( '✅ ensure interface can fully load', async({ playwright, browserName }) 
         take screenshot of interface
     */
 
-    const ss1Path = `test-results/fullload_1.png`;
+    const ts1 = Date.now().toString();
+    const ss1Path = `test-results/ntfy_capture_${ ts1 }.png`;
     const ss1Obj = await windowAbout.screenshot({ type: 'png', path: `${ ss1Path }` });
     if ( ss1Obj )
         console.log( `✅ Saved screenshot: ${ ss1Path }` );
@@ -178,7 +179,8 @@ test( '✅ ensure interface can fully load', async({ playwright, browserName }) 
         take screenshot of interface
     */
 
-    const ss2Path = `test-results/fullload_2.png`;
+    const ts2 = Date.now().toString();
+    const ss2Path = `test-results/ntfy_capture_${ ts2 }.png`;
     const ss2Obj = await page.screenshot({ type: 'png', path: `${ ss2Path }` });
     if ( ss2Obj )
         console.log( `✅ Saved screenshot: ${ ss2Path }` );
@@ -247,8 +249,8 @@ test( '✅ fail to sign into invalid account', async({ playwright, browserName }
         path: `e2e/screenshots/test-${timestamp}.png`,
     */
 
-    const ts = Date.now().toString();
-    const ss3Path = `test-results/fullload_3.png`;
+    const ts3 = Date.now().toString();
+    const ss3Path = `test-results/ntfy_capture_${ ts3 }_.png`;
     const ss3Obj = await page.screenshot({ type: 'png', path: `${ ss3Path }` });
     if ( ss3Obj )
         console.log( `✅ Saved screenshot: ${ ss3Path }` );
