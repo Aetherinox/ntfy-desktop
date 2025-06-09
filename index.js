@@ -697,8 +697,8 @@ const menuMain = [
 
                         if ( store.getInt( 'bLocalhost' ) === 1 )
                         {
-                            store.set( 'instanceURL', defInstanceUrl );
-                            guiMain.loadURL( defInstanceUrl );
+                            store.set( 'instanceURL', newUrl );
+                            guiMain.loadURL( newUrl );
                         }
                         else
                         {
