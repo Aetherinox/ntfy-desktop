@@ -65,6 +65,7 @@
 - [Tests](#tests)
   - [Github Workflow](#github-workflow)
   - [Manual Test](#manual-test)
+- [Validating Signed Releases](#validating-signed-releases)
 - [Contributors ✨](#contributors-)
 
 
@@ -531,6 +532,123 @@ To open last HTML report run:
 
   npx playwright show-report
 ```
+
+<br />
+
+---
+
+<br />
+
+# Validating Signed Releases
+
+These steps allow you to validate the `sha256sum.txt.asc` file we provide with every release.
+
+Validating this file helps ensure that the file(s) you have downloaded indeed came from the real developer.
+
+<br />
+
+Download the GPG key used to sign releases with by running the command:
+
+```shell
+curl -s https://github.com/aetherinox.gpg | gpg --import
+```
+
+<br />
+
+Download the `sha256sum.txt.asc` and validate it:
+
+```shell
+wget https://github.com/Aetherinox/ntfy-desktop/releases/download/2.1.1/sha256sum.txt.asc
+
+gpg --verify sha256.txt.asc
+```
+
+<br />
+
+You should see:
+
+```shell
+gpg: Signature made Mon 01 Jun 2025 00:00:00 UTC
+gpg:                using RSA key 6921C2D3F6AE1188B7721C72F397BC89486A29A6
+gpg: Good signature from "Binary Ninja (RSA 4096) <thebinaryninja@proton.me>" [ultimate]
+gpg:                 aka "Aetherinox <aetherinox@proton.me>" [ultimate]
+```
+
+<br />
+
+You can then validate the `sha256sum.txt.asc` against the files you have downloaded. In order to validate the files, you must download them from the [Releases]() page. They end with the extension `.zip`. You can also download them using `wget`. Make sure you download the zip files to the same folder where you downloaded the `sha256.txt.asc`:
+
+```shell
+wget \
+  https://github.com/Aetherinox/ntfy-desktop/releases/download/2.1.1/ntfy-desktop-2.1.1-darwin-amd64.zip
+
+wget \
+  https://github.com/Aetherinox/ntfy-desktop/releases/download/2.1.1/ntfy-desktop-2.1.1-darwin-arm64.zip
+
+wget \
+  https://github.com/Aetherinox/ntfy-desktop/releases/download/2.1.1/ntfy-desktop-2.1.1-linux-amd64.zip
+
+wget \
+  https://github.com/Aetherinox/ntfy-desktop/releases/download/2.1.1/ntfy-desktop-2.1.1-linux-arm64.zip
+
+wget \
+  https://github.com/Aetherinox/ntfy-desktop/releases/download/2.1.1/ntfy-desktop-2.1.1-linux-armv7l.zip
+
+wget \
+  https://github.com/Aetherinox/ntfy-desktop/releases/download/2.1.1/ntfy-desktop-2.1.1-win32-amd64.zip
+
+wget \
+  https://github.com/Aetherinox/ntfy-desktop/releases/download/2.1.1/ntfy-desktop-2.1.1-win32-arm64.zip
+
+wget \
+  https://github.com/Aetherinox/ntfy-desktop/releases/download/2.1.1/ntfy-desktop-2.1.1-win32-ia32.zip
+```
+
+<br />
+
+Next, extract the hashes from the hash digest signature file by running the command:
+
+```shell
+gpg --output sha256sum.txt --verify sha256sum.txt.asc
+```
+
+<br />
+
+You will get a new file called `sha256sum.txt`, now run that file with the program `sha256sum`:
+
+```shell
+sha256sum --check sha256sum.txt
+```
+
+<br />
+
+Which will output:
+
+```shell
+# Successful validation
+ntfy-desktop-2.1.1-win32-ia32.zip: OK
+ntfy-desktop-2.1.1-darwin-amd64.zip: OK
+ntfy-desktop-2.1.1-win32-amd64.zip: OK
+ntfy-desktop-2.1.1-win32-arm64.zip: OK
+ntfy-desktop-2.1.1-darwin-arm64.zip: OK
+ntfy-desktop-2.1.1-linux-armv7l.zip: OK
+ntfy-desktop-2.1.1-linux-amd64.zip: OK
+ntfy-desktop-2.1.1-linux-arm64.zip: OK
+
+# Files missing for validation
+ntfy-desktop-2.1.1-linux-arm64.zip: FAILED open or read
+
+# File did not pass validation
+ntfy-desktop-2.1.1-linux-arm64.zip: FAILED
+```
+
+<br />
+
+If you see `FAILED` and the files are indeed there, ensure you downloaded them from our repository and not somewhere else.
+
+<br />
+
+If you see `OK`; this means the files are valid.
 
 <br />
 
