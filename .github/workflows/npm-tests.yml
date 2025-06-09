@@ -194,9 +194,8 @@ jobs:
 
             - name: '📦 Install NPM & Apt Packages'
               run: |
-                  sudo apt install xvfb nodejs -y
+                  sudo apt install xvfb -y
                   npm install --silent
-                  sudo npm install
 
             # #
             #   Tests › Setup Packages
@@ -214,11 +213,7 @@ jobs:
                   🧪 Run Test
               id: task_test_run
               run: |
-                  sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
-                  export DISPLAY=:0
-                  DISPLAY=:0 xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" -- npm run test
-                  sudo xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" npx playwright test --trace on
-
+                  DISPLAY=:0 xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" npx playwright test --trace on
 
             # #
             #   Tests › Upload Report
