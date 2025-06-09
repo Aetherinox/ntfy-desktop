@@ -77,6 +77,15 @@ jobs:
         steps:
 
             # #
+            #   Tests › Checkout
+            # #
+
+            - name: '☑️ Checkout'
+              uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
+
+            # #
             #   Tests › Job Information
             # #
 
@@ -172,6 +181,14 @@ jobs:
                   node-version: ${{ matrix.node-version }}
 
             # #
+            #   Tests › Verbose › List Tree
+            # #
+
+            - name: '🌲 Verbose › Tree Listing'
+              run: |
+                  tree -I node_modules
+
+            # #
             #   Tests › Setup Packages
             # #
 
@@ -180,14 +197,6 @@ jobs:
                   npm install
                   npx playwright install --with-deps
                   npm i -D electron-playwright-helpers
-
-            # #
-            #   Tests › Verbose › List Tree
-            # #
-
-            - name: '🌲 Verbose › Tree Listing'
-              run: |
-                  tree -I node_modules
 
             # #
             #   Tests › Run Tests
