@@ -69,6 +69,7 @@
   - [Validate .Sig](#validate-sig)
   - [Validate SHA256SUM](#validate-sha256sum)
   - [Validate SHA1SUM](#validate-sha1sum)
+- [Dependencies](#dependencies)
 - [Contributors ✨](#contributors-)
 
 
@@ -985,6 +986,24 @@ If you see `FAILED` and the files are indeed there, ensure you downloaded them f
 
 If you see `OK`; this means the files are valid.
 
+<br />
+
+---
+
+<br />
+
+# Dependencies
+
+Ntfy Desktop relies on the following packages, some of these are also made by us:
+
+<br />
+
+| Package | Language | Version | Description
+| --- | --- | --- | --- |
+| [ntfy-toast](https://github.com/Aetherinox/ntfy-toast) | C++ | [![Version][ntfy-toast-github-version-img]][ntfy-toast-github-version-uri] | Command-line application which handles toast notifications on Windows 8 and newer |
+| [toasted-notifier](https://github.com/Aetherinox/node-toasted-notifier) | Javascript | [![Version][toasted-notifier-npm-version-img]][toasted-notifier-npm-version-uri] | Node package which acts as a wrapper to send notification data between [Ntfy Desktop](https://github.com/Aetherinox/ntfy-desktop) and [ntfy-toast](https://github.com/Aetherinox/ntfy-toast) |
+| [electron-plugin-prompts](https://github.com/Aetherinox/node-electron-plugin-prompts) | Javascript | [![Version][plugin-prompts-npm-version-img]][plugin-prompts-npm-version-uri] | Node package which allows for more detailed and customizable interface forms |
+
 
 <br />
 
@@ -1042,6 +1061,21 @@ The following people have helped get this project going:
 
 <!-- prettier-ignore-start -->
 <!-- markdownlint-disable -->
+
+<!-- (electron-plugin-prompts > BADGE > VERSION > NPMJS -->
+  [plugin-prompts-npm-version-img]: https://img.shields.io/npm/v/electron-plugin-prompts?logo=npm&label=Version&color=ba5225
+  [plugin-prompts-npm-version-uri]: https://npmjs.com/package/electron-plugin-prompts
+
+<!-- (toasted-notifier > BADGE > VERSION > NPMJS -->
+  [toasted-notifier-npm-version-img]: https://img.shields.io/npm/v/toasted-notifier?logo=npm&label=Version&color=ba5225
+  [toasted-notifier-npm-version-uri]: https://npmjs.com/package/toasted-notifier
+
+<!-- ntfy-toastBADGE > VERSION > GITHUB -->
+  [ntfy-toast-github-version-img]: https://img.shields.io/github/v/tag/aetherinox/ntfy-toast?logo=GitHub&label=Version&color=ba5225
+  [ntfy-toast-github-version-uri]: https://github.com/aetherinox/ntfy-toast/releases
+
+
+
 
 <!-- BADGE > GENERAL -->
   [general-npmjs-uri]: https://npmjs.com
