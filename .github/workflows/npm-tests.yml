@@ -213,7 +213,7 @@ jobs:
                   🧪 Run Test
               id: task_test_run
               run: |
-                  DISPLAY=:0 xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" npx playwright test --trace on
+                  DISPLAY=:0 DEBUG=pw:browser xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" npx playwright test --trace on
 
             # #
             #   Tests › Upload Report
