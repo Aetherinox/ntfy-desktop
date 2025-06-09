@@ -97,6 +97,11 @@
         "env-cmd": "^10.1.0",
         "jimp": "^1.6.0"
     },
+    "overrides": {
+        "electron-plugin-prompts": {
+            "electron": "^37.0.0-beta.3"
+        }
+    },
     "dependencies": {
         "chalk": "^5.4.1",
         "electron-plugin-prompts": "^1.6.0",
