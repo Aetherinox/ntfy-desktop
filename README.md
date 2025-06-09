@@ -100,7 +100,7 @@ To install Ntfy on your system, visit the following links:
 
 ## Ntfy Desktop Features
 
-- Usable with ntfy.sh or a self-hosted instance
+- Supports both the official ntfy.sh website / service or your own self-hosted instance
   - To self-host, you must install Ntfy server on a local machine.
   - View docs at https://docs.ntfy.sh/install/
 - Two modes for minimizing app, configure in settings
@@ -110,7 +110,7 @@ To install Ntfy on your system, visit the following links:
 - Shortcut key-binds
   - Can disable the keyboard shortcuts
 - Receive push notifications from ntfy server to desktop
-  - Includes setting to adjust polling rate
+  - Ability to adjust polling rate
   - Modify Datetime format
   - Optional persistent (sticky) notifications which require user interaction to clear
   - Topic filtering
@@ -172,7 +172,7 @@ The following keybinds can be used within ntfy-desktop:
 | `CTRL + SHIFT + I` | Developer tools |
 | `F12` | Developer tools |
 | `CTRL + G` | Show General settings window |
-| `CTRL + U` | Show URL settings window |
+| `CTRL + I` | Show URL / Instance window |
 | `CTRL + T` | Show API Token settings window |
 | `CTRL + SHIFT + T` | Show Topics settings window |
 | `CTRL + N` | Show Notifications settings window |
@@ -180,7 +180,7 @@ The following keybinds can be used within ntfy-desktop:
 <br />
 
 > [!NOTE]
-> Hotkeys are disabled by default. To enable hotkeys, select **Configure** in the top menu, and select **General**.
+> Hotkeys are disabled by default. To enable hotkeys, select **App** in the top menu, and select **Settings** -> **General**.
 > 
 > Enable `Allow usage of hotkeys to navigate`
 
@@ -195,7 +195,7 @@ This client allows you to utilize the following command-line arguments with ntfy
 
 | Argument | Description | Available as setting |
 | --- | --- | --- |
-| `--hidden` | Start app hidden in tray, suitable for auto-starting on login/boot | ✅ |
+| `--hidden` | Start app hidden in tray, suitable for auto-starting on system login/boot | ✅ |
 | `--hotkey` | Start app with hotkeys enabled | ✅ |
 | `--quit` | Top-right close button will completely exit app instead of minimize to tray | ✅ |
 | `--dev` | Start app with developer tools in `App` menu | ✅ |
@@ -205,7 +205,7 @@ This client allows you to utilize the following command-line arguments with ntfy
 If you are running ntfy-desktop from node, you can pass arguments using the following example:
 
 ```shell ignore
-npm run start -- --hidden
+npm run start -- --hidden --hotkey
 ```
 
 <br />
