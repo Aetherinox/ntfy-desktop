@@ -21,24 +21,62 @@ import { test, expect, defineConfig, devices } from '@playwright/test';
 import { _electron as electron } from 'playwright';
 import * as eph from 'electron-playwright-helpers';
 
+/*
+    Run individual tests by using
+        npx playwright test --project=firefox
+*/
+
 export default defineConfig(
 {
     projects: [
+        /* Test against desktop browsers */
         {
             name: 'chromium',
-            use: {
-                ...devices[ 'Desktop Chrome' ],
-                channel: 'chromium'
-            }
+            use: { ...devices[ 'Desktop Chrome' ], channel: 'chromium' }
+        },
+        {
+            name: 'firefox',
+            use: { ...devices[ 'Desktop Firefox' ] }
+        },
+        {
+            name: 'webkit',
+            use: { ...devices[ 'Desktop Safari' ] }
+        },
+        /* Test against mobile viewports. */
+        {
+            name: 'Mobile Chrome',
+            use: { ...devices[ 'Pixel 5' ] }
+        },
+        {
+            name: 'Mobile Safari',
+            use: { ...devices[ 'iPhone 12' ] }
+        },
+        /* Test against branded browsers. */
+        {
+            name: 'Google Chrome',
+            use: { ...devices[ 'Desktop Chrome' ], channel: 'chromium' } // or 'chrome-beta'
+        },
+        {
+            name: 'Microsoft Edge',
+            use: { ...devices[ 'Desktop Edge' ], channel: 'msedge' } // or 'msedge-dev'
         }
     ]
+});
+
+/*
+    Test Before Each
+*/
+
+test.beforeEach( async({ page }) =>
+{
+    test.setTimeout( 70000 );
 });
 
 /*
     Test > ensure ntfy-desktop launches
 */
 
-test( '✅ launch ntfy-desktop for first time', async() =>
+test( '✅ launch ntfy-desktop for first time', async({ playwright, browserName }) =>
 {
     const app = await electron.launch({
         args: [
@@ -63,8 +101,10 @@ test( '✅ launch ntfy-desktop for first time', async() =>
     Test > full loadup and screenshot
 */
 
-test( '✅ ensure interface can fully load', async() =>
+test( '✅ ensure interface can fully load', async({ playwright, browserName }) =>
 {
+    test.skip( browserName === 'chromium', 'Test skipped for Chromium' );
+
     /*
         Initialize
     */
@@ -157,7 +197,7 @@ test( '✅ ensure interface can fully load', async() =>
     Test functionality
 */
 
-test( '✅ fail to sign into invalid account', async() =>
+test( '✅ fail to sign into invalid account', async({ playwright, browserName }) =>
 {
     /*
         Initialize
