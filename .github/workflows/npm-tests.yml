@@ -72,7 +72,7 @@ jobs:
         timeout-minutes: 10
         strategy:
             matrix:
-                node-version: [20.x, 21.x, 22.x, 23.x, 24.x,]
+                node-version: [22.x, 23.x, 24.x,]
 
         steps:
 
@@ -112,6 +112,14 @@ jobs:
                   npm install
                   npx playwright install --with-deps
                   npm i -D @playwright/test
+
+            # #
+            #   Tests › Setup Packages
+            # #
+
+            - name: '📦 List NPM Packages'
+              run: |
+                  npm list
 
             # #
             #   Tests › Run Tests
