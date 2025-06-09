@@ -1,6 +1,6 @@
 {
     "name": "ntfy-desktop",
-    "version": "2.1.0",
+    "version": "2.1.1",
     "description": "Ntfy.sh desktop client for Windows, Linux, and MacOS with push notifications. Supports official ntfy.sh website and self-hosted instances.",
     "author": "Aetherinox",
     "homepage": "https://github.com/aetherinox/ntfy-desktop",
