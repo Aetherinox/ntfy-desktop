@@ -1362,6 +1362,7 @@ jobs:
                   echo "FILE_MACOS_AMD64=${file_macos_amd64}" >> $GITHUB_ENV
 
                   gpg --batch --yes --quiet --armor --detach-sig --sign --output sha256sum.sig sha256sum.txt.asc
+                  gpg --batch --yes --quiet --armor --detach-sig --sign --output sha1sum.sig sha1sum.txt.asc
 
             # #
             #   Release › Checksum › RC
@@ -1462,6 +1463,7 @@ jobs:
                   echo "FILE_MACOS_AMD64=${file_macos_amd64}" >> $GITHUB_ENV
 
                   gpg --batch --yes --quiet --armor --detach-sig --sign --output sha256sum.sig sha256sum.txt.asc
+                  gpg --batch --yes --quiet --armor --detach-sig --sign --output sha1sum.sig sha1sum.txt.asc
 
             # #
             #   Release › Checksum › Print
@@ -1711,6 +1713,7 @@ jobs:
                       sha1sum.txt.asc
                       sha256sum.txt.asc
                       sha256sum.sig
+                      sha1sum.sig
                   prerelease: false
                   body: |
                       ${{ steps.task_release_changelog_categorized.outputs.changelog }}
@@ -1748,6 +1751,7 @@ jobs:
                       sha1sum.txt.asc
                       sha256sum.txt.asc
                       sha256sum.sig
+                      sha1sum.sig
                   prerelease: false
                   body: |
                       > [!WARNING]

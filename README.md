@@ -65,7 +65,10 @@
 - [Tests](#tests)
   - [Github Workflow](#github-workflow)
   - [Manual Test](#manual-test)
-- [Validating Signed Releases](#validating-signed-releases)
+- [Signed Releases](#signed-releases)
+  - [Validate .Sig](#validate-sig)
+  - [Validate SHA256SUM](#validate-sha256sum)
+  - [Validate SHA1SUM](#validate-sha1sum)
 - [Contributors ✨](#contributors-)
 
 
@@ -539,15 +542,118 @@ To open last HTML report run:
 
 <br />
 
-# Validating Signed Releases
+# Signed Releases
 
-These steps allow you to validate the `sha256sum.txt.asc` file we provide with every release.
+These steps allow you to validate the files `sha256sum.txt.asc`, `sha1sum.txt.asc`, and `sha256sum.sig` which we provide with every release.
 
-Validating this file helps ensure that the file(s) you have downloaded indeed came from the real developer.
+Validating these files helps ensure that the actual .zip or binary files you have downloaded indeed came from the real developer. Before you start reading the sections below; ensure you have the following packages installed:
+
+- GPG
+- sha1sum
+- sha256sum
 
 <br />
 
-Download the GPG key used to sign releases with by running the command:
+You can install these by running the commands:
+
+```shell
+# Ubuntu / Debian Systems
+sudo apt update
+sudo apt install gpg gnupg sha1sum sha256sum
+
+# Fedora / Redhat
+(yum | or | dnf ) install gpg gnupg
+```
+
+<br />
+
+## Validate .Sig
+
+Each release includes two `.sig` files; these are known as a GPG **Detached Signature**.
+
+- sha1sum.sig
+- sha256sum.sig
+
+<br />
+
+To validate that these signatures are good, download each of the files to your local machine:
+
+```shell
+# sha1sum
+wget https://github.com/Aetherinox/ntfy-desktop/releases/download/2.1.1/sha1sum.sig
+
+# sha256sum
+wget https://github.com/Aetherinox/ntfy-desktop/releases/download/2.1.1/sha256sum.sig
+```
+
+<br />
+
+Next, you will need the two associated files:
+
+- sha1sum.txt.asc
+- sha256sum.txt.asc
+
+<br />
+
+To download these, run the commands:
+
+```shell
+# sha1sum.txt.asc
+wget https://github.com/Aetherinox/ntfy-desktop/releases/download/2.1.1/sha1sum.txt.asc
+
+# sha256sum.txt.asc
+wget https://github.com/Aetherinox/ntfy-desktop/releases/download/2.1.1/sha256sum.txt.asc
+```
+
+<br />
+
+Now we can validate that these files indeed came from the original developer; run the command:
+
+```shell
+gpg --verify sha1sum.sig sha1sum.txt.asc
+```
+
+<br />
+
+You should see the output:
+
+```shell
+gpg:                using RSA key 6921C2D3F6AE1188B7721C72F397BC89486A29A6
+gpg: Good signature from "Binary Ninja (RSA 4096) <thebinaryninja@proton.me>" [unknown]
+Primary key fingerprint: E8BA 8C94 B334 1673 0D8C  05C2 5769 7A1C BA63 B9FE
+     Subkey fingerprint: 6921 C2D3 F6AE 1188 B772  1C72 F397 BC89 486A 29A6
+```
+
+<br />
+
+Now validate the `sha256sum.sig` with the `sha256sum.txt.asc`:
+
+```shell
+gpg --verify sha256sum.sig sha256sum.txt.asc
+```
+
+<br />
+
+You should see the output:
+
+```shell
+gpg:                using RSA key 6921C2D3F6AE1188B7721C72F397BC89486A29A6
+gpg: Good signature from "Binary Ninja (RSA 4096) <thebinaryninja@proton.me>" [unknown]
+Primary key fingerprint: E8BA 8C94 B334 1673 0D8C  05C2 5769 7A1C BA63 B9FE
+     Subkey fingerprint: 6921 C2D3 F6AE 1188 B772  1C72 F397 BC89 486A 29A6
+```
+
+<br />
+
+If you get the above results; you have validated the signature files.
+
+<br />
+
+<br />
+
+## Validate SHA256SUM
+
+This section explains how you can validate the downloaded `.zip` files and see if they are indeed authentic from the original developer. Before you can validate these files, you need to download the public GPG key we use when we sign releases. You can download it by running the following command:
 
 ```shell
 curl -s https://github.com/BinaryServ.gpg | gpg --import
@@ -555,7 +661,7 @@ curl -s https://github.com/BinaryServ.gpg | gpg --import
 
 <br />
 
-Download the `sha256sum.txt.asc` and validate it:
+Download the `sha256sum.txt.asc` and validate the file itself:
 
 ```shell
 wget https://github.com/Aetherinox/ntfy-desktop/releases/download/2.1.1/sha256sum.txt.asc
@@ -565,7 +671,7 @@ gpg --verify sha256sum.txt.asc
 
 <br />
 
-You should see the following.
+You should see the following. The value `6921C2D3F6AE1188B7721C72F397BC89486A29A6` is the key's fingerprint.
 
 ```shell
 gpg: Signature made Mon 01 Jun 2025 00:00:00 UTC
@@ -575,7 +681,7 @@ gpg: Good signature from "Binary Ninja (RSA 4096) <thebinaryninja@proton.me>" [u
 
 <br />
 
-The value `6921C2D3F6AE1188B7721C72F397BC89486A29A6` is the key's fingerprint. You can view your existing GPG key fingerprints by running:
+You can view your existing GPG key fingerprints by running:
 
 ```shell
 gpg --list-keys --keyid-format=long --fingerprint --with-fingerprint
@@ -607,7 +713,7 @@ wget https://github.com/Aetherinox/ntfy-desktop/releases/download/2.1.1/sha256su
 
 <br />
 
-Run the command:
+To validate the `.sig` file and your `sha256sum` file, run the command:
 
 ```shell
 gpg --verify sha256sum.sig sha256sum.txt.asc
@@ -626,37 +732,45 @@ Primary key fingerprint: E8BA 8C94 B334 1673 0D8C  05C2 5769 7A1C BA63 B9FE
 
 <br />
 
-You can then validate the `sha256sum.txt.asc` against the files you have downloaded. In order to validate the files, you must download them from the [Releases]() page. They end with the extension `.zip`. You can also download them using `wget`. Make sure you download the zip files to the same folder where you downloaded the `sha256.txt.asc`:
+You can now validate the `sha256sum.txt.asc` file against the files you have downloaded from our repository. In order to verify that the files are legit, you must download them from the [Releases](https://github.com/Aetherinox/ntfy-desktop/releases) page. They end with the extension `.zip`. You can also download them using `wget`. Make sure you download the zip files to the same folder where you downloaded the `sha256sum.txt.asc` and `sha256sum.sig`
 
 ```shell
+# Download ntfy-desktop-2.1.1-darwin-amd64.zip
 wget \
   https://github.com/Aetherinox/ntfy-desktop/releases/download/2.1.1/ntfy-desktop-2.1.1-darwin-amd64.zip
 
+# Download ntfy-desktop-2.1.1-darwin-arm64.zip
 wget \
   https://github.com/Aetherinox/ntfy-desktop/releases/download/2.1.1/ntfy-desktop-2.1.1-darwin-arm64.zip
 
+# Download ntfy-desktop-2.1.1-linux-amd64.zip
 wget \
   https://github.com/Aetherinox/ntfy-desktop/releases/download/2.1.1/ntfy-desktop-2.1.1-linux-amd64.zip
 
+# Download ntfy-desktop-2.1.1-linux-arm64.zip
 wget \
   https://github.com/Aetherinox/ntfy-desktop/releases/download/2.1.1/ntfy-desktop-2.1.1-linux-arm64.zip
 
+# Download ntfy-desktop-2.1.1-linux-armv7l.zip
 wget \
   https://github.com/Aetherinox/ntfy-desktop/releases/download/2.1.1/ntfy-desktop-2.1.1-linux-armv7l.zip
 
+# Download ntfy-desktop-2.1.1-win32-amd64.zip
 wget \
   https://github.com/Aetherinox/ntfy-desktop/releases/download/2.1.1/ntfy-desktop-2.1.1-win32-amd64.zip
 
+# Download ntfy-desktop-2.1.1-win32-arm64.zip
 wget \
   https://github.com/Aetherinox/ntfy-desktop/releases/download/2.1.1/ntfy-desktop-2.1.1-win32-arm64.zip
 
+# Download ntfy-desktop-2.1.1-win32-ia32.zip
 wget \
   https://github.com/Aetherinox/ntfy-desktop/releases/download/2.1.1/ntfy-desktop-2.1.1-win32-ia32.zip
 ```
 
 <br />
 
-Next, extract the hashes from the hash digest signature file by running the command:
+Next, extract the hashes from the hash digest `sha256sum.txt.asc` file by running the command:
 
 ```shell
 gpg --output sha256sum.txt --verify sha256sum.txt.asc
@@ -664,7 +778,7 @@ gpg --output sha256sum.txt --verify sha256sum.txt.asc
 
 <br />
 
-You will get a new file called `sha256sum.txt`, now run that file with the program `sha256sum`:
+The command above will create a new file called `sha256sum.txt`, now run that file with the program `sha256sum`:
 
 ```shell
 sha256sum --check sha256sum.txt
@@ -699,6 +813,178 @@ If you see `FAILED` and the files are indeed there, ensure you downloaded them f
 <br />
 
 If you see `OK`; this means the files are valid.
+
+<br />
+
+## Validate SHA1SUM
+
+This section explains how you can validate the downloaded `.zip` files and see if they are indeed authentic from the original developer. Validating the `sha1sum.txt.asc` is similar to the `sha256sum.txt.asc`, first, download the public GPG key we use when we sign releases. You can download it by running the following command:
+
+```shell
+curl -s https://github.com/BinaryServ.gpg | gpg --import
+```
+
+<br />
+
+Next, download the `sha1sum.txt.asc` file:
+
+```shell
+wget https://github.com/Aetherinox/ntfy-desktop/releases/download/2.1.1/sha1sum.txt.asc
+```
+
+<br />
+
+Now verify that the `sha1sum.txt.asc` is properly signed:
+
+```shell
+gpg --verify sha1sum.txt.asc
+```
+
+<br />
+
+You should see the following. The value `6921C2D3F6AE1188B7721C72F397BC89486A29A6` is the key's fingerprint.
+
+```shell
+gpg: Signature made Mon 01 Jun 2025 00:00:00 UTC
+gpg:                using RSA key 6921C2D3F6AE1188B7721C72F397BC89486A29A6
+gpg: Good signature from "Binary Ninja (RSA 4096) <thebinaryninja@proton.me>" [ultimate]
+```
+
+<br />
+
+You can view your existing GPG key fingerprints by running:
+
+```shell
+gpg --list-keys --keyid-format=long --fingerprint --with-fingerprint
+```
+
+<br />
+
+This will allow you to see where the `692XXXXX` value comes from:
+
+```shell
+pub   rsa4096 2025-04-21 [C]
+      E8BA 8C94 B334 1673 0D8C  05C2 5769 7A1C BA63 B9FE
+uid           [ unknown] Binary Ninja (RSA 4096) <thebinaryninja@proton.me>
+sub   rsa4096 2025-04-21 [S]
+ >>>> 6921 C2D3 F6AE 1188 B772  1C72 F397 BC89 486A 29A6
+sub   rsa4096 2025-04-21 [E]
+      25E9 AFEC C12F 2072 AA6E  D5AB B077 63D0 A12F 0ED8
+sub   rsa4096 2025-04-21 [A]
+      AD79 A1EA CE17 962F B4ED  B30A DBA8 EA76 62FC 54E2
+```
+
+<br />
+
+Next, download the `sha1sum.sig`
+
+```shell
+wget https://github.com/Aetherinox/ntfy-desktop/releases/download/2.1.1/sha1sum.sig
+```
+
+<br />
+
+To validate the `sha1sum.sig` file and your `sha1sum.txt.asc` file, run the command:
+
+```shell
+gpg --verify sha1sum.sig sha1sum.txt.asc
+```
+
+<br />
+
+You should see:
+
+```shell
+gpg:                using RSA key 6921C2D3F6AE1188B7721C72F397BC89486A29A6
+gpg: Good signature from "Binary Ninja (RSA 4096) <thebinaryninja@proton.me>" [unknown]
+Primary key fingerprint: E8BA 8C94 B334 1673 0D8C  05C2 5769 7A1C BA63 B9FE
+     Subkey fingerprint: 6921 C2D3 F6AE 1188 B772  1C72 F397 BC89 486A 29A6
+```
+
+<br />
+
+You can now validate the `sha1sum.txt.asc` file against the files you have downloaded from our repository. In order to verify that the files are legit, you must download them from the [Releases](https://github.com/Aetherinox/ntfy-desktop/releases) page. They end with the extension `.zip`. You can also download them using `wget`. Make sure you download the zip files to the same folder where you downloaded the `sha1sum.txt.asc` and `sha1sum.sig`
+
+```shell
+# Download ntfy-desktop-2.1.1-darwin-amd64.zip
+wget \
+  https://github.com/Aetherinox/ntfy-desktop/releases/download/2.1.1/ntfy-desktop-2.1.1-darwin-amd64.zip
+
+# Download ntfy-desktop-2.1.1-darwin-arm64.zip
+wget \
+  https://github.com/Aetherinox/ntfy-desktop/releases/download/2.1.1/ntfy-desktop-2.1.1-darwin-arm64.zip
+
+# Download ntfy-desktop-2.1.1-linux-amd64.zip
+wget \
+  https://github.com/Aetherinox/ntfy-desktop/releases/download/2.1.1/ntfy-desktop-2.1.1-linux-amd64.zip
+
+# Download ntfy-desktop-2.1.1-linux-arm64.zip
+wget \
+  https://github.com/Aetherinox/ntfy-desktop/releases/download/2.1.1/ntfy-desktop-2.1.1-linux-arm64.zip
+
+# Download ntfy-desktop-2.1.1-linux-armv7l.zip
+wget \
+  https://github.com/Aetherinox/ntfy-desktop/releases/download/2.1.1/ntfy-desktop-2.1.1-linux-armv7l.zip
+
+# Download ntfy-desktop-2.1.1-win32-amd64.zip
+wget \
+  https://github.com/Aetherinox/ntfy-desktop/releases/download/2.1.1/ntfy-desktop-2.1.1-win32-amd64.zip
+
+# Download ntfy-desktop-2.1.1-win32-arm64.zip
+wget \
+  https://github.com/Aetherinox/ntfy-desktop/releases/download/2.1.1/ntfy-desktop-2.1.1-win32-arm64.zip
+
+# Download ntfy-desktop-2.1.1-win32-ia32.zip
+wget \
+  https://github.com/Aetherinox/ntfy-desktop/releases/download/2.1.1/ntfy-desktop-2.1.1-win32-ia32.zip
+```
+
+<br />
+
+Next, extract the hashes from the hash digest `sha1sum.txt.asc` file by running the command:
+
+```shell
+gpg --output sha1sum.txt --verify sha1sum.txt.asc
+```
+
+<br />
+
+The command above will create a new file called `sha1sum.txt`, now run that file with the program `sha1sum`:
+
+```shell
+sha1sum --check sha1sum.txt
+```
+
+<br />
+
+Which will output:
+
+```shell
+# Successful validation
+ntfy-desktop-2.1.1-win32-ia32.zip: OK
+ntfy-desktop-2.1.1-darwin-amd64.zip: OK
+ntfy-desktop-2.1.1-win32-amd64.zip: OK
+ntfy-desktop-2.1.1-win32-arm64.zip: OK
+ntfy-desktop-2.1.1-darwin-arm64.zip: OK
+ntfy-desktop-2.1.1-linux-armv7l.zip: OK
+ntfy-desktop-2.1.1-linux-amd64.zip: OK
+ntfy-desktop-2.1.1-linux-arm64.zip: OK
+
+# Files missing for validation
+ntfy-desktop-2.1.1-linux-arm64.zip: FAILED open or read
+
+# File did not pass validation
+ntfy-desktop-2.1.1-linux-arm64.zip: FAILED
+```
+
+<br />
+
+If you see `FAILED` and the files are indeed there, ensure you downloaded them from our repository and not somewhere else.
+
+<br />
+
+If you see `OK`; this means the files are valid.
+
 
 <br />
 

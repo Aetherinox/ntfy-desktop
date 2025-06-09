@@ -320,6 +320,7 @@ jobs:
                   echo "‎"
                   echo "‎"
                   echo "Running command gpg --verify sha256sum.sig sha256sum.txt.asc"
+                  echo "‎"
                   gpg --verify sha256sum.sig sha256sum.txt.asc
                   echo "―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――"
                   echo "‎"
