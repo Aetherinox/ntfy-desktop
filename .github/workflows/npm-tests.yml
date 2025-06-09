@@ -121,7 +121,7 @@ jobs:
                   🧪 Run Test
               id: task_test_run
               run: |
-                  npm run test
+                  xvfb-run --auto-servernum npx playwright test --trace on
 
             # #
             #   Tests › Upload Report
