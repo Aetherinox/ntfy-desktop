@@ -14,11 +14,11 @@
     Examples available at: https://github.com/spaceagetv/electron-playwright-example
 */
 
-import jimp from 'jimp';
-const { test, expect, _electron: electron, defineConfig, devices } = require( '@playwright/test' );
-const eph = require( 'electron-playwright-helpers' );
+import { test, expect, _electron, defineConfig, devices } from '@playwright/test';
+import * as eph from 'electron-playwright-helpers';
 
-module.exports = defineConfig({
+export const playwrightConfig = defineConfig(
+{
     projects: [
         {
             name: 'chromium',
@@ -36,7 +36,7 @@ module.exports = defineConfig({
 
 test( '✅ launch ntfy-desktop for first time', async() =>
 {
-    const app = await electron.launch({
+    const app = await _electron.launch({
         args: [
             'index.js',
             '--quit'
@@ -65,7 +65,7 @@ test( '✅ ensure interface can fully load', async() =>
         Initialize
     */
 
-    const app = await electron.launch({
+    const app = await _electron.launch({
         args: [
             'index.js',
             '--quit'
@@ -93,7 +93,7 @@ test( '✅ ensure interface can fully load', async() =>
         Load first window
     */
 
-    const page = await app.firstWindow( { timeout: 120000 } );
+    const page = await app.firstWindow({ timeout: 120000 });
     console.log( `✅ Loading App Window: ${ await page.title() }` );
     page.on( 'console', console.log );
 
@@ -143,7 +143,7 @@ test( '✅ fail to sign into invalid account', async() =>
         Initialize
     */
 
-    const app = await electron.launch({
+    const app = await _electron.launch({
         args: [
             'index.js',
             '--quit'

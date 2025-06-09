@@ -178,7 +178,7 @@ export default
             'n/no-unpublished-bin': 'error',
             'n/no-unpublished-import': [ 'error',
             {
-                "allowModules": [ 'electron', 'electron-notarize', 'prompt', 'uuid' ]
+                "allowModules": [ 'electron', 'electron-notarize', 'prompt', 'uuid', '@playwright/test', 'electron-playwright-helpers' ]
             }],
             'n/no-unpublished-require': [ 'error',
             {
