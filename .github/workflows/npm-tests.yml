@@ -111,7 +111,7 @@ jobs:
               run: |
                   npm install
                   npx playwright install --with-deps
-                  npm i -D @playwright/tests
+                  npm i -D @playwright/test
 
             # #
             #   Tests › Run Tests
