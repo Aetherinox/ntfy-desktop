@@ -1,3 +1,5 @@
+/* eslint-disable import/no-default-export */
+/* eslint-disable no-restricted-syntax */
 // @ts-check
 
 /*
@@ -17,7 +19,7 @@
 import { test, expect, _electron, defineConfig, devices } from '@playwright/test';
 import * as eph from 'electron-playwright-helpers';
 
-export const playwrightConfig = defineConfig(
+export default defineConfig(
 {
     projects: [
         {

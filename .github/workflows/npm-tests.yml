@@ -194,6 +194,7 @@ jobs:
 
             - name: '📦 Install NPM & Apt Packages'
               run: |
+                  sudo apt install xvfb
                   npm install
                   npx playwright install --with-deps
                   npm i -D electron-playwright-helpers
