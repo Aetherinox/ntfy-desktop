@@ -95,83 +95,6 @@ jobs:
               id: 'context'
 
             # #
-            #   Tests › Start
-            # #
-
-            - name: >-
-                  ✅ Start
-              run: |
-                  echo "―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――"
-                  echo " Starting Job ${{ steps.context.outputs.job_name }}"
-                  echo "―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――"
-
-                  year="$(date +'%Y')"
-                  echo "YEAR=${year}" >> $GITHUB_ENV
-
-                  now="$(date +'%m-%d-%Y %H:%M:%S')"
-                  echo "NOW=${now}" >> $GITHUB_ENV
-
-                  now_short="$(date +'%m-%d-%Y')"
-                  echo "now_short=${now_short}" >> $GITHUB_ENV
-
-                  now_long="$(date +'%m-%d-%Y %H:%M')"
-                  echo "now_long=${now_long}" >> $GITHUB_ENV
-
-                  now_docker="$(date +'%Y%m%d')"
-                  echo "now_docker=${now_docker}" >> $GITHUB_ENV
-
-                  now_docker_ts="$(date -u +'%FT%T.%3NZ')"
-                  echo "now_docker_ts=${now_docker}" >> $GITHUB_ENV
-
-                  echo "―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――"
-                  echo -e
-                  sudo apt -qq update
-                  sudo apt -qq install tree
-                  echo -e
-                  echo "―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――"
-                  echo -e
-                  echo " Runner .............. ${{ runner.name }}"
-                  echo " Workflow ............ ${{ github.workflow }} (#${{ github.workflow_ref }})"
-                  echo " Run Number .......... #${{ github.run_number }}"
-                  echo " Ref ................. #${{ github.ref }}"
-                  echo " Ref Name ............ #${{ github.ref_name }}"
-                  echo " Event Name .......... #${{ github.event_name }}"
-                  echo " Repo ................ #${{ github.repository }}"
-                  echo " Repo Owner .......... #${{ github.repository_owner }}"
-                  echo " Run ID .............. https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-                  echo " Triggered By ........ ${{ github.actor }}"
-                  echo " SHA 1 ............... ${GITHUB_SHA}"
-                  echo " SHA 2 ............... ${{ github.sha }}"
-                  echo " Workspace ........... ${{ github.workspace }}"
-                  echo " PWD ................. ${PWD}"
-                  echo " Job Name ............ ${{ steps.context.outputs.job_name }}"
-                  echo " Job ID .............. ${{ steps.context.outputs.job_id }}"
-                  echo " Job URL ............. ${{ steps.context.outputs.job_url }}"
-                  echo " Run ID .............. ${{ steps.context.outputs.run_id }}"
-                  echo " Run Attempt ......... ${{ steps.context.outputs.run_attempt }}"
-                  echo " Run Number .......... ${{ steps.context.outputs.run_number }}"
-                  echo " Run URL ............. ${{ steps.context.outputs.run_url }}"
-                  echo " Run Env ............. ${{ steps.context.outputs.environment }}"
-                  echo " Run Env URL ......... ${{ steps.context.outputs.environment_url }}"
-                  echo " Run Deployment ...... ${{ steps.context.outputs.deployment_id }}"
-                  echo " Run Deployment URL .. ${{ steps.context.outputs.deployment_url }}"
-                  echo " Run Deployment ...... ${{ steps.context.outputs.deployment_id }}"
-                  echo " Run Runner Name ..... ${{ steps.context.outputs.runner_name }}"
-                  echo " Run Runner ID ....... ${{ steps.context.outputs.runner_id }}"
-                  echo " Year ................ ${year}"
-                  echo " Now ................. ${now}"
-                  echo " Now (Short) ......... ${now_short}"
-                  echo " Now (Long) .......... ${now_long}"
-                  echo " Now (Docker) ........ ${now_docker}"
-                  echo " Now (Docker TS) ..... ${now_docker_ts}"
-                  echo -e
-                  echo "―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――"
-                  echo -e
-                  tree -I node_modules -I .git
-                  echo -e
-                  echo "―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――"
-
-            # #
             #   Tests › Setup NodeJS
             # #
 
@@ -181,23 +104,14 @@ jobs:
                   node-version: ${{ matrix.node-version }}
 
             # #
-            #   Tests › Verbose › List Tree
-            # #
-
-            - name: '🌲 Verbose › Tree Listing'
-              run: |
-                  tree -I node_modules
-
-            # #
             #   Tests › Setup Packages
             # #
 
             - name: '📦 Install NPM & Apt Packages'
               run: |
-                  sudo apt install xvfb
                   npm install
                   npx playwright install --with-deps
-                  npm i -D electron-playwright-helpers
+                  npm i -D @playwright/tests
 
             # #
             #   Tests › Run Tests
@@ -207,7 +121,7 @@ jobs:
                   🧪 Run Test
               id: task_test_run
               run: |
-                  xvfb-run --auto-servernum npx playwright test --trace on
+                  npm run tests
 
             # #
             #   Tests › Upload Report
