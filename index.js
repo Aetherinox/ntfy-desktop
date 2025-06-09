@@ -684,9 +684,13 @@ const menuMain = [
                 )
                 .then( ( resp ) =>
                 {
-                    if ( resp !== null )
+                    // set new instance url
+                    const argUrl = resp[ 0 ];
+                    let argLocalhostMode = resp[ 1 ];
+
+                    if ( argUrl !== null )
                     {
-                        const newUrl = ( resp === '' ? defInstanceUrl : resp );
+                        const newUrl = ( argUrl === '' ? defInstanceUrl : argUrl );
                         store.set( 'instanceURL', newUrl );
 
                         /*
@@ -695,9 +699,16 @@ const menuMain = [
                             load default defInstanceUrl url
                         */
 
+                        if ( !argLocalhostMode )
+                        {
+                            argLocalhostMode = 0;
+                        }
+
+                        store.set( 'instanceURL', newUrl );
+                        store.set( 'bLocalhost', argLocalhostMode );
+
                         if ( store.getInt( 'bLocalhost' ) === 1 )
                         {
-                            store.set( 'instanceURL', newUrl );
                             guiMain.loadURL( newUrl );
                         }
                         else
@@ -1081,18 +1092,18 @@ function ready()
         load default defInstanceUrl url
     */
 
+    const instanceUrl = store.get( 'instanceURL' ) || defInstanceUrl;
     if ( store.getInt( 'bLocalhost' ) === 1 )
     {
-        store.set( 'instanceURL', defInstanceUrl );
-        guiMain.loadURL( defInstanceUrl );
+        guiMain.loadURL( instanceUrl );
     }
     else
     {
-        IsValidUrl( store.get( 'instanceURL' ), 3, 1000 ).then( ( item ) =>
+        IsValidUrl( instanceUrl, 3, 1000 ).then( ( item ) =>
         {
             Log.ok( `core`, chalk.yellow( `[instance]` ), chalk.white( `:  ` ),
                 chalk.greenBright( `<msg>` ), chalk.gray( `Specified instance successfully resolves` ),
-                chalk.greenBright( `<instance>` ), chalk.gray( `${ store.get( 'instanceURL' ) }` ) );
+                chalk.greenBright( `<instance>` ), chalk.gray( `${ instanceUrl }` ) );
 
             statusBadURL = false;
             guiMain.loadURL( store.get( 'instanceURL' ) );
@@ -1100,11 +1111,11 @@ function ready()
         {
             Log.error( `core`, chalk.redBright( `[instance]` ), chalk.white( `:  ` ),
                 chalk.redBright( `<msg>` ), chalk.gray( `Failed to resolve instance url; switching to default` ),
-                chalk.redBright( `<instanceBad>` ), chalk.gray( `${ store.get( 'instanceURL' ) }` ),
+                chalk.redBright( `<instanceBad>` ), chalk.gray( `${ instanceUrl }` ),
                 chalk.redBright( `<instanceDef>` ), chalk.gray( `${ defInstanceUrl }` ) );
 
             statusBadURL = true;
-            statusStrMsg = `Failed to resolve ` + store.get( 'instanceURL' ) + `; defaulting to ${ defInstanceUrl }`;
+            statusStrMsg = `Failed to resolve ` + instanceUrl + `; defaulting to ${ defInstanceUrl }`;
 
             store.set( 'instanceURL', defInstanceUrl );
             guiMain.loadURL( defInstanceUrl );
