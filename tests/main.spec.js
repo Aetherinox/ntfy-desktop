@@ -1,3 +1,4 @@
+/* eslint-disable n/no-extraneous-import */
 /* eslint-disable import/no-default-export */
 /* eslint-disable no-restricted-syntax */
 // @ts-check
@@ -17,7 +18,7 @@
 */
 
 import { test, expect, defineConfig, devices } from '@playwright/test';
-import { _electron as electron } from 'playwright'
+import { _electron as electron } from 'playwright';
 import * as eph from 'electron-playwright-helpers';
 
 export default defineConfig(
@@ -84,7 +85,6 @@ test( '✅ ensure interface can fully load', async() =>
     */
 
     const ts = Date.now().toString();
-    const ss1Path = `test-results/fullload_${ ts }.png`;
     const appPath = await app.evaluate( async({ app }) =>
     {
         return app.getAppPath();
@@ -116,17 +116,34 @@ test( '✅ ensure interface can fully load', async() =>
     expect( await windowAbout.title() ).toBe( 'About' );
     console.log( `✅ Open New Window: ${ await windowAbout.title() }` );
     windowAbout.on( 'console', console.log );
+
+    /*
+        take screenshot of interface
+    */
+
+    const ss1Path = `test-results/fullload_1.png`;
+    const ss1Obj = await windowAbout.screenshot({ type: 'png', path: `${ ss1Path }` });
+    if ( ss1Obj )
+        console.log( `✅ Saved screenshot: ${ ss1Path }` );
+    else
+        throw Error( `❌ Unable to take screenshot for test: ${ ss1Path }` );
+
+    /*
+        Close Window > About
+    */
+
     await windowAbout.close();
 
     /*
         take screenshot of interface
     */
 
-    const screenshot = await page.screenshot({ type: 'png', path: `${ ss1Path }` });
-    if ( screenshot )
-        console.log( `✅ Saved screenshot: ${ ss1Path }` );
+    const ss2Path = `test-results/fullload_2.png`;
+    const ss2Obj = await page.screenshot({ type: 'png', path: `${ ss2Path }` });
+    if ( ss2Obj )
+        console.log( `✅ Saved screenshot: ${ ss2Path }` );
     else
-        throw Error( `❌ Unable to take screenshot for test: ${ ss1Path }` );
+        throw Error( `❌ Unable to take screenshot for test: ${ ss2Path }` );
 
     /*
         since the close button minimizes to tray, activate the menu and select quit
@@ -190,7 +207,14 @@ test( '✅ fail to sign into invalid account', async() =>
         path: `e2e/screenshots/test-${timestamp}.png`,
     */
 
-    const ss1 = await window.screenshot({ path: './test-results/3.png' });
+    const ts = Date.now().toString();
+    const ss3Path = `test-results/fullload_3.png`;
+    const ss3Obj = await page.screenshot({ type: 'png', path: `${ ss3Path }` });
+    if ( ss3Obj )
+        console.log( `✅ Saved screenshot: ${ ss3Path }` );
+    else
+        throw Error( `❌ Unable to take screenshot for test: ${ ss3Path }` );
+
 
     /*
         Since the close button minimizes to tray, activate the menu and select quit

@@ -215,8 +215,8 @@ jobs:
                   🧪 Run Test
               id: task_test_run
               run: |
-                #  DISPLAY=:0 DEBUG=pw:browser xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" npx playwright test --trace on
-                xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" npx playwright test --trace on
+                #   DISPLAY=:0 DEBUG=pw:browser xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" npx playwright test --trace on
+                    xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" npx playwright test --trace on
 
             # #
             #   Tests › Upload Report
@@ -236,11 +236,28 @@ jobs:
             # #
 
             - name: >-
-                  🔗 Upload Screenshot
-              id: task_test_artifacts_screenshot
+                  🔗 Upload Screenshot 1
               uses: actions/upload-artifact@v4
               if: always()
               with:
                   name: Screenshot-${{ matrix.node-version }}
-                  path: test-results/1.png
+                  path: test-results/fullload_1.png
+                  retention-days: 30
+
+            - name: >-
+                  🔗 Upload Screenshot 2
+              uses: actions/upload-artifact@v4
+              if: always()
+              with:
+                  name: Screenshot-${{ matrix.node-version }}
+                  path: test-results/fullload_2.png
+                  retention-days: 30
+
+            - name: >-
+                  🔗 Upload Screenshot 3
+              uses: actions/upload-artifact@v4
+              if: always()
+              with:
+                  name: Screenshot-${{ matrix.node-version }}
+                  path: test-results/fullload_3.png
                   retention-days: 30
