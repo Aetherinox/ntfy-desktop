@@ -16,7 +16,7 @@
 	<body>
 		<div class="banner">
 			<div class="text-white banner-title" id="app_name">Ntfy Desktop</div>
-			<div class="text-white banner-version" id="app_version">v1.0.0</div>
+			<div class="text-white banner-version" id="app_version">v2.0.0</div>
 		</div>
 
 		<div class="align-c mt-4">
@@ -34,6 +34,9 @@
 			<a onclick="lnk_Docs(event)" target="_blank" rel="noopener noreferrer" href="{$REPO}">
 				<img class="badges" border="0" alt="Badge: Docs" src="https://img.shields.io/badge/View%20Docs-Github?style=for-the-badge&logo=gitbook&logoColor=FFFFFF&color=29685b">
 			</a>
+			<a onclick="lnk_Donate(event)" target="_blank" rel="noopener noreferrer" href="{$REPO}">
+				<img class="badges" border="0" alt="Badge: Donate" src="https://img.shields.io/badge/Sponsor-Project?style=for-the-badge&logo=buymeacoffee&logoColor=FFFFFF&color=1c66a7">
+			</a>
 		</div>
 
 		<script>
@@ -49,6 +52,11 @@
 			function lnk_Docs(e) {
 				e.preventDefault();
 				require('electron').shell.openExternal('https://github.com/aetherinox/ntfy-desktop/blob/main/README.md');
+			}
+
+			function lnk_Donate(e) {
+				e.preventDefault();
+				require('electron').shell.openExternal('https://buymeacoffee.com/aetherinox');
 			}
 
 			function setTitle(title) {

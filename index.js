@@ -22,6 +22,7 @@ import prompt from 'electron-plugin-prompts';
 import packageJson from './package.json' with { type: 'json' };
 const appVer = packageJson.version;
 const appName = packageJson.name;
+const appTitle = packageJson.title;
 const appAuthor = packageJson.author;
 const appElectron = process.versions.electron;
 const appRepo = packageJson.repository;
@@ -277,13 +278,12 @@ async function GetMessageData( uri )
 {
     try
     {
-        const cfgTokenApi = store.get( 'apiToken' );
         const req = await fetch( uri,
         {
             method: 'GET',
             headers: {
                 Accept: 'application/json',
-                Authorization: `Bearer ${ cfgTokenApi }`
+                Authorization: `Bearer ${ store.get( 'apiToken' ) }`
             }
         });
 
@@ -972,7 +972,7 @@ const menuMain = [
             {
                 toasted.notify(
                 {
-                    title: `${ appName } - Test Notification`,
+                    title: `${ appTitle } - Test Notification`,
                     subtitle: `${ appVer }`,
                     message: `This is a test notification which determines if NtfyToast and toasted-notifier are working on your system. If you can see this, then everything is good.`,
                     sound: 'Pop',
@@ -986,10 +986,17 @@ const menuMain = [
             type: 'separator'
         },
         {
-            label: 'View New Releases',
+            label: 'Check for Updates',
             click()
             {
                 shell.openExternal( `${ packageJson.homepage }` );
+            }
+        },
+        {
+            label: 'Sponsor',
+            click()
+            {
+                shell.openExternal( `https://buymeacoffee.com/aetherinox` );
             }
         },
         {
@@ -1024,7 +1031,7 @@ const menuMain = [
                         .executeJavaScript(
                             `
                 setTitle('${ aboutTitle }');
-                setAppInfo('${ appRepo }', '${ appName }', '${ appVer }', '${ appAuthor }', '${ appElectron }');`,
+                setAppInfo('${ appRepo }', '${ appTitle }', '${ appVer }', '${ appAuthor }', '${ appElectron }');`,
                             true
                         )
                         .then( ( result ) => {})
@@ -1090,7 +1097,7 @@ function activeDevTools()
 
     if ( bDevTools === 1 || store.getInt( 'bDevTools' ) === 1 )
     {
-        const menuItem = menuHeader.getMenuItemById( 'app' );
+        const menuItem = menuHeader.getMenuItemById( 'view' );
 
         menuItem.submenu.insert( 0, new MenuItem(
         {
@@ -1123,7 +1130,7 @@ function ready()
     */
 
     guiMain = new BrowserWindow({
-        title: `${ appName }`,
+        title: `${ appTitle } : v${ appVer }`,
         width: 1280,
         height: 720,
         icon: appIcon,
@@ -1174,6 +1181,7 @@ function ready()
         {
             Log.error( `core`, chalk.redBright( `[instance]` ), chalk.white( `:  ` ),
                 chalk.redBright( `<msg>` ), chalk.gray( `Failed to resolve instance url; switching to default` ),
+                chalk.redBright( `<error>` ), chalk.gray( `${ err.message }` ),
                 chalk.redBright( `<instanceBad>` ), chalk.gray( `${ instanceUrl }` ),
                 chalk.redBright( `<instanceDef>` ), chalk.gray( `${ defInstanceUrl }` ) );
 
@@ -1394,7 +1402,7 @@ function ready()
     */
 
     guiTray = new Tray( appIcon );
-    guiTray.setToolTip( `${ appName }` );
+    guiTray.setToolTip( `${ appTitle }` );
     guiTray.setContextMenu( contextMenu );
     guiTray.on( 'click', () =>
     {
