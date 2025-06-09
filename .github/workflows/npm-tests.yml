@@ -1,120 +1,227 @@
-# ---------------------------------------------------------------------------------------
-#   @parent     : github workflow
-#   @desc       : test release
-#   @author     : Aetherinox
-#   @url        : https://github.com/Aetherinox
+# #
+#   @type               github workflow
+#   @author             Aetherinox
+#   @url                https://github.com/Aetherinox
+#   @usage              builds and releases binary files for ntfy-desktop
+#                       creates a new github release
 #
-#   cannot be ran on anything older than NodeJS 16
-# ---------------------------------------------------------------------------------------
+#   @secrets            secrets.SELF_TOKEN                                          self github personal access token (fine-grained)
+#                       secrets.SELF_TOKEN_CL                                       self github personal access token (classic)
+#                       secrets.NPM_TOKEN                                           self npmjs access token
+#                       secrets.PYPI_API_TOKEN                                      self Pypi API token (production site) - https://pypi.org/
+#                       secrets.PYPI_API_TEST_TOKEN                                 self Pypi API token (test site) - https://test.pypi.org/
+#                       secrets.SELF_DOCKERHUB_TOKEN                                self Dockerhub token
+#                       secrets.CODECOV_TOKEN                                       codecov upload token for nodejs projects
+#                       secrets.MAXMIND_GELITE_TOKEN                                maxmind API token
+#                       secrets.CF_ACCOUNT_ID                                       cloudflare account id
+#                       secrets.CF_ACCOUNT_TOKEN                                    cloudflare account token
+#                       secrets.ORG_TOKEN                                           org github personal access token (fine-grained)
+#                       secrets.ORG_TOKEN_CL                                        org github personal access token (classic)
+#                       secrets.ORG_DOCKERHUB_TOKEN                                 org dockerhub secret
+#                       secrets.ORG_GITEA_TOKEN                                     org gitea personal access token (classic) with package:write permission
+#                       secrets.BOT_GPG_KEY_ASC                                     bot gpg private key (armored) | BEGIN PGP PRIVATE KEY BLOCK
+#                       secrets.BOT_GPG_KEY_B64                                     bot gpg private key (binary) converted to base64
+#                       secrets.BOT_GPG_PASSPHRASE                                  bot gpg private key passphrase
+#                       secrets.DISCORD_WEBHOOK_CHAN_GITHUB_RELEASES                discord webhook to report release notifications from github to discord
+#                       secrets.DISCORD_WEBHOOK_CHAN_GITHUB_WORKFLOWS               discord webhook to report workflow notifications from github to discord
+#                       secrets.DISCORD_WEBHOOK_CHAN_GITHUB_UPDATES                 discord webhook to report activity notifications from github to discord
+#
+#   @local              these workflows can be tested locally through the use of `act`
+#                           https://github.com/nektos/act
+#                       Extract act to folder
+#                       Add system env var with path to act.exe
+#                       Run the commands:
+#                           git pull https://github.com/username/repo
+#                           act -W .github/workflows/npm-tests.yml -P ubuntu-latest=catthehacker/ubuntu:full-22.04
+#                           act -W .github/workflows/npm-tests.yml -s TOKEN_CL=XXXXXXXXXX --pull=false
+# #
 
-name: "🧪 NPM › Tests"
-run-name: "🧪 NPM › Tests"
+name: '📦 Package › Tests'
+run-name: '📦 Package › Tests'
 
-# ---------------------------------------------------------------------------------------
+# #
 #   triggers
-# ---------------------------------------------------------------------------------------
+# #
 
 on:
-  workflow_dispatch:
+    workflow_dispatch:
 
-# ---------------------------------------------------------------------------------------
-#   jobs
-# ---------------------------------------------------------------------------------------
+# #
+#   environment variables
+# #
+
+env:
+    ASSIGN_USER:                    Aetherinox
+    BOT_NAME_1:                     EuropaServ
+    BOT_NAME_2:                     BinaryServ
+    BOT_NAME_DEPENDABOT:            dependabot[bot]
+    BOT_NAME_RENOVATE:              renovate[bot]
+    GPG_KEY_BASE64:                 ${{ secrets.ADMINSERV_GPG_KEY_B64 }}
+    GPG_KEY_PASSPHRASE:             ${{ secrets.ADMINSERV_GPG_PASSPHRASE }}
+
+# #
+#   Jobs
+# #
 
 jobs:
     test:
         name: >-
           🧪 Tests
         runs-on: ubuntu-latest
-        timeout-minutes: 60
+      # runs-on: apollo-x64
+        timeout-minutes: 10
         strategy:
             matrix:
-                node-version: [16.x, 17.x, 18.x, 20.x, 22.x]
+                node-version: [20.x, 21.x, 22.x, 23.x, 24.x,]
 
         steps:
 
-            # ---------------------------------------------------------------------------------------
-            #   Job > Start
-            # ---------------------------------------------------------------------------------------
+            # #
+            #   Tests › Job Information
+            # #
 
             - name: >-
-                ✅ Start
-              id: task_test_start
+                  🔄 Load Job
+              uses: qoomon/actions--context@v4
+              id: 'context'
+
+            # #
+            #   Tests › Start
+            # #
+
+            - name: >-
+                  ✅ Start
               run: |
-                echo "Starting build"
+                  echo "―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――"
+                  echo " Starting Job ${{ steps.context.outputs.job_name }}"
+                  echo "―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――"
 
-            # ---------------------------------------------------------------------------------------
-            #   Job > Initialize > Checkout
-            # ---------------------------------------------------------------------------------------
+                  year="$(date +'%Y')"
+                  echo "YEAR=${year}" >> $GITHUB_ENV
 
-            - name: >-
-                ☑️ Checkout
-              id: task_test_checkout
-              uses: actions/checkout@v4
-              with:
-                fetch-depth: 0
+                  now="$(date +'%m-%d-%Y %H:%M:%S')"
+                  echo "NOW=${now}" >> $GITHUB_ENV
 
-            # ---------------------------------------------------------------------------------------
-            #   Job > Use NodeJS
-            #
-            #   Options:
-            #     node-version: ${{ matrix.node-version }}
-            #     node-version: lts/*
-            # ---------------------------------------------------------------------------------------
+                  now_short="$(date +'%m-%d-%Y')"
+                  echo "now_short=${now_short}" >> $GITHUB_ENV
 
-            - name: >-
-                ⚙️ Setup Node
-              id: task_test_node_setup
+                  now_long="$(date +'%m-%d-%Y %H:%M')"
+                  echo "now_long=${now_long}" >> $GITHUB_ENV
+
+                  now_docker="$(date +'%Y%m%d')"
+                  echo "now_docker=${now_docker}" >> $GITHUB_ENV
+
+                  now_docker_ts="$(date -u +'%FT%T.%3NZ')"
+                  echo "now_docker_ts=${now_docker}" >> $GITHUB_ENV
+
+                  echo "―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――"
+                  echo -e
+                  sudo apt -qq update
+                  sudo apt -qq install tree
+                  echo -e
+                  echo "―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――"
+                  echo -e
+                  echo " Runner .............. ${{ runner.name }}"
+                  echo " Workflow ............ ${{ github.workflow }} (#${{ github.workflow_ref }})"
+                  echo " Run Number .......... #${{ github.run_number }}"
+                  echo " Ref ................. #${{ github.ref }}"
+                  echo " Ref Name ............ #${{ github.ref_name }}"
+                  echo " Event Name .......... #${{ github.event_name }}"
+                  echo " Repo ................ #${{ github.repository }}"
+                  echo " Repo Owner .......... #${{ github.repository_owner }}"
+                  echo " Run ID .............. https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                  echo " Triggered By ........ ${{ github.actor }}"
+                  echo " SHA 1 ............... ${GITHUB_SHA}"
+                  echo " SHA 2 ............... ${{ github.sha }}"
+                  echo " Workspace ........... ${{ github.workspace }}"
+                  echo " PWD ................. ${PWD}"
+                  echo " Job Name ............ ${{ steps.context.outputs.job_name }}"
+                  echo " Job ID .............. ${{ steps.context.outputs.job_id }}"
+                  echo " Job URL ............. ${{ steps.context.outputs.job_url }}"
+                  echo " Run ID .............. ${{ steps.context.outputs.run_id }}"
+                  echo " Run Attempt ......... ${{ steps.context.outputs.run_attempt }}"
+                  echo " Run Number .......... ${{ steps.context.outputs.run_number }}"
+                  echo " Run URL ............. ${{ steps.context.outputs.run_url }}"
+                  echo " Run Env ............. ${{ steps.context.outputs.environment }}"
+                  echo " Run Env URL ......... ${{ steps.context.outputs.environment_url }}"
+                  echo " Run Deployment ...... ${{ steps.context.outputs.deployment_id }}"
+                  echo " Run Deployment URL .. ${{ steps.context.outputs.deployment_url }}"
+                  echo " Run Deployment ...... ${{ steps.context.outputs.deployment_id }}"
+                  echo " Run Runner Name ..... ${{ steps.context.outputs.runner_name }}"
+                  echo " Run Runner ID ....... ${{ steps.context.outputs.runner_id }}"
+                  echo " Year ................ ${year}"
+                  echo " Now ................. ${now}"
+                  echo " Now (Short) ......... ${now_short}"
+                  echo " Now (Long) .......... ${now_long}"
+                  echo " Now (Docker) ........ ${now_docker}"
+                  echo " Now (Docker TS) ..... ${now_docker_ts}"
+                  echo -e
+                  echo "―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――"
+                  echo -e
+                  tree -I node_modules -I .git
+                  echo -e
+                  echo "―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――"
+
+            # #
+            #   Tests › Setup NodeJS
+            # #
+
+            - name: '⚙️ Setup Node'
               uses: actions/setup-node@v4
               with:
-                node-version: ${{ matrix.node-version }}
+                  node-version: ${{ matrix.node-version }}
 
-            # ---------------------------------------------------------------------------------------
-            #   Job > Npm > Install Dependencies
-            # ---------------------------------------------------------------------------------------
+            # #
+            #   Tests › Setup Packages
+            # #
 
-            - name: >-
-                ⚙️ Install Dependencies
-              id: task_test_install
+            - name: '📦 Install NPM & Apt Packages'
               run: |
-                npm ci
-                npx playwright install --with-deps
-                npm i -D electron-playwright-helpers
+                  npm ci
+                  npx playwright install --with-deps
+                  npm i -D electron-playwright-helpers
 
-            # ---------------------------------------------------------------------------------------
-            #   Job > Run Tests
-            # ---------------------------------------------------------------------------------------
+            # #
+            #   Tests › Verbose › List Tree
+            # #
+
+            - name: '🌲 Verbose › Tree Listing'
+              run: |
+                  tree -I node_modules
+
+            # #
+            #   Tests › Run Tests
+            # #
 
             - name: >-
-                🧪 Run Test
+                  🧪 Run Test
               id: task_test_run
               run: |
-                xvfb-run --auto-servernum npx playwright test --trace on
+                  xvfb-run --auto-servernum npx playwright test --trace on
 
-            # ---------------------------------------------------------------------------------------
-            #   Job > Upload Report
-            # ---------------------------------------------------------------------------------------
+            # #
+            #   Tests › Upload Report
+            # #
 
             - name: >-
-                📋 Generate Report
-              id: task_test_artifacts_report
+                  📋 Generate Report
               uses: actions/upload-artifact@v4
               if: always()
               with:
-                name: Report-${{ matrix.node-version }}
-                path: playwright-report/
-                retention-days: 30
+                  name: Report-${{ matrix.node-version }}
+                  path: playwright-report/
+                  retention-days: 30
 
-            # ---------------------------------------------------------------------------------------
-            #   Job > Upload Screenshots
-            # ---------------------------------------------------------------------------------------
+            # #
+            #   Tests › Upload Screenshot
+            # #
 
             - name: >-
-                🔗 Upload Screenshot
+                  🔗 Upload Screenshot
               id: task_test_artifacts_screenshot
               uses: actions/upload-artifact@v4
               if: always()
               with:
-                name: Screenshot-${{ matrix.node-version }}
-                path: test-results/1.png
-                retention-days: 30
+                  name: Screenshot-${{ matrix.node-version }}
+                  path: test-results/1.png
+                  retention-days: 30
