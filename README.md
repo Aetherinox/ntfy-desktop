@@ -1007,7 +1007,12 @@ Want to help but can't write code?
 
 <br />
 
-The following people have helped keep this project going:
+![Alt](https://repobeats.axiom.co/api/embed/09d6197df261c2b4521ddb0f2560f78ed2811a0d.svg "Repobeats")
+
+<br />
+
+The following people have helped get this project going:
+
 
 <br />
 
