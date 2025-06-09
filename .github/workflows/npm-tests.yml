@@ -121,7 +121,7 @@ jobs:
                   🧪 Run Test
               id: task_test_run
               run: |
-                  npm run tests
+                  npm run test
 
             # #
             #   Tests › Upload Report
