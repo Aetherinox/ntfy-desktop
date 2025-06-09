@@ -250,7 +250,7 @@ test( '✅ fail to sign into invalid account', async({ playwright, browserName }
     */
 
     const ts3 = Date.now().toString();
-    const ss3Path = `test-results/ntfy_capture_${ ts3 }_.png`;
+    const ss3Path = `test-results/ntfy_capture_${ ts3 }.png`;
     const ss3Obj = await page.screenshot({ type: 'png', path: `${ ss3Path }` });
     if ( ss3Obj )
         console.log( `✅ Saved screenshot: ${ ss3Path }` );
