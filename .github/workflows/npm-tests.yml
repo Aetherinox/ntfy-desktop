@@ -194,8 +194,8 @@ jobs:
 
             - name: '📦 Install NPM & Apt Packages'
               run: |
-                  sudo apt install xvfb
-                  npm install
+                  sudo apt install xvfb -y
+                  npm install --silent
 
             # #
             #   Tests › Setup Packages
