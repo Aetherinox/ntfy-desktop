@@ -550,7 +550,7 @@ Validating this file helps ensure that the file(s) you have downloaded indeed ca
 Download the GPG key used to sign releases with by running the command:
 
 ```shell
-curl -s https://github.com/aetherinox.gpg | gpg --import
+curl -s https://github.com/BinaryServ.gpg | gpg --import
 ```
 
 <br />
@@ -560,7 +560,57 @@ Download the `sha256sum.txt.asc` and validate it:
 ```shell
 wget https://github.com/Aetherinox/ntfy-desktop/releases/download/2.1.1/sha256sum.txt.asc
 
-gpg --verify sha256.txt.asc
+gpg --verify sha256sum.txt.asc
+```
+
+<br />
+
+You should see the following.
+
+```shell
+gpg: Signature made Mon 01 Jun 2025 00:00:00 UTC
+gpg:                using RSA key 6921C2D3F6AE1188B7721C72F397BC89486A29A6
+gpg: Good signature from "Binary Ninja (RSA 4096) <thebinaryninja@proton.me>" [ultimate]
+```
+
+<br />
+
+The value `6921C2D3F6AE1188B7721C72F397BC89486A29A6` is the key's fingerprint. You can view your existing GPG key fingerprints by running:
+
+```shell
+gpg --list-keys --keyid-format=long --fingerprint --with-fingerprint
+```
+
+<br />
+
+This will allow you to see where the `692XXXXX` value comes from:
+
+```shell
+pub   rsa4096 2025-04-21 [C]
+      E8BA 8C94 B334 1673 0D8C  05C2 5769 7A1C BA63 B9FE
+uid           [ unknown] Binary Ninja (RSA 4096) <thebinaryninja@proton.me>
+sub   rsa4096 2025-04-21 [S]
+ >>>> 6921 C2D3 F6AE 1188 B772  1C72 F397 BC89 486A 29A6
+sub   rsa4096 2025-04-21 [E]
+      25E9 AFEC C12F 2072 AA6E  D5AB B077 63D0 A12F 0ED8
+sub   rsa4096 2025-04-21 [A]
+      AD79 A1EA CE17 962F B4ED  B30A DBA8 EA76 62FC 54E2
+```
+
+<br />
+
+Next, download the `sha256sum.sig`
+
+```shell
+wget https://github.com/Aetherinox/ntfy-desktop/releases/download/2.1.1/sha256sum.sig
+```
+
+<br />
+
+Run the command:
+
+```shell
+gpg --verify sha256sum.sig sha256sum.txt.asc
 ```
 
 <br />
@@ -568,10 +618,10 @@ gpg --verify sha256.txt.asc
 You should see:
 
 ```shell
-gpg: Signature made Mon 01 Jun 2025 00:00:00 UTC
 gpg:                using RSA key 6921C2D3F6AE1188B7721C72F397BC89486A29A6
-gpg: Good signature from "Binary Ninja (RSA 4096) <thebinaryninja@proton.me>" [ultimate]
-gpg:                 aka "Aetherinox <aetherinox@proton.me>" [ultimate]
+gpg: Good signature from "Binary Ninja (RSA 4096) <thebinaryninja@proton.me>" [unknown]
+Primary key fingerprint: E8BA 8C94 B334 1673 0D8C  05C2 5769 7A1C BA63 B9FE
+     Subkey fingerprint: 6921 C2D3 F6AE 1188 B772  1C72 F397 BC89 486A 29A6
 ```
 
 <br />
