@@ -1254,18 +1254,19 @@ function ready()
                 .executeJavaScript(
                 `
                     const div = document.createElement("div");
+                    div.style.bottom = "0";
                     div.style.position = "sticky";
-                    div.style.height = "34px";
+                    div.style.height = "43px";
                     div.style.width = "100%";
                     div.style.zIndex = "3000";
                     div.style.overflow = "hidden";
-                    div.style.marginTop = "-34px";
-                    div.style.padding = "7px";
-                    div.style.paddingLeft = "20px";
-                    div.style.paddingRight = "20px";
-                    div.style.backgroundColor = "rgb(151 63 63)";
+                    div.style.color = "#FFFFFF";
+                    div.style.backgroundColor = "rgb(137 41 41)";
                     div.style.textAlign = "center";
-                    div.style.fontSize = "13px";
+                    div.style.fontSize = "0.93rem";
+                    div.style.fontWeight = "100";
+                    div.style.display = "grid";
+                    div.style.alignItems = "center";
 
                     const span = document.createElement("span");
                     span.setAttribute("class","ntfy-notify error");
