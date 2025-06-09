@@ -196,7 +196,7 @@ jobs:
               run: |
                   sudo apt install xvfb -y
                   sudo apt install libgconf-2-4 libatk1.0-0 libatk-bridge2.0-0 libgdk-pixbuf2.0-0 libgtk-3-0 libgbm-dev libnss3-dev libxss-dev -y
-                  sudo apt-get install libasound2 libxslt-dev woff2 libevent-dev libopus0 libopus-dev libwebpdemux2 libharfbuzz-dev libharfbuzz0b libwebp-dev libenchant-2-dev libsecret-1-0 libsecret-1-dev libglib2.0-dev libhyphen0 libglfw3-dev libgles2-mesa-dev libudev1 libevdev2 libgles2-mesa yasm libx264-dev -y
+                  sudo apt-get install libasound2 libxslt-dev woff2 libevent-dev libopus0 libopus-dev libwebpdemux2 libharfbuzz-dev libharfbuzz0b libwebp-dev libenchant-2-dev libsecret-1-0 libsecret-1-dev libglib2.0-dev libhyphen0 libglfw3-dev libgles2-mesa-dev libudev1 libevdev2 libgles2-mesa yasm libudev1 libudev-dev libx264-dev -y
                   npm install
                   npx playwright install
 
