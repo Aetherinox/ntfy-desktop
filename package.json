@@ -83,7 +83,7 @@
         "@aetherinox/noxenv": "^1.1.1",
         "@playwright/test": "^1.53.0",
         "@testing-library/jest-dom": "^6.4.8",
-        "@types/node": "^22.15.30",
+        "@types/node": "^24.0.0",
         "@types/testing-library__jest-dom": "^6.0.0",
         "@types/uuid": "^10.0.0",
         "uuid": "^11.1.0",
