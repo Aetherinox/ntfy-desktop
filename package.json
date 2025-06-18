@@ -92,7 +92,7 @@
         "eslint": "9.29.0",
         "eslint-plugin-chai-friendly": "^1.1.0",
         "eslint-plugin-import": "2.31.0",
-        "eslint-plugin-n": "17.19.0",
+        "eslint-plugin-n": "17.20.0",
         "eslint-plugin-promise": "7.2.1",
         "@stylistic/eslint-plugin": "^4.4.1",
         "env-cmd": "^10.1.0",
