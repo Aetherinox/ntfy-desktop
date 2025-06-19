@@ -81,7 +81,7 @@
     },
     "devDependencies": {
         "@aetherinox/noxenv": "^1.1.1",
-        "@playwright/test": "^1.53.0",
+        "@playwright/test": "^1.53.1",
         "@testing-library/jest-dom": "^6.4.8",
         "@types/node": "^24.0.0",
         "@types/testing-library__jest-dom": "^6.0.0",
