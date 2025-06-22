@@ -151,7 +151,6 @@ jobs:
             # #
 
             - name: '☑️ Checkout'
-              id: task_initialize_checkout
               uses: actions/checkout@v4
               with:
                   fetch-depth: 0
@@ -183,16 +182,16 @@ jobs:
                   echo "NOW=${now}" >> $GITHUB_ENV
 
                   now_short="$(date +'%m-%d-%Y')"
-                  echo "now_short=${now_short}" >> $GITHUB_ENV
+                  echo "NOW_SHORT=${now_short}" >> $GITHUB_ENV
 
                   now_long="$(date +'%m-%d-%Y %H:%M')"
-                  echo "now_long=${now_long}" >> $GITHUB_ENV
+                  echo "NOW_LONG=${now_long}" >> $GITHUB_ENV
 
                   now_docker="$(date +'%Y%m%d')"
-                  echo "now_docker=${now_docker}" >> $GITHUB_ENV
+                  echo "NOW_DOCKER=${now_docker}" >> $GITHUB_ENV
 
                   now_docker_ts="$(date -u +'%FT%T.%3NZ')"
-                  echo "now_docker_ts=${now_docker}" >> $GITHUB_ENV
+                  echo "NOW_DOCKER_TS=${now_docker}" >> $GITHUB_ENV
 
                   echo "―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――"
                   echo -e
@@ -229,12 +228,12 @@ jobs:
                   echo " Run Deployment ...... ${{ steps.context.outputs.deployment_id }}"
                   echo " Run Runner Name ..... ${{ steps.context.outputs.runner_name }}"
                   echo " Run Runner ID ....... ${{ steps.context.outputs.runner_id }}"
-                  echo " Year ................ ${year}"
-                  echo " Now ................. ${now}"
-                  echo " Now (Short) ......... ${now_short}"
-                  echo " Now (Long) .......... ${now_long}"
-                  echo " Now (Docker) ........ ${now_docker}"
-                  echo " Now (Docker TS) ..... ${now_docker_ts}"
+                  echo " Year ................ ${YEAR}"
+                  echo " Now ................. ${NOW}"
+                  echo " Now (Short) ......... ${NOW_SHORT}"
+                  echo " Now (Long) .......... ${NOW_LONG}"
+                  echo " Now (Docker) ........ ${NOW_DOCKER}"
+                  echo " Now (Docker TS) ..... ${NOW_DOCKER_TS}"
                   echo -e
                   echo "―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――"
                   echo -e
@@ -276,7 +275,7 @@ jobs:
         steps:
 
             # #
-            #   Build › Checkout
+            #   Release › Checkout
             # #
 
             - name: '☑️ Checkout'
@@ -285,7 +284,7 @@ jobs:
                   fetch-depth: 0
 
             # #
-            #   Build › Job Information
+            #   Initialize › Job Information
             # #
 
             - name: >-
@@ -294,7 +293,7 @@ jobs:
               id: 'context'
 
             # #
-            #   Build › Start
+            #   Initialize › Start
             # #
 
             - name: >-
@@ -311,16 +310,16 @@ jobs:
                   echo "NOW=${now}" >> $GITHUB_ENV
 
                   now_short="$(date +'%m-%d-%Y')"
-                  echo "now_short=${now_short}" >> $GITHUB_ENV
+                  echo "NOW_SHORT=${now_short}" >> $GITHUB_ENV
 
                   now_long="$(date +'%m-%d-%Y %H:%M')"
-                  echo "now_long=${now_long}" >> $GITHUB_ENV
+                  echo "NOW_LONG=${now_long}" >> $GITHUB_ENV
 
                   now_docker="$(date +'%Y%m%d')"
-                  echo "now_docker=${now_docker}" >> $GITHUB_ENV
+                  echo "NOW_DOCKER=${now_docker}" >> $GITHUB_ENV
 
                   now_docker_ts="$(date -u +'%FT%T.%3NZ')"
-                  echo "now_docker_ts=${now_docker}" >> $GITHUB_ENV
+                  echo "NOW_DOCKER_TS=${now_docker}" >> $GITHUB_ENV
 
                   echo "―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――"
                   echo -e
@@ -357,12 +356,12 @@ jobs:
                   echo " Run Deployment ...... ${{ steps.context.outputs.deployment_id }}"
                   echo " Run Runner Name ..... ${{ steps.context.outputs.runner_name }}"
                   echo " Run Runner ID ....... ${{ steps.context.outputs.runner_id }}"
-                  echo " Year ................ ${year}"
-                  echo " Now ................. ${now}"
-                  echo " Now (Short) ......... ${now_short}"
-                  echo " Now (Long) .......... ${now_long}"
-                  echo " Now (Docker) ........ ${now_docker}"
-                  echo " Now (Docker TS) ..... ${now_docker_ts}"
+                  echo " Year ................ ${YEAR}"
+                  echo " Now ................. ${NOW}"
+                  echo " Now (Short) ......... ${NOW_SHORT}"
+                  echo " Now (Long) .......... ${NOW_LONG}"
+                  echo " Now (Docker) ........ ${NOW_DOCKER}"
+                  echo " Now (Docker TS) ..... ${NOW_DOCKER_TS}"
                   echo -e
                   echo "―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――"
                   echo -e
@@ -583,14 +582,16 @@ jobs:
         steps:
 
             # #
-            #   Linux › Checkout
+            #   Release › Checkout
             # #
 
             - name: '☑️ Checkout'
               uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
 
             # #
-            #   Build › Job Information
+            #   Initialize › Job Information
             # #
 
             - name: >-
@@ -599,7 +600,7 @@ jobs:
               id: 'context'
 
             # #
-            #   Build › Start
+            #   Initialize › Start
             # #
 
             - name: >-
@@ -616,16 +617,16 @@ jobs:
                   echo "NOW=${now}" >> $GITHUB_ENV
 
                   now_short="$(date +'%m-%d-%Y')"
-                  echo "now_short=${now_short}" >> $GITHUB_ENV
+                  echo "NOW_SHORT=${now_short}" >> $GITHUB_ENV
 
                   now_long="$(date +'%m-%d-%Y %H:%M')"
-                  echo "now_long=${now_long}" >> $GITHUB_ENV
+                  echo "NOW_LONG=${now_long}" >> $GITHUB_ENV
 
                   now_docker="$(date +'%Y%m%d')"
-                  echo "now_docker=${now_docker}" >> $GITHUB_ENV
+                  echo "NOW_DOCKER=${now_docker}" >> $GITHUB_ENV
 
                   now_docker_ts="$(date -u +'%FT%T.%3NZ')"
-                  echo "now_docker_ts=${now_docker}" >> $GITHUB_ENV
+                  echo "NOW_DOCKER_TS=${now_docker}" >> $GITHUB_ENV
 
                   echo "―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――"
                   echo -e
@@ -662,12 +663,12 @@ jobs:
                   echo " Run Deployment ...... ${{ steps.context.outputs.deployment_id }}"
                   echo " Run Runner Name ..... ${{ steps.context.outputs.runner_name }}"
                   echo " Run Runner ID ....... ${{ steps.context.outputs.runner_id }}"
-                  echo " Year ................ ${year}"
-                  echo " Now ................. ${now}"
-                  echo " Now (Short) ......... ${now_short}"
-                  echo " Now (Long) .......... ${now_long}"
-                  echo " Now (Docker) ........ ${now_docker}"
-                  echo " Now (Docker TS) ..... ${now_docker_ts}"
+                  echo " Year ................ ${YEAR}"
+                  echo " Now ................. ${NOW}"
+                  echo " Now (Short) ......... ${NOW_SHORT}"
+                  echo " Now (Long) .......... ${NOW_LONG}"
+                  echo " Now (Docker) ........ ${NOW_DOCKER}"
+                  echo " Now (Docker TS) ..... ${NOW_DOCKER_TS}"
                   echo -e
                   echo "―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――"
                   echo -e
