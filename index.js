@@ -187,6 +187,15 @@ class Log
         if ( LOG_LEVEL >= 1 )
             console.error( chalk.white.bgRedBright.bold( ` ${ appName } ` ), chalk.white( ` ` ), this.now(), chalk.redBright( msg.join( ' ' ) ) );
     }
+
+    static broadcast( window, ...msg )
+    {
+        console.log( msg.join( ' ' ) );
+        if ( window && window.webContents )
+        {
+            window.webContents.executeJavaScript( `console.log("${ msg.join( ' ' ) }")` );
+        }
+    }
 }
 
 /*
