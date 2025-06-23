@@ -87,7 +87,7 @@
         "@types/testing-library__jest-dom": "^6.0.0",
         "@types/uuid": "^10.0.0",
         "uuid": "^11.1.0",
-        "electron": "^37.0.0-beta.7",
+        "electron": "^37.0.0-beta.9",
         "electron-playwright-helpers": "^1.7.1",
         "eslint": "9.29.0",
         "eslint-plugin-chai-friendly": "^1.1.0",
