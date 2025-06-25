@@ -946,6 +946,29 @@ const menuMain = [
     id: 'view',
     submenu: [
         {
+            label: 'Back',
+            accelerator: 'CmdOrCtrl+B',
+            click: function ( item, focusedWindow )
+            {
+                const { navigationHistory } = focusedWindow.webContents;
+                if ( navigationHistory.canGoBack() )
+                    navigationHistory.goBack();
+            }
+        },
+        {
+            label: 'Forward',
+            accelerator: 'CmdOrCtrl+F',
+            click: function ( item, focusedWindow )
+            {
+                const { navigationHistory } = focusedWindow.webContents;
+                if ( navigationHistory.canGoForward() )
+                    navigationHistory.goForward();
+            }
+        },
+        {
+            type: 'separator'
+        },
+        {
             label: 'Reload',
             accelerator: 'CmdOrCtrl+R',
             click: function ( item, focusedWindow )
