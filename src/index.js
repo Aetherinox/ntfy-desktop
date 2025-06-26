@@ -562,9 +562,12 @@ function ready()
         width: 1280,
         height: 720,
         icon: appIcon,
+        webPreferences: {
+            preload: path.join( __dirname, 'preload.js' ),      // use a preload script
             nodeIntegration: false,                             // security: disable node integration
             contextIsolation: true,                             // security: enable context isolation
             enableRemoteModule: false,                          // security: disable remote module
+            sandbox: false,                                     // keep false for preload script functionality
             webSecurity: true,                                  // security: enable web security
             allowRunningInsecureContent: false,                 // security: block insecure content
             experimentalFeatures: false                         // security: disable experimental features
