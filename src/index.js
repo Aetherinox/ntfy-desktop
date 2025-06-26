@@ -99,8 +99,10 @@ const bStartHidden = 0;
 let statusBoolError = false;
 let statusBadURL = false;
 let statusStrMsg;
+let isShuttingDown = false;                         // determine if app is currently attempting to shut down
+let pollInterval = null;                            // store interval reference for proper cleanup
 
-/*
+/**
     Define > Default Fallbacks
 
     fallback values in case a user does something unforeseen to cause an index error.
@@ -110,7 +112,9 @@ let statusStrMsg;
 
 const defInstanceUrl = 'https://ntfy.sh/app';
 const defDatetime = 'YYYY-MM-DD hh:mm a';
-const defPollrate = 60;
+const defPollrate = 60;                             // default polling rate
+const minPollrate = 5;                              // minimum poll rate to prevent rate limiting
+const maxPollrate = 3600;                           // maximum poll rate (1 hour)
 
 /**
     Define > Store Values
@@ -307,6 +311,14 @@ function UpdateBadge( i )
 
 async function GetMessageData( uri )
 {
+    if ( isShuttingDown )
+    {
+        Log.debug( `core`, chalk.yellow( `[messages]` ), chalk.white( `:  ` ),
+            chalk.blueBright( `<msg>` ), chalk.gray( `Skipping message fetch - app is shutting down` ) );
+
+        return null;
+    }
+
     try
     {
         const req = await fetch( uri,
@@ -370,6 +382,14 @@ async function GetMessages( )
     /*
         Instance url missing
     */
+    if ( isShuttingDown )
+    {
+        Log.debug( `core`, chalk.yellow( `[messages]` ), chalk.white( `:  ` ),
+            chalk.blueBright( `<msg>` ), chalk.gray( `App is shutting down, stopping polling` ) );
+
+        return;
+    }
+
 
     if ( !cfgInstanceURL || cfgInstanceURL === '' || cfgInstanceURL === null )
     {
@@ -575,6 +595,14 @@ async function GetMessages( )
         chalk.greenBright( `<instance>` ), chalk.gray( `${ uri }` ) );
 
     return json;
+/**
+    helper functions to manage state
+*/
+
+
+function setPollInterval( value )
+{
+    pollInterval = value;
 }
 
 /**
@@ -795,8 +823,7 @@ function ready()
             e.preventDefault();
             if ( bQuitOnClose === 1 || store.getInt( 'bQuitOnClose' ) === 1 )
             {
-                app.isQuiting = true;
-                app.quit();
+                gracefulShutdown();
             }
             else
             {
@@ -1018,12 +1045,23 @@ function ready()
         }
     }
 
-    /*
+    /**
         Run timer every X seconds to check for new messages
+        Store interval reference for proper cleanup
     */
 
-    const fetchInterval = ( ( store.get( 'pollrate' ) || defPollrate ) * 1000 ) + 600;
-    setInterval( GetMessages, fetchInterval );
+    let cfgPollrate = store.get( 'pollrate' ) || defPollrate;
+    cfgPollrate = Math.max( minPollrate, Math.min( maxPollrate, cfgPollrate ) );
+    const fetchInterval = ( cfgPollrate * 1000 ) + 600;                             // add 600ms buffer
+
+    if ( pollInterval )
+        clearInterval( pollInterval );
+
+    pollInterval = setInterval( GetMessages, fetchInterval );
+
+    Log.info( `core`, chalk.yellow( `[polling]` ), chalk.white( `:  ` ),
+        chalk.blueBright( `<msg>` ), chalk.gray( `Started message polling` ),
+        chalk.blueBright( `<interval>` ), chalk.gray( `${ fetchInterval }ms` ) );
 
     /**
         check stored setting for developer tools and set state when
@@ -1040,11 +1078,76 @@ function ready()
         guiMain.hide();
 }
 
-/*
+/**
+    graceful shutdown
+*/
+
+function gracefulShutdown()
+{
+    Log.info( `core`, chalk.yellow( `[shutdown]` ), chalk.white( `:  ` ),
+        chalk.blueBright( `<msg>` ), chalk.gray( `Initiating graceful shutdown` ) );
+
+    isShuttingDown = true;
+
+    /**
+        stop polling
+    */
+
+    if ( pollInterval )
+    {
+        clearInterval( pollInterval );
+        pollInterval = null;
+        Log.info( `core`, chalk.yellow( `[shutdown]` ), chalk.white( `:  ` ),
+            chalk.blueBright( `<msg>` ), chalk.gray( `Stopped message polling` ) );
+    }
+
+    /**
+        set quit flag and exit
+    */
+
+    app.isQuiting = true;
+    app.quit();
+}
+
+/**
     App > Ready
 */
 
 app.on( 'ready', ready );
+
+/**
+    App > Before Quit - Cleanup
+*/
+
+app.on( 'before-quit', () =>
+{
+    Log.info( `core`, chalk.yellow( `[cleanup]` ), chalk.white( `:  ` ),
+        chalk.blueBright( `<msg>` ), chalk.gray( `App is quitting - performing cleanup` ) );
+
+    isShuttingDown = true;
+
+    if ( pollInterval )
+    {
+        clearInterval( pollInterval );
+        pollInterval = null;
+    }
+});
+
+/**
+    App > Window All Closed
+*/
+
+app.on( 'window-all-closed', () =>
+{
+    /**
+        because macos is special; keep app running in dock even when all windows are closed
+    */
+
+    if ( process.platform !== 'darwin' )
+        gracefulShutdown();
+});
+
+
 /**
     ipc > renderer > handle button click events from renderer
 */
