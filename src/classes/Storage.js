@@ -3,6 +3,9 @@
 
     allows for us to save, store, and get settings configured by the user from the options available
     in the app settings.
+
+    original version provided by:
+        https://medium.com/cameron-nokes/how-to-store-user-data-in-electron-3ba6bf66bc1e
 */
 
 import electron from 'electron';
@@ -28,12 +31,12 @@ class Storage
             Use `configName` property to set file name and path.join to bring everything together as string
         */
 
-        this.path = path.join( userDataPath, opts.configName + '.json' );
-        this.data = parseDataFile( this.path, opts.defaults );
+        this.path = path.join( userDataPath, opts.configName + `.json` );
+        this.data = GetStorageFile( this.path, opts.defaults );
     }
 
     /**
-        Get Property Value
+        get property value; returned as string
     */
 
     get( key )
@@ -42,7 +45,21 @@ class Storage
     }
 
     /**
-        Get Property Value as number
+        get property value; returned as string but parsed as integer
+
+        Non-numeric strings → 0
+        true → 1
+        false → 0
+        null → 0
+        undefined → 0
+        undefined → 0
+        '0042' → 42
+        '0xFF' → 255
+        '1e3' → 1000
+        123abc' → 0 (NaN)
+        '   ' → 0
+
+
     */
 
     getInt( key )
@@ -75,10 +92,12 @@ class Storage
 }
 
 /**
-    parse data files
+    Storage > Get File
+
+    grabs the existing data from the storage file and parses it for use.
 */
 
-function parseDataFile( filePath, defaults )
+function GetStorageFile( filePath, defaults )
 {
     /**
         try/catch in case config file does not yet exist. this is true when the user starts the app for the

@@ -763,11 +763,8 @@ function initializeMenus()
 
 /**
     Main Menu > Developer Tools
-    slides in top position of 'App' menu
 
-    when user disables dev console, must re-build menu, otherwise dev tools will stick
-
-    App | Configure | Help
+    adds `developer tools` to main menu if toggled in user settings.
 */
 
 function activeDevTools()

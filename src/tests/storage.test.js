@@ -205,6 +205,15 @@ describe( 'Storage Class Tests', () =>
             expect( storage.get( 'arrayValue' ) ).toEqual( [ 1, 2, 3 ] );
         });
 
+        it( 'should return value as correct type', () =>
+        {
+            expect( storage.get( 'stringValue' ) ).toBeTypeOf( 'string' );
+            expect( storage.get( 'numberValue' ) ).toBeTypeOf( 'number' );
+            expect( storage.get( 'booleanValue' ) ).toBeTypeOf( 'boolean' );
+            expect( storage.get( 'objectValue' ) ).toBeTypeOf( 'object' );
+            expect( storage.get( 'arrayValue' ) ).toBeTypeOf( 'object' );
+        });
+
         it( 'should return undefined for non-existing keys', () =>
         {
             expect( storage.get( 'nonExistentKey' ) ).toBeUndefined();
