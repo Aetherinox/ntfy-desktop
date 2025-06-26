@@ -13,7 +13,8 @@
         "#utils/*": "./classes/*",
         "#log": "./classes/Log.js",
         "#storage": "./classes/Storage.js",
-        "#utils": "./classes/Utils.js"
+        "#utils": "./classes/Utils.js",
+        "#package": "./package.json"
     },
     "build": {
         "appId": "com.ntfydesktop.id",

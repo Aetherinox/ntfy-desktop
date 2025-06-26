@@ -30,6 +30,7 @@
 
 import fs from 'fs';
 import chalk from 'chalk';
+import packageJson from '#package' with { type: 'json' };
 
 /**
     chalk.level
@@ -52,7 +53,7 @@ chalk.level = 3;
 */
 
 const getLogLevel = () => parseInt( process.env.LOG_LEVEL ) || 4;           // dynamic LOG_LEVEL getter to allow runtime changes
-const { name } = JSON.parse( fs.readFileSync( './package.json' ) );         // get app name to add to each log message
+const name = packageJson.name;
 
 /**
     Class > Log

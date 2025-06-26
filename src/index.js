@@ -21,7 +21,7 @@ import { newMenuMain, newMenuContext, setMenuDeps } from './classes/Menu.js';
     Define > Package.json
 */
 
-import packageJson from './package.json' with { type: 'json' };
+import packageJson from '#package' with { type: 'json' };
 const appVer = packageJson.version;
 const appName = packageJson.name;
 const appTitle = packageJson.title;
