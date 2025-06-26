@@ -1,100 +1,135 @@
 # #
-# Ignore everything
+#   Ignore everything
 # #
-/*
+
+*
 
 # #
-# [WL]: Git Base Folders/Files
+#   [WL]: Git Base Folders/Files
 # #
-!/.github
-!/.gitea
-!*README.md
-!*LICENSE.md
-!*LICENSE
+
+!.all-contributorsrc
+!.gitignore
 !*CHANGELOG.md
+!*CODE_OF_CONDUCT.md
 !*CONTRIBUTE.md
 !*CONTRIBUTING.md
-!*CODE_OF_CONDUCT.md
 !*DECISION_FLOW.md
+!*LICENSE
+!*LICENSE.md
+!*README.md
+!/.gitea
+!/.github
+!renovate.json
 
 # #
-# [WL]: Electron
+#   [WL]: Manifest Folders
 # #
-!/electron
 
-# #
-# [WL]: Tests
-# #
-!/Tests
-!/test
-!/example
-!*playwright.config.js
-
-# #
-# [WL]: Manifest Folders
-# #
 !/Manifest
 
 # #
-# [WL]: Tools Folders
+#   [WL]: Tools Folders
 # #
+
 !/Tools
 
 # #
-# [WL]: vendor
+#   [WL]: vendor
 # #
+
 !/vendor
 
 # #
-# [WL]: assets
+#   [WL]: assets
 # #
+
 !/assets
 
 # #
-# [WL]: Gitignore File
+#   [WL]: Docs Folder
 # #
-!.gitignore
 
-# #
-# [WL]: Docs Folder
-# #
 !/docs
 !/pages
 
 # #
-# [WL]: Source Folder
+#   [WL]: Source Folder
 # #
-!/src
+
 !/lib
 !/notifiers
 
 # #
-# [WL]: Base Files
+#   [WL]: Linting
 # #
-!prettierrc
-!prettierignore
-!eslintrc
-!eslint.config.mjs
-!npmignore
-!.npmrc
-!.all-contributorsrc
+
 !.editorconfig
-!*ntfy.js
-!*index.js
-!*manifest.json
-!package.json
-!package-lock.json
+!eslint.config.mjs
+!eslintrc
+!prettierignore
+!prettierrc
+
+# #
+#   [WL]: Dependency Configs
+# #
+
 !rollup.config.js
 !rollup.config.mjs
 !tsconfig.json
-!versions.json
+
+# #
+#   [WL]: NPM
+# #
+
+!npmignore
+!.npmrc
+
+# #
+#   [WL]: Signing / Digests
+# #
+
 !sign.bat
 !*SHA*.asc
 !*SHA*.sig
-!*.css
-!renovate.json
-!*.sh
+
+# #
+#   [WL]: Base Files
+# #
+
 !*.bat
+!*.css
+!*.sh
+!*index.js
+!*manifest.json
+!*ntfy.js
+!*preload.js
+!*preloader.js
+!*renderer.js
 !*storage.js
+!package.json
 !root.cjs
 !root.mjs
+!versions.json
+!/src
+/src/node_modules
+/src/playwright
+/src/playwright-report
+/src/test-results
+!src/Classes/
+!src/Classes/*.js
+
+# #
+#   [WL]: Electron
+# #
+
+!/electron
+
+# #
+#   [WL]: Tests
+# #
+
+!*playwright.config.js
+!/example
+!/test
+!/Tests
