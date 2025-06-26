@@ -67,6 +67,7 @@
   - [Manual Test](#manual-test)
     - [Playwright Tests](#playwright-tests)
     - [Vitest Tests](#vitest-tests)
+- [Linting](#linting)
 - [Signed Releases](#signed-releases)
   - [Validate .Sig](#validate-sig)
   - [Validate SHA256SUM](#validate-sha256sum)
@@ -647,6 +648,52 @@ The results for the tests will be printed in your terminal / command prompt.
    Start at  10:19:17
    Duration  577ms (transform 158ms, setup 0ms, collect 427ms, tests 76ms, environment 1ms, prepare 377ms)
 ```
+
+<br />
+
+---
+
+<br />
+
+# Linting
+
+This node package comes with ESlint, and a set of rules which should be followed. If you have intentions of creating new features and contributing to this repository; you must follow these linter rules. You can check the current status of your code by running:
+
+```shell
+cd ./src
+npm run lint
+```
+
+<br />
+
+Any failures will be reported in console:
+
+```shell
+ntfy-desktop\src\tests\storage.test.js
+    1:74   error  Expected linebreaks to be 'LF' but found 'CRLF'  @stylistic/linebreak-style
+    2:21   error  Expected linebreaks to be 'LF' but found 'CRLF'  @stylistic/linebreak-style
+    3:25   error  Expected linebreaks to be 'LF' but found 'CRLF'  @stylistic/linebreak-style
+    4:21   error  Expected linebreaks to be 'LF' but found 'CRLF'  @stylistic/linebreak-style
+    5:32   error  Expected linebreaks to be 'LF' but found 'CRLF'  @stylistic/linebreak-style
+    6:1    error  Expected linebreaks to be 'LF' but found 'CRLF'  @stylistic/linebreak-style
+    7:3    error  Expected linebreaks to be 'LF' but found 'CRLF'  @stylistic/linebreak-style
+    8:29   error  Expected linebreaks to be 'LF' but found 'CRLF'  @stylistic/linebreak-style
+    6:14   error  A space is required after '['                    @stylistic/array-bracket-spacing
+    6:29   error  A space is required before ']'                   @stylistic/array-bracket-spacing
+```
+
+<br />
+
+You must fix these before submitting a contribution. You can opt to automatically fix errors by running the command:
+
+```shell
+npm run lint:fix
+```
+
+<br />
+
+> [!WARNING]
+> Opting to automatically fix linting errors may result in mis-aligned brackets. Make sure these are fixed before submitting any pull requests.
 
 <br />
 
