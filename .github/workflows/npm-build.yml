@@ -1222,8 +1222,8 @@ jobs:
             - name: '🪪 .ENV › Get'
               id: task_release_dotenv_get
               uses: falti/dotenv-action@v1
-           #  with:
-           #      path: "./.env"
+              with:
+                  path: "./src/.env"
 
             # #
             #   Release › .ENV › Print (Debug)
