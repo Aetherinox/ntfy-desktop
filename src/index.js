@@ -126,6 +126,7 @@ const store = new Storage(
         instanceURL: defInstanceUrl,
         apiToken: '',
         topics: 'topic1,topic2,topic3',
+        indicatorMessages: 0,
         bHotkeys: 0,
         bDevTools: 0,
         bQuitOnClose: 0,
@@ -280,7 +281,22 @@ function IsValidUrl( uri, tries, delay )
     });
 }
 
-/*
+/**
+    Badges > Update
+*/
+
+function UpdateBadge( i )
+{
+    let userMsgs = store.getInt( 'indicatorMessages' );
+    if ( !userMsgs || Number.isNaN( userMsgs ) )
+        userMsgs = 0;
+
+    userMsgs = userMsgs + ( i || 1 );
+    store.set( 'indicatorMessages', userMsgs );
+    app.badgeCount = userMsgs;
+}
+
+/**
     Get Message Data
 
     Even though ntfy's permissions are open by default, provide authorization bearer for users who
@@ -538,6 +554,12 @@ async function GetMessages( )
 
             msgHistory.push( id );
 
+            /**
+                Calcuate badge count
+            */
+
+            UpdateBadge( );
+
             Log.debug( `core`, chalk.yellow( `[messages]` ), chalk.white( `:  ` ),
                 chalk.blueBright( `<msg>` ), chalk.gray( `Sent pending ntfy messages to client` ),
                 chalk.blueBright( `<type>` ), chalk.gray( `${ type }` ),
@@ -749,7 +771,17 @@ function ready()
         e.preventDefault();
     });
 
-    /*
+    /**
+        Event > Window Restored
+    */
+
+    guiMain.on( 'restore', ( e, cmd ) =>
+    {
+        store.set( 'indicatorMessages', 0 );
+        app.badgeCount = 0;
+    });
+
+    /**
         Event > Close
 
         if --quit cli argument specified, app will completely quit when close pressed.
@@ -1013,3 +1045,24 @@ function ready()
 */
 
 app.on( 'ready', ready );
+/**
+    ipc > renderer > handle button click events from renderer
+*/
+
+ipcMain.on( 'button-clicked', ( event, data ) =>
+{
+    Log.info( `ipc`, chalk.yellow( `[button-clicked]` ), chalk.white( `:  ` ),
+        chalk.blueBright( `<msg>` ), chalk.gray( `MuiButtonBase-root button clicked - resetting badge count` ),
+        chalk.blueBright( `<data>` ), chalk.gray( `${ JSON.stringify( data ) }` ) );
+
+    /**
+        reset badge count when user clicks .MuiButtonBase-root element
+    */
+
+    app.badgeCount = 0;
+    store.set( 'indicatorMessages', 0 );
+
+    Log.ok( `badge`, chalk.yellow( `[reset]` ), chalk.white( `:  ` ),
+        chalk.greenBright( `<msg>` ), chalk.gray( `Badge count reset to 0` ),
+        chalk.greenBright( `<trigger>` ), chalk.gray( `MuiButtonBase-root click detected` ) );
+});
