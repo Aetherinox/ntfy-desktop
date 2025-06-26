@@ -45,6 +45,15 @@ class Storage
     }
 
     /**
+        get property value; remove all whitespace
+    */
+
+    getSanitized( key )
+    {
+        return this.data[ key ].replace( /\s/g, '' );
+    }
+
+    /**
         get property value; returned as string but parsed as integer
 
         Non-numeric strings → 0

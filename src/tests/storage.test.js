@@ -2,6 +2,8 @@
     Tests > Storage
 
     tests the functionality of the app Storage class located in ./src//classes/Storage.js
+
+    @docs               https://vitest.dev/api/expect
 */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
