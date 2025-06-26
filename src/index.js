@@ -4,7 +4,7 @@
     this is the main project file to initiate the electron app
 */
 
-import { app, BrowserWindow, ipcMain, Tray, shell, Menu, MenuItem } from 'electron';
+import { app, BrowserWindow, dialog, ipcMain, Tray, shell, Menu, MenuItem } from 'electron';
 import path from 'path';
 import moment from 'moment';
 import chalk from 'chalk';
@@ -34,7 +34,7 @@ const appIcon = app.getAppPath() + '/assets/icons/ntfy.png';
     Define > Menus
 */
 
-let menuMain, contextMenu;
+let menuMain, menuTray;
 
 /**
     Define > Env Variables
@@ -112,6 +112,7 @@ let pollInterval = null;                            // store interval reference 
 
 const defInstanceUrl = `https://ntfy.sh/app`;       // default instance url
 const defDatetime = `YYYY-MM-DD hh:mm a`;           // default datetime format
+const defTopics = `announcements,stats`;            // default ntfy topics
 const defPollrate = 60;                             // default polling rate
 const minPollrate = 5;                              // minimum poll rate to prevent rate limiting
 const maxPollrate = 3600;                           // maximum poll rate (1 hour)
@@ -130,7 +131,7 @@ const store = new Storage(
     defaults: {
         instanceURL: defInstanceUrl,
         apiToken: '',
-        topics: 'topic1,topic2,topic3',
+        topics: defTopics,
         indicatorMessages: 0,
         bHotkeys: 0,
         bDevTools: 0,
@@ -422,7 +423,7 @@ async function GetMessages( )
     try
     {
         const cfgInstanceURL = store.get( 'instanceURL' );
-        const cfgTopics = store.get( 'topics' );
+        const cfgTopics = store.getSanitized( 'topics', defTopics );
         let cfgPollrate = store.get( 'pollrate' ) || defPollrate;
 
         /*
@@ -458,6 +459,7 @@ async function GetMessages( )
         {
             Log.warn( `core`, chalk.yellow( `[messages]` ), chalk.white( `:  ` ),
                 chalk.yellowBright( `<msg>` ), chalk.gray( `No topics configured, skipping message fetch` ) );
+
             return;
         }
 
@@ -626,7 +628,7 @@ async function GetMessages( )
             chalk.blueBright( `<status>` ), chalk.gray( `${ msgStatus }` ) );
 
         /**
-            @ref    : https://github.com/Aetherinox/toasted-notifier
+            @ref            https://github.com/Aetherinox/toasted-notifier
         */
 
         const cfgPersistent = store.getInt( 'bPersistentNoti' ) !== 0;
@@ -714,6 +716,7 @@ function initializeMenus()
         bHotkeysEnabled,
         appIcon,
         defInstanceUrl,
+        defTopics,
         defDatetime,
         defPollrate,
         minPollrate,
@@ -749,7 +752,7 @@ function initializeMenus()
     */
 
     menuMain = newMenuMain();
-    contextMenu = newMenuContext();
+    menuTray = newMenuContext();
 
     /**
         menu > main > Set
@@ -758,13 +761,13 @@ function initializeMenus()
     const menuHeader = Menu.buildFromTemplate( menuMain );
     Menu.setApplicationMenu( menuHeader );
 
-    return { menuMain, contextMenu };
+    return { menuMain, menuTray };
 }
 
 /**
     Main Menu > Developer Tools
 
-    adds `developer tools` to main menu if toggled in user settings.
+    adds `developer tools` to end of main menu if toggled in user settings.
 */
 
 function activeDevTools()
@@ -819,7 +822,8 @@ function ready()
         width: 1280,
         height: 720,
         icon: appIcon,
-        webPreferences: {
+        webPreferences:
+        {
             preload: path.join( __dirname, 'preload.js' ),      // use a preload script
             nodeIntegration: false,                             // security: disable node integration
             contextIsolation: true,                             // security: enable context isolation
@@ -853,6 +857,7 @@ function ready()
 
     /**
         Validate URL
+
         Invalid URLs should not perform polling.
         load default defInstanceUrl url
 
@@ -882,7 +887,7 @@ function ready()
 
         in localhost mode, we do not validate the url
 
-        @todo: add conditions to IsValidUrl to support localhost websites
+        @todo:              add conditions to IsValidUrl to support localhost websites
     */
 
     const instanceUrl = store.get( 'instanceURL' ) || defInstanceUrl;
@@ -1129,7 +1134,7 @@ function ready()
 
     guiTray = new Tray( appIcon );
     guiTray.setToolTip( `${ appTitle }` );
-    guiTray.setContextMenu( contextMenu );
+    guiTray.setContextMenu( menuTray );
     guiTray.on( 'click', () =>
     {
         if ( bWinHidden )
@@ -1171,6 +1176,32 @@ function ready()
         {
             bHotkeysEnabled = 1;
         }
+    }
+
+    /*
+        no topics are set; warn the user to set some
+    */
+
+    const cfgTopics = store.getSanitized( 'topics', 'announcements, stats' );
+    if ( !cfgTopics || cfgTopics.trim() === '' )
+    {
+        setTimeout( () =>
+        {
+            const warnTopicsEmpty =
+            {
+                defaultId: 1,
+                type: 'warning',
+                buttons: [ 'OK' ],
+                title: `Topics Not Set`,
+                message: `No Topics Set`,
+                detail: `You must define topics that you wish to receive notifications for.\nIn the top menu, select "App" -> "Settings" -> "Topics"\n\nTopics should be listed as\n      ${ defTopics },topic3,topic4`
+            };
+
+            dialog.showMessageBox( null, warnTopicsEmpty, ( response, cboxChk ) =>
+            {
+                console.log( `User input received: ${ response }` );
+            });
+        }, 5000 );
     }
 
     /**

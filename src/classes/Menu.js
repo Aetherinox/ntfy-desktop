@@ -239,9 +239,9 @@ function newMenuMain()
                                 deps.prompt(
                                     {
                                         title: 'Set Subscribed Topics',
-                                        label: `Subscribed Topics<div class="label-desc">Specify a list of topics you would like to receive push notifications for, separated by commas.<br><br>Ex: Meetings,Personal,Urgent</div>`,
+                                        label: `Subscribed Topics<div class="label-desc">Specify a list of topics you would like to receive push notifications for, separated by commas.<br><br>Ex: ${ deps.defTopics }</div>`,
                                         useHtmlLabel: true,
-                                        value: deps.store.get( 'topics' ),
+                                        value: deps.store.getSanitized( 'topics', deps.defTopics ),
                                         alwaysOnTop: true,
                                         type: 'input',
                                         customStylesheet: path.join( app.getAppPath(), `pages`, `css`, `prompt.css` ),
