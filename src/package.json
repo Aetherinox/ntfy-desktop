@@ -8,6 +8,13 @@
     "license": "GPLv3",
     "main": "index.js",
     "type": "module",
+    "imports": {
+        "#classes/*": "./classes/*",
+        "#utils/*": "./classes/*",
+        "#log": "./classes/Log.js",
+        "#storage": "./classes/Storage.js",
+        "#utils": "./classes/Utils.js"
+    },
     "build": {
         "appId": "com.ntfydesktop.id",
         "asarUnpack": [
