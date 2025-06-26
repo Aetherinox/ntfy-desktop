@@ -374,15 +374,22 @@ async function GetMessageData( uri )
 */
 
 const msgHistory = [];
+let isPolling = false;              // prevent concurrent polling
+
 async function GetMessages( )
 {
-    const cfgInstanceURL = store.get( 'instanceURL' );
-    const cfgTopics = store.get( 'topics' );
-    const cfgPollrate = store.get( 'pollrate' ) || defPollrate;
-
-    /*
-        Instance url missing
+    /**
+        this is to prevent concurrent polling
     */
+
+    if ( isPolling )
+    {
+        Log.debug( `core`, chalk.yellow( `[messages]` ), chalk.white( `:  ` ),
+            chalk.blueBright( `<msg>` ), chalk.gray( `Polling already in progress, skipping` ) );
+
+        return;
+    }
+
     if ( isShuttingDown )
     {
         Log.debug( `core`, chalk.yellow( `[messages]` ), chalk.white( `:  ` ),
@@ -391,17 +398,51 @@ async function GetMessages( )
         return;
     }
 
+    isPolling = true;
 
-    if ( !cfgInstanceURL || cfgInstanceURL === '' || cfgInstanceURL === null )
+    try
     {
-        Log.error( `core`, chalk.redBright( `[messages]` ), chalk.white( `:  ` ),
-            chalk.redBright( `<msg>` ), chalk.gray( `Aborting attempt to fetch new messages; instance url missing` ),
-            chalk.redBright( `<func>` ), chalk.gray( `GetMessages()` ) );
+        const cfgInstanceURL = store.get( 'instanceURL' );
+        const cfgTopics = store.get( 'topics' );
+        let cfgPollrate = store.get( 'pollrate' ) || defPollrate;
 
-        return;
-    }
+        /*
+            validate and clamp poll rate
+        */
 
-    /*
+        cfgPollrate = Math.max( minPollrate, Math.min( maxPollrate, cfgPollrate ) );
+        if ( cfgPollrate !== store.get( 'pollrate' ) )
+        {
+            store.set( 'pollrate', cfgPollrate );
+            Log.warn( `core`, chalk.yellow( `[messages]` ), chalk.white( `:  ` ),
+                chalk.yellowBright( `<msg>` ), chalk.gray( `Poll rate was out of bounds, clamped to ${ cfgPollrate }s` ) );
+        }
+
+        /**
+            Instance url missing
+        */
+
+        if ( !cfgInstanceURL || cfgInstanceURL === '' || cfgInstanceURL === null )
+        {
+            Log.error( `core`, chalk.redBright( `[messages]` ), chalk.white( `:  ` ),
+                chalk.redBright( `<msg>` ), chalk.gray( `Aborting attempt to fetch new messages; instance url missing` ),
+                chalk.redBright( `<func>` ), chalk.gray( `GetMessages()` ) );
+
+            return;
+        }
+
+        /**
+            Topics validation
+        */
+
+        if ( !cfgTopics || cfgTopics.trim() === '' )
+        {
+            Log.warn( `core`, chalk.yellow( `[messages]` ), chalk.white( `:  ` ),
+                chalk.yellowBright( `<msg>` ), chalk.gray( `No topics configured, skipping message fetch` ) );
+            return;
+        }
+
+    /**
         Concatenate instance query url
     */
 
@@ -435,24 +476,35 @@ async function GetMessages( )
         return;
     }
 
-    /*
-        get pending messages from polling
-    */
+        /**
+            get pending messages from polling
+        */
 
-    const json = await GetMessageData( uri );
+        const json = await GetMessageData( uri );
 
-    /*
-        will be thrown if the instance url does not return valid json (ntfy server possibly down?)
-    */
+        /**
+            Check if request failed or returned null
+        */
 
-    if ( Utils.isJsonString( json ) === false )
-    {
-        Log.error( `core`, chalk.redBright( `[messages]` ), chalk.white( `:  ` ),
-            chalk.redBright( `<msg>` ), chalk.gray( `Polling for new messages returned invalid json; skipping fetch. Change your instance URL to a valid ntfy instance.` ),
-            chalk.redBright( `<func>` ), chalk.gray( `GetMessages()` ) );
+        if ( json === null )
+        {
+            Log.debug( `core`, chalk.yellow( `[messages]` ), chalk.white( `:  ` ),
+                chalk.blueBright( `<msg>` ), chalk.gray( `Message fetch returned null, skipping processing` ) );
+            return;
+        }
 
-        return;
-    }
+        /**
+            will be thrown if the instance url does not return valid json (ntfy server possibly down?)
+        */
+
+        if ( Utils.isJsonString( json ) === false )
+        {
+            Log.error( `core`, chalk.redBright( `[messages]` ), chalk.white( `:  ` ),
+                chalk.redBright( `<msg>` ), chalk.gray( `Polling for new messages returned invalid json; skipping fetch. Change your instance URL to a valid ntfy instance.` ),
+                chalk.redBright( `<func>` ), chalk.gray( `GetMessages()` ) );
+
+            return;
+        }
 
     Log.info( `core`, chalk.yellow( `[messages]` ), chalk.white( `:  ` ),
         chalk.blueBright( `<msg>` ), chalk.gray( `Fetching new messages` ),
@@ -591,11 +643,25 @@ async function GetMessages( )
         }
     }
 
-    Log.ok( `core`, chalk.yellow( `[instance]` ), chalk.white( `:  ` ),
-        chalk.greenBright( `<msg>` ), chalk.gray( `Messages checked` ),
-        chalk.greenBright( `<instance>` ), chalk.gray( `${ uri }` ) );
+        Log.ok( `core`, chalk.yellow( `[instance]` ), chalk.white( `:  ` ),
+            chalk.greenBright( `<msg>` ), chalk.gray( `Messages checked` ),
+            chalk.greenBright( `<instance>` ), chalk.gray( `${ uri }` ) );
 
-    return json;
+        return json;
+    }
+    catch ( error )
+    {
+        Log.error( `core`, chalk.redBright( `[messages]` ), chalk.white( `:  ` ),
+            chalk.redBright( `<msg>` ), chalk.gray( `Error during message polling` ),
+            chalk.redBright( `<error>` ), chalk.gray( `${ error.message }` ) );
+        return null;
+    }
+    finally
+    {
+        isPolling = false;
+    }
+}
+
 /**
     helper functions to manage state
 */
