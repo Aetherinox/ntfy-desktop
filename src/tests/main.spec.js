@@ -5,6 +5,7 @@
 
 /*
     These tests require the additional package `https://github.com/spaceagetv/electron-playwright-helpers`
+
     Includes the following:
         clickMenuItemById,
         findLatestBuild,

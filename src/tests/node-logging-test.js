@@ -5,6 +5,7 @@
     to the user.
 
     this test does not require vita vitest. run it with:
+        cd ./src
         node tests/node-logging-test.js
 
     or you can run it using

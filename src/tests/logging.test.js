@@ -1,3 +1,7 @@
+/**
+    Tests > Logging
+*/
+
 import { describe, it, expect, beforeEach } from 'vitest';
 import Log from '#log';
 

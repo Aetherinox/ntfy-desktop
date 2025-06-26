@@ -212,16 +212,25 @@ jobs:
                   npm list
 
             # #
-            #   Tests › Run Tests
+            #   Tests › Run Tests › Electron
             # #
 
             - name: >-
-                  🧪 Run Test
-              id: task_test_run
+                  🧪 Run Test › Electron
               working-directory: ./src
               run: |
                 #   DISPLAY=:0 DEBUG=pw:browser xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" npx playwright test --trace on
                     xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" npx playwright test --trace on
+
+            # #
+            #   Tests › Run Tests › Node
+            # #
+
+            - name: >-
+                  🧪 Run Tests › Node
+              working-directory: ./src
+              run: |
+                  npm run test:unit:run
 
             # #
             #   Tests › Upload Report

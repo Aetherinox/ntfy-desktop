@@ -1,3 +1,9 @@
+/**
+    Tests > Storage
+
+    tests the functionality of the app Storage class located in ./src//classes/Storage.js
+*/
+
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import fs from 'fs';
 import path from 'path';
