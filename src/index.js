@@ -5,6 +5,7 @@ import moment from 'moment';
 import chalk from 'chalk';
 import { Storage } from './storage.js';
 import { fileURLToPath } from 'url';
+import { newMenuMain, newMenuContext, setMenuDeps } from './classes/Menu.js';
 
 /*
     Define > Prompt
@@ -27,6 +28,12 @@ const appAuthor = packageJson.author;
 const appElectron = process.versions.electron;
 const appRepo = packageJson.repository;
 const appIcon = app.getAppPath() + '/assets/icons/ntfy.png';
+
+/**
+    Define > Menus
+*/
+
+let menuMain, contextMenu;
 
 /*
     Define > Env Variables
@@ -63,8 +70,8 @@ chalk.level = 3;
 
 console.log( process.argv );
 
-/*
-    Define > Window
+/**
+    Define > Electron Elements
 */
 
 let guiMain, guiAbout, guiTray;
@@ -550,568 +557,69 @@ async function GetMessages( )
 }
 
 /*
-    Menu > Main
-
-    Entries for the top interface menu
-
-    App | Configure | Help
-*/
-
-const menuMain = [
-{
-    label: '&App',
-    id: 'app',
-    submenu: [
-        {
-            label: '&Settings',
-            id: 'settings',
-            accelerator: 'S',
-            submenu: [
-                {
-                    label: 'General',
-                    id: 'general',
-                    accelerator: ( bHotkeysEnabled === 1 || store.getInt( 'bHotkeys' ) === 1 ) ? 'CTRL+G' : '',
-                    click: function ()
-                    {
-                        prompt(
-                            {
-                                title: 'General Settings',
-                                label: 'General Settings<div class="label-desc">Change the overall functionality of the app.</div>',
-                                useHtmlLabel: true,
-                                alwaysOnTop: true,
-                                type: 'multiInput',
-                                resizable: false,
-                                customStylesheet: path.join( __dirname, `pages`, `css`, `prompt.css` ),
-                                height: 640,
-                                icon: appIcon,
-                                multiInputOptions:
-                                    [
-                                        {
-                                            label: 'Enable Developer Tools',
-                                            description: 'Add developer tools to top menu',
-                                            selectOptions: { 0: 'Disabled', 1: 'Enabled' },
-                                            value: store.get( 'bDevTools' )
-                                        },
-                                        {
-                                            label: 'Enable Hotkeys',
-                                            description: 'Enable the ability to use hotkeys to navigate',
-                                            selectOptions: { 0: 'Disabled', 1: 'Enabled' },
-                                            value: store.get( 'bHotkeys' )
-                                        },
-                                        {
-                                            label: 'Quit on Exit',
-                                            description: 'Quit app instead of send-to-tray for close button',
-                                            selectOptions: { 0: 'Disabled', 1: 'Enabled' },
-                                            value: store.get( 'bQuitOnClose' )
-                                        },
-                                        {
-                                            label: 'Minimize to Tray',
-                                            description: 'Start app minimized in tray',
-                                            selectOptions: { 0: 'Disabled', 1: 'Enabled' },
-                                            value: store.get( 'bStartHidden' )
-                                        }
-                                    ]
-                            },
-                            guiMain
-                        )
-                        .then( ( resp ) =>
-                        {
-                            if ( resp !== null )
-                            {
-                                // do not update dev tools if value hasn't changed
-                                if ( store.get( 'bDevTools' ) !== resp[ 0 ] )
-                                {
-                                    store.set( 'bDevTools', resp[ 0 ] );
-                                    activeDevTools();
-                                }
-
-                                store.set( 'bHotkeys', resp[ 1 ] );
-                                store.set( 'bQuitOnClose', resp[ 2 ] );
-                                store.set( 'bStartHidden', resp[ 3 ] );
-                            }
-                        })
-                        .catch( ( resp ) =>
-                        {
-                            console.error;
-                        });
-                        /*
-                        setTimeout(function (){
-                            BrowserWindow.getFocusedWindow().webContents.openDevTools();
-                        }, 3000);
-                        */
-                    }
-                },
-                {
-                    label: 'Instance',
-                    accelerator: ( bHotkeysEnabled === 1 || store.getInt( 'bHotkeys' ) === 1 ) ? 'CTRL+I' : '',
-                    click: function ()
-                    {
-                        prompt(
-                            {
-                                title: 'Instance Settings',
-                                label: 'Instance Settings<div class="label-desc">This can either be the official ntfy.sh server, or your own self-hosted domain / ip.</div>',
-                                useHtmlLabel: true,
-                                alwaysOnTop: true,
-                                type: 'multiInput',
-                            // customStylesheet: path.join( __dirname, `pages`, `css`, `prompt.css` ),
-                                height: 440,
-                                icon: appIcon,
-                                multiInputOptions:
-                                    [
-                                        {
-                                            label: 'Instance URL',
-                                            description: 'Remove everything to set back to official ntfy.sh server.',
-                                            value: store.get( 'instanceURL' ) || defInstanceUrl,
-                                            inputAttrs: {
-                                                placeholder: 'Enter URL to ntfy server',
-                                                type: 'url',
-                                                min: 5,
-                                                step: 1
-                                            }
-                                        },
-                                        {
-                                            label: 'Localhost Mode',
-                                            description: 'Enable this if you are running a localhost ntfy server',
-                                            selectOptions: { 0: 'Disabled', 1: 'Enabled' },
-                                            value: store.get( 'bLocalhost' )
-                                        }
-                                    ]
-                            },
-                            guiMain
-                        )
-                        .then( ( resp ) =>
-                        {
-                            // set new instance url
-                            const argUrl = resp[ 0 ];
-                            let argLHM = resp[ 1 ];
-
-                            if ( argUrl !== null )
-                            {
-                                const newUrl = ( argUrl === '' ? defInstanceUrl : argUrl );
-
-                                if ( !argLHM )
-                                    argLHM = 0;
-
-                                store.set( 'instanceURL', newUrl );
-                                store.set( 'bLocalhost', argLHM );
-
-                                if ( store.getInt( 'bLocalhost' ) === 1 )
-                                {
-                                    guiMain.loadURL( newUrl );
-                                }
-                                else
-                                {
-                                    IsValidUrl( store.get( 'instanceURL' ), 3, 1000 ).then( ( item ) =>
-                                    {
-                                        statusBadURL = false;
-                                        console.log( `Successfully resolved ` + store.get( 'instanceURL' ) );
-                                        guiMain.loadURL( store.get( 'instanceURL' ) );
-                                    }).catch( ( err ) =>
-                                    {
-                                        statusBadURL = true;
-                                        const msg = `Failed to resolve ` + store.get( 'instanceURL' ) + ` - defaulting to ${ defInstanceUrl }`;
-                                        statusStrMsg = `${ msg }`;
-                                        console.error( `${ msg }` );
-                                        store.set( 'instanceURL', defInstanceUrl );
-                                        guiMain.loadURL( defInstanceUrl );
-                                    });
-                                }
-                            }
-                        })
-                        .catch( ( resp ) =>
-                        {
-                            console.error;
-                        });
-                        /*
-                        setTimeout(function (){
-                            BrowserWindow.getFocusedWindow().webContents.openDevTools();
-                        }, 3000);
-                        */
-                    }
-                },
-                {
-                    label: 'API Token',
-                    accelerator: ( bHotkeysEnabled === 1 || store.getInt( 'bHotkeys' ) === 1 ) ? 'CTRL+T' : '',
-                    click: function ()
-                    {
-                        prompt(
-                            {
-                                title: 'Set API Token',
-                                label: 'API Token<div class="label-desc">Generate an API token within ntfy.sh  or your self-hosted instance and provide it below to receive desktop push notifications.</div>',
-                                useHtmlLabel: true,
-                                value: store.get( 'apiToken' ),
-                                alwaysOnTop: true,
-                                type: 'input',
-                                customStylesheet: path.join( __dirname, `pages`, `css`, `prompt.css` ),
-                                height: 290,
-                                icon: appIcon,
-                                inputAttrs: {
-                                    type: 'text'
-                                }
-                            },
-                            guiMain
-                        )
-                        .then( ( resp ) =>
-                        {
-                            if ( resp !== null )
-                            {
-                                store.set( 'apiToken', resp );
-                            }
-                        })
-                        .catch( ( resp ) =>
-                        {
-                            console.error;
-                        });
-                    }
-                },
-                {
-                    label: 'Topics',
-                    accelerator: ( bHotkeysEnabled === 1 || store.getInt( 'bHotkeys' ) === 1 ) ? 'CTRL+SHIFT+T' : '',
-                    click: function ()
-                    {
-                        prompt(
-                            {
-                                title: 'Set Subscribed Topics',
-                                label: 'Subscribed Topics<div class="label-desc">Specify a list of topics you would like to receive push notifications for, separated by commas.<br><br>Ex: Meetings,Personal,Urgent</div>',
-                                useHtmlLabel: true,
-                                value: store.get( 'topics' ),
-                                alwaysOnTop: true,
-                                type: 'input',
-                                customStylesheet: path.join( __dirname, `pages`, `css`, `prompt.css` ),
-                                height: 310,
-                                icon: appIcon,
-                                inputAttrs: {
-                                    type: 'text'
-                                }
-                            },
-                            guiMain
-                        )
-                        .then( ( resp ) =>
-                        {
-                            if ( resp !== null )
-                            {
-                                // do not update topics unless values differ from original, since we need to reload the page
-                                if ( store.get( 'topics' ) !== resp )
-                                {
-                                    store.set( 'topics', resp );
-
-                                    if ( typeof ( store.get( 'instanceURL' ) ) !== 'string' || store.get( 'instanceURL' ) === '' || store.get( 'instanceURL' ) === null )
-                                    {
-                                        store.set( 'instanceURL', defInstanceUrl );
-                                    }
-
-                                    guiMain.loadURL( store.get( 'instanceURL' ) );
-                                }
-                            }
-                        })
-                        .catch( ( resp ) =>
-                        {
-                            console.error;
-                        });
-                    }
-                },
-                {
-                    label: 'Notifications',
-                    accelerator: ( bHotkeysEnabled === 1 || store.getInt( 'bHotkeys' ) === 1 ) ? 'CTRL+N' : '',
-                    click: function ()
-                    {
-                        prompt(
-                            {
-                                title: 'Notifications',
-                                label: 'Notification Settings<div class="label-desc">Determines how notifications will behave</div>',
-                                useHtmlLabel: true,
-                                alwaysOnTop: true,
-                                type: 'multiInput',
-                                resizable: false,
-                                customStylesheet: path.join( __dirname, `pages`, `css`, `prompt.css` ),
-                                height: 550,
-                                icon: appIcon,
-                                multiInputOptions:
-                                    [
-                                        {
-                                            label: 'Sticky Notifications',
-                                            description: 'Stay on screen until dismissed',
-                                            selectOptions: { 0: 'Disabled', 1: 'Enabled' },
-                                            value: store.get( 'bPersistentNoti' )
-                                        },
-                                        {
-                                            label: 'Datetime Format',
-                                            description: 'Determines the format for date and timestamps',
-                                            value: store.get( 'datetime' ) || defDatetime,
-                                            inputAttrs:
-                                            {
-                                                placeholder: `${ defDatetime }`,
-                                                required: true
-                                            }
-                                        },
-                                        {
-                                            label: 'Polling Rate',
-                                            description: 'The number of seconds between requests to get new notifications.',
-                                            value: store.get( 'pollrate' ) || defPollrate,
-                                            inputAttrs: {
-                                                type: 'number',
-                                                required: true,
-                                                min: 5,
-                                                step: 1
-                                            }
-                                        }
-                                    ]
-                            },
-                            guiMain
-                        )
-                        .then( ( resp ) =>
-                        {
-                            if ( resp !== null )
-                            {
-                                store.set( 'bPersistentNoti', resp[ 0 ] );
-                                store.set( 'datetime', resp[ 1 ] );
-                                store.set( 'pollrate', resp[ 2 ] );
-
-                                let cfgPollrate = ( store.get( 'pollrate' ) || defPollrate );
-                                const fetchInterval = ( cfgPollrate * 1000 ) + 600;
-                                clearInterval( cfgPollrate );
-                                cfgPollrate = setInterval( GetMessages, fetchInterval );
-                            }
-                        })
-                        .catch( ( resp ) =>
-                        {
-                            console.error;
-                        });
-
-                        /*
-                        setTimeout(function (){
-                            BrowserWindow.getFocusedWindow().webContents.openDevTools();
-                        }, 3000);
-                        */
-                    }
-                }
-            ]
-        },
-        {
-            type: 'separator'
-        },
-        {
-            label: 'Quit',
-            id: 'quit',
-            accelerator: ( bHotkeysEnabled === 1 || store.getInt( 'bHotkeys' ) === 1 ) ? 'CTRL+Q' : '',
-            click: function ()
-            {
-                app.isQuiting = true;
-                app.quit();
-            }
-        }
-    ]
-},
-{
-    label: '&Edit',
-    id: 'edit',
-    submenu: [
-        {
-            label: 'Undo',
-            accelerator: 'CmdOrCtrl+Z',
-            role: 'undo'
-        },
-        {
-            label: 'Redo',
-            accelerator: 'Shift+CmdOrCtrl+Z',
-            role: 'redo'
-        },
-        {
-            type: 'separator'
-        },
-        {
-            label: 'Cut',
-            accelerator: 'CmdOrCtrl+X',
-            role: 'cut'
-        },
-        {
-            label: 'Copy',
-            accelerator: 'CmdOrCtrl+C',
-            role: 'copy'
-        },
-        {
-            label: 'Paste',
-            accelerator: 'CmdOrCtrl+V',
-            role: 'paste'
-        },
-        {
-            label: 'Select All',
-            accelerator: 'CmdOrCtrl+A',
-            role: 'selectall'
-        }
-    ]
-},
-{
-    label: '&View',
-    id: 'view',
-    submenu: [
-        {
-            label: 'Back',
-            accelerator: 'CmdOrCtrl+B',
-            click: function ( item, focusedWindow )
-            {
-                const { navigationHistory } = focusedWindow.webContents;
-                if ( navigationHistory.canGoBack() )
-                    navigationHistory.goBack();
-            }
-        },
-        {
-            label: 'Forward',
-            accelerator: 'CmdOrCtrl+F',
-            click: function ( item, focusedWindow )
-            {
-                const { navigationHistory } = focusedWindow.webContents;
-                if ( navigationHistory.canGoForward() )
-                    navigationHistory.goForward();
-            }
-        },
-        {
-            type: 'separator'
-        },
-        {
-            label: 'Reload',
-            accelerator: 'CmdOrCtrl+R',
-            click: function ( item, focusedWindow )
-            {
-                if ( focusedWindow )
-                    focusedWindow.reload();
-            }
-        },
-        {
-            label: 'Toggle Full Screen',
-            accelerator: ( function ()
-            {
-                if ( process.platform === 'darwin' )
-                    return 'Ctrl+Command+F';
-                else
-                    return 'F11';
-            })(),
-            click: function ( item, focusedWindow )
-            {
-                if ( focusedWindow )
-                focusedWindow.setFullScreen( !focusedWindow.isFullScreen() );
-            }
-        }
-    ]
-},
-{
-    label: '&Help',
-    id: 'help',
-    submenu: [
-        {
-            label: 'Send Test Notification',
-            click()
-            {
-                toasted.notify(
-                {
-                    title: `${ appTitle } - Test Notification`,
-                    subtitle: `${ appVer }`,
-                    message: `This is a test notification which determines if NtfyToast and toasted-notifier are working on your system. If you can see this, then everything is good.`,
-                    sound: 'Pop',
-                    open: store.get( 'instanceURL' ),
-                    persistent: true,
-                    sticky: true
-                });
-            }
-        },
-        {
-            type: 'separator'
-        },
-        {
-            label: 'Check for Updates',
-            click()
-            {
-                shell.openExternal( `${ packageJson.homepage }` );
-            }
-        },
-        {
-            label: 'Sponsor',
-            click()
-            {
-                shell.openExternal( `https://buymeacoffee.com/aetherinox` );
-            }
-        },
-        {
-            id: 'about',
-            label: 'About',
-            click()
-            {
-                const aboutTitle = `About`;
-                guiAbout = new BrowserWindow({
-                    width: 480,
-                    height: 440,
-                    title: `${ aboutTitle }`,
-                    icon: appIcon,
-                    parent: guiMain,
-                    center: true,
-                    resizable: false,
-                    fullscreenable: false,
-                    minimizable: false,
-                    maximizable: false,
-                    modal: true,
-                    backgroundColor: '#212121',
-                    webPreferences: {
-                        nodeIntegration: true,
-                        contextIsolation: false,
-                        enableRemoteModule: true
-                    }
-                });
-
-                guiAbout.loadFile( path.join( __dirname, `pages`, `about.html` ) ).then( () =>
-                {
-                    guiAbout.webContents
-                        .executeJavaScript(
-                            `
-                setTitle('${ aboutTitle }');
-                setAppInfo('${ appRepo }', '${ appTitle }', '${ appVer }', '${ appAuthor }', '${ appElectron }');`,
-                            true
-                        )
-                        .then( ( result ) => {})
-                        .catch( console.error );
-                });
-
-                guiAbout.webContents.on( 'new-window', ( e, url ) =>
-                {
-                    e.preventDefault();
-                    require( 'electron' ).shell.openExternal( url );
-                });
-
-                // Remove menubar from about window
-                guiAbout.setMenu( null );
-            }
-        }
-    ]
-}
-];
-
-/*
-    Tray > Context Menu
-*/
-
-const contextMenu = Menu.buildFromTemplate( [
-    {
-        label: 'Show App',
-        click: function ()
-        {
-            guiMain.show();
-        }
-    },
-    {
-        label: 'Quit',
-        click: function ()
-        {
-            app.isQuiting = true;
-            app.quit();
-        }
-    }
-] );
-
-/*
     Main Menu > Set
 */
 
-const menuHeader = Menu.buildFromTemplate( menuMain );
-Menu.setApplicationMenu( menuHeader );
+/**
+    must wait for app to be ready before setting dependencies
+
+    menus will be initialized in the ready() function
+*/
+
+function initializeMenus()
+{
+    setMenuDeps(
+    {
+        store,
+        bHotkeysEnabled,
+        appIcon,
+        defInstanceUrl,
+        defDatetime,
+        defPollrate,
+        minPollrate,
+        maxPollrate,
+        guiMain,
+        prompt,
+        activeDevTools,
+        IsValidUrl,
+        statusBadURL,
+        setStatusBadURL,
+        statusStrMsg,
+        setStatusStrMsg,
+        pollInterval,
+        setPollInterval,
+        GetMessages,
+        Log,
+        chalk,
+        toasted,
+        UpdateBadge,
+        shell,
+        packageJson,
+        appTitle,
+        appVer,
+        appRepo,
+        appAuthor,
+        appElectron,
+        gracefulShutdown,
+        app
+    });
+
+    /**
+        get menus
+    */
+
+    menuMain = newMenuMain();
+    contextMenu = newMenuContext();
+
+    /**
+        menu > main > Set
+    */
+
+    const menuHeader = Menu.buildFromTemplate( menuMain );
+    Menu.setApplicationMenu( menuHeader );
+
+    return { menuMain, contextMenu };
+}
 
 /*
     Main Menu > Developer Tools
@@ -1131,7 +639,11 @@ function activeDevTools()
     {
         const menuItem = menuHeader.getMenuItemById( 'view' );
 
-        menuItem.submenu.insert( 0, new MenuItem(
+        menuItem.submenu.insert( menuHeader.items.length + 1, new MenuItem(
+        {
+            type: 'separator'
+        }) );
+        menuItem.submenu.insert( menuHeader.items.length + 2, new MenuItem(
         {
             label: 'Toggle Dev Tools',
             accelerator: process.platform === 'darwin' ? 'ALT+CMD+I' : 'CTRL+SHIFT+I',
@@ -1139,9 +651,6 @@ function activeDevTools()
             {
                 guiMain.webContents.toggleDevTools();
             }
-        },
-        {
-            type: 'separator'
         }) );
     }
 }
@@ -1161,7 +670,8 @@ function ready()
         New Window
     */
 
-    guiMain = new BrowserWindow({
+    guiMain = new BrowserWindow(
+    {
         title: `${ appTitle } : v${ appVer }`,
         width: 1280,
         height: 720,
