@@ -562,6 +562,7 @@ function ready()
         width: 1280,
         height: 720,
         icon: appIcon,
+            nodeIntegration: false,                             // security: disable node integration
         backgroundColor: '#212121'
     });
 
