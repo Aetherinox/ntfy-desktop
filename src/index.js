@@ -1,9 +1,13 @@
-import { app, BrowserWindow, Tray, shell, Menu, MenuItem } from 'electron';
-import toasted from 'toasted-notifier';
+import { app, BrowserWindow, ipcMain, Tray, shell, Menu, MenuItem } from 'electron';
 import path from 'path';
 import moment from 'moment';
 import chalk from 'chalk';
-import { Storage } from './storage.js';
+import fs from 'fs';
+import toasted from 'toasted-notifier';
+import prompt from 'electron-plugin-prompts';
+import Log from './classes/Log.js';
+import Storage from './classes/Storage.js';
+import Utils from './classes/Utils.js';
 import { fileURLToPath } from 'url';
 import { newMenuMain, newMenuContext, setMenuDeps } from './classes/Menu.js';
 
@@ -112,99 +116,6 @@ const defInstanceUrl = 'https://ntfy.sh/app';
 const defDatetime = 'YYYY-MM-DD hh:mm a';
 const defPollrate = 60;
 
-
-/*
-    Define > Logs
-
-    When assigning text colors, terminals and the windows command prompt can display any color; however apps
-    such as Portainer console cannot. If you use 16 million colors and are viewing console in Portainer, colors will
-    not be the same as the rgb value. It's best to just stick to Chalk's default colors.
-
-    Various levels of logs with the following usage:
-        Log.verbose(`This is verbose`)
-        Log.debug(`This is debug`)
-        Log.info(`This is info`)
-        Log.ok(`This is ok`)
-        Log.notice(`This is notice`)
-        Log.warn(`This is warn`)
-        Log.error(
-            `Error fetching sports data with error:`,
-            chalk.white(` `),
-            chalk.grey(`This is the error message`)
-        );
-
-        Level               Type
-    -----------------------------------
-        6                   Trace
-        5                   Debug
-        4                   Info
-        3                   Notice
-        2                   Warn
-        1                   Error
-*/
-
-class Log
-{
-    static now()
-    {
-        const now = new Date();
-        return chalk.gray( `[${ now.toLocaleTimeString() }]` );
-    }
-
-    static verbose( ...msg )
-    {
-        if ( LOG_LEVEL >= 6 )
-            console.debug( chalk.white.bgBlack.blackBright.bold( ` ${ appName } ` ), chalk.white( ` ` ), this.now(), chalk.gray( msg.join( ' ' ) ) );
-    }
-
-    static debug( ...msg )
-    {
-        if ( LOG_LEVEL >= 7 )
-            console.trace( chalk.white.bgMagenta.bold( ` ${ appName } ` ), chalk.white( ` ` ), this.now(), chalk.magentaBright( msg.join( ' ' ) ) );
-        else if ( LOG_LEVEL >= 5 )
-            console.debug( chalk.white.bgGray.bold( ` ${ appName } ` ), chalk.white( ` ` ), this.now(), chalk.gray( msg.join( ' ' ) ) );
-    }
-
-    static info( ...msg )
-    {
-        if ( LOG_LEVEL >= 4 )
-            console.log( chalk.white.bgBlueBright.bold( ` ${ appName } ` ), chalk.white( ' ' ), this.now(), chalk.blueBright( msg.join( ' ' ) ) );
-    }
-
-    static ok( ...msg )
-    {
-        if ( LOG_LEVEL >= 4 )
-            console.log( chalk.white.bgGreen.bold( ` ${ appName } ` ), chalk.white( ` ` ), this.now(), chalk.greenBright( msg.join( ' ' ) ) );
-    }
-
-    static notice( ...msg )
-    {
-        if ( LOG_LEVEL >= 3 )
-            console.log( chalk.white.bgYellow.bold( ` ${ appName } ` ), chalk.white( ` ` ), this.now(), chalk.yellowBright( msg.join( ' ' ) ) );
-    }
-
-    static warn( ...msg )
-    {
-        if ( LOG_LEVEL >= 2 )
-            console.warn( chalk.white.bgYellow.bold( ` ${ appName } ` ), chalk.white( ` ` ), this.now(), chalk.yellowBright( msg.join( ' ' ) ) );
-    }
-
-    static error( ...msg )
-    {
-        if ( LOG_LEVEL >= 1 )
-            console.error( chalk.white.bgRedBright.bold( ` ${ appName } ` ), chalk.white( ` ` ), this.now(), chalk.redBright( msg.join( ' ' ) ) );
-    }
-
-    static broadcast( window, ...msg )
-    {
-        console.log( msg.join( ' ' ) );
-        if ( window && window.webContents )
-        {
-            window.webContents.executeJavaScript( `console.log("${ msg.join( ' ' ) }")` );
-        }
-    }
-}
-
 /*
     Define > Store Values
 
@@ -228,26 +139,6 @@ const store = new Storage(
         datetime: defDatetime
     }
 });
-
-/*
-    helper > valid json
-
-    parse json string to make sure it is valid.
-*/
-
-function isJsonString( json )
-{
-    try
-    {
-        JSON.parse( json );
-    }
-    catch ( e )
-    {
-        return false;
-    }
-
-    return true;
-}
 
 /*
     helper > validate instance url
@@ -409,7 +300,7 @@ async function GetMessages( )
         will be thrown if the instance url does not return valid json (ntfy server possibly down?)
     */
 
-    if ( isJsonString( json ) === false )
+    if ( Utils.isJsonString( json ) === false )
     {
         Log.error( `core`, chalk.redBright( `[messages]` ), chalk.white( `:  ` ),
             chalk.redBright( `<msg>` ), chalk.gray( `Polling for new messages returned invalid json; skipping fetch. Change your instance URL to a valid ntfy instance.` ),
@@ -555,10 +446,6 @@ async function GetMessages( )
 
     return json;
 }
-
-/*
-    Main Menu > Set
-*/
 
 /**
     must wait for app to be ready before setting dependencies
