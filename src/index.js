@@ -322,16 +322,24 @@ async function GetMessageData( uri )
 
     try
     {
+        const controller = new AbortController();
+        const timeoutId = setTimeout( () => controller.abort(), 30000 );    // 30 second timeout
+
         const req = await fetch( uri,
         {
             method: 'GET',
+            signal: controller.signal,
             headers: {
                 Accept: 'application/json',
-                Authorization: `Bearer ${ store.get( 'apiToken' ) }`
+                Authorization: `Bearer ${ store.get( 'apiToken' ) || '' }`,
+                'User-Agent': `ntfy-desktop/${ appVer }`,
+                'Cache-Control': 'no-cache'
             }
         });
 
-        /*
+        clearTimeout( timeoutId );
+
+        /**
             ntfy has the option to output message results as json, however the structure of that json
             is not properly formatted json and adds a newline to the end of each message.
 
@@ -360,13 +368,24 @@ async function GetMessageData( uri )
     }
     catch ( err )
     {
-        Log.error( `core`, chalk.redBright( `[messages]` ), chalk.white( `:  ` ),
-            chalk.redBright( `<msg>` ), chalk.gray( `Failed to get messages from ntfy server` ),
-            chalk.redBright( `<error>` ), chalk.gray( `${ err.message }` ) );
+        if ( err.name === 'AbortError' )
+        {
+            Log.warn( `core`, chalk.yellow( `[messages]` ), chalk.white( `:  ` ),
+                chalk.yellowBright( `<msg>` ), chalk.gray( `Request to ntfy server timed out` ),
+                chalk.yellowBright( `<uri>` ), chalk.gray( `${ uri }` ) );
+        }
+        else
+        {
+            Log.error( `core`, chalk.redBright( `[messages]` ), chalk.white( `:  ` ),
+                chalk.redBright( `<msg>` ), chalk.gray( `Failed to get messages from ntfy server` ),
+                chalk.redBright( `<error>` ), chalk.gray( `${ err.message }` ),
+                chalk.redBright( `<uri>` ), chalk.gray( `${ uri }` ) );
+        }
+        return null;
     }
 }
 
-/*
+/**
     Get Messages
 
     ntfy url requires '&poll=1' otherwise the requests will freeze.
