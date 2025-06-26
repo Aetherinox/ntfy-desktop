@@ -807,12 +807,6 @@ function ready()
         chalk.blueBright( `<electron>` ), chalk.gray( `${ appElectron }` ) );
 
     /**
-        initialize menus first
-    */
-
-    initializeMenus();
-
-    /**
         new window
     */
 
@@ -835,6 +829,12 @@ function ready()
         },
         backgroundColor: '#212121'
     });
+
+    /**
+        initialize menu after window creation when guiMain is available
+    */
+
+    initializeMenus();
 
     /**
         Load default url to main window

@@ -171,7 +171,16 @@ function newMenuMain()
 
                                         if ( deps.store.getInt( 'bLocalhost' ) === 1 )
                                         {
-                                            deps.guiMain.loadURL( newUrl );
+                                            deps.store.set( 'newUrl', newUrl );
+
+                                            try
+                                            {
+                                                deps.guiMain.loadURL( newUrl );
+                                            }
+                                            catch ( error )
+                                            {
+                                                console.error( 'Error calling loadURL:', error );
+                                            }
                                         }
                                         else
                                         {
@@ -179,12 +188,14 @@ function newMenuMain()
                                             {
                                                 deps.statusBadURL = false;
                                                 console.log( `Successfully resolved ` + deps.store.get( 'instanceURL' ) );
+                                                console.log( 'Loading URL after validation:', deps.store.get( 'instanceURL' ) );
                                                 deps.guiMain.loadURL( deps.store.get( 'instanceURL' ) );
                                             }).catch( ( err ) =>
                                             {
                                                 deps.statusBadURL = true;
                                                 const msg = `Failed to resolve ` + deps.store.get( 'instanceURL' ) + ` - defaulting to ${ deps.defInstanceUrl }`;
                                                 deps.statusStrMsg = `${ msg }`;
+                                                console.error( `URL validation failed: ${ err.message }` );
                                                 console.error( `${ msg }` );
                                                 deps.store.set( 'instanceURL', deps.defInstanceUrl );
                                                 deps.guiMain.loadURL( deps.defInstanceUrl );
