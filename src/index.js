@@ -145,28 +145,137 @@ const store = new Storage(
 
 function IsValidUrl( uri, tries, delay )
 {
+    const originalTries = tries;                                                // Store original value for error reporting
     return new Promise( ( success, reject ) =>
     {
         ( function rec( i )
         {
-            fetch( uri,
-            {
-                mode: 'no-cors',
-                redirect: 'follow',
-                headers: {
-                    accept: '*/*',
-                    'cache-control': 'max-age=0'
-                }
-            }).then( ( r ) =>
-            {
-                success( r ); // success: resolve promise
-            }).catch( ( err ) =>
-            {
-                if ( tries === 0 ) // num of tries reached
-                    return reject( err );
+            /**
+                create an AbortController for timeout handling
+            */
 
-                setTimeout( () => rec( --tries ), delay ); // retry
-            }); // retries exceeded
+            const controller = new AbortController();
+            const timeoutId = setTimeout( () => controller.abort(), 10000 );    // 10 sec timeout
+
+            /**
+                determine if this is a localhost/local network url
+            */
+
+            const isLocalUrl = uri.includes( 'localhost' ) ||
+                              uri.includes( '127.0.0.1' ) ||
+                              uri.includes( '0.0.0.0' ) ||
+                              uri.match( /^https?:\/\/(192\.168\.|10\.|172\.(1[6-9]|2[0-9]|3[01])\.)/i );
+
+            /**
+                configure fetch options based on URL type
+            */
+
+            const fetchOptions =
+            {
+                method: 'HEAD',                                                 // use HEAD request for faster validation
+                redirect: 'follow',
+                signal: controller.signal,
+                headers: {
+                    'User-Agent': 'ntfy-desktop-validator/1.0',
+                    Accept: '*/*',
+                    'Cache-Control': 'no-cache'
+                }
+            };
+
+            /**
+                specifically for localhost and local network urls, use different mode
+            */
+
+            if ( isLocalUrl )
+            {
+                fetchOptions.mode = 'cors';
+                fetchOptions.headers[ 'Access-Control-Request-Method' ] = 'HEAD';       // add additional headers that might be needed for local apps
+            }
+            else
+            {
+                fetchOptions.mode = 'no-cors';
+            }
+
+            fetch( uri, fetchOptions )
+            .then( ( response ) =>
+            {
+                clearTimeout( timeoutId );
+
+                /**
+                    no-CORS mode
+
+                    we can't check status, but if we get here, the URL resolved
+                */
+
+                if ( fetchOptions.mode === 'no-cors' )
+                {
+                    success( response );
+                    return;
+                }
+
+                /**
+                    CORS mode (localhost / self-hosted)
+
+                    check if response is reasonable
+                    accept any response that isn't a clear network error
+                */
+
+                if ( response.status < 500 || response.type === 'opaque' )
+                    success( response );
+                else
+                    throw new Error( `Server error: ${ response.status }` );
+            })
+            .catch( ( err ) =>
+            {
+                clearTimeout( timeoutId );
+
+                /**
+                    for localhost urls, try a fallback GET request if HEAD fails
+                */
+
+                if ( isLocalUrl && fetchOptions.method === 'HEAD' && tries > 1 )
+                {
+                    const fallbackOptions = { ...fetchOptions, method: 'GET' };
+                    const fallbackController = new AbortController();
+                    const fallbackTimeoutId = setTimeout( () => fallbackController.abort(), 5000 );
+                    fallbackOptions.signal = fallbackController.signal;
+
+                    fetch( uri, fallbackOptions )
+                    .then( ( response ) =>
+                    {
+                        clearTimeout( fallbackTimeoutId );
+
+                        if ( response.status < 500 || response.type === 'opaque' )
+                            success( response );
+                        else
+                            throw new Error( `Server error: ${ response.status }` );
+                    })
+                    .catch( ( fallbackErr ) =>
+                    {
+                        clearTimeout( fallbackTimeoutId );
+
+                        if ( tries === 0 )
+                            return reject( new Error( `Failed to validate URL: ${ fallbackErr.message }` ) );
+
+                        setTimeout( () => rec( --tries ), delay );
+                    });
+
+                    return;
+                }
+
+                if ( tries === 0 )
+                {
+                    let errorMsg = `Failed to resolve URL after ${ originalTries } attempts`;
+                    if ( err.name === 'AbortError' )
+                        errorMsg += ' (timeout)';
+                    else if ( err.message )
+                        errorMsg += `: ${ err.message }`;
+
+                    return reject( new Error( errorMsg ) );
+                }
+
+                setTimeout( () => rec( --tries ), delay );
+            });
         })( tries );
     });
 }
