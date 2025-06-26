@@ -207,7 +207,7 @@ export default
             '@stylistic/arrow-spacing': [ 'error', { before: true, after: true }],
             '@stylistic/semi-spacing': [ 'error', {
                 before: false,
-                after: false
+                after: true
             }],
             '@stylistic/space-before-function-paren': [ 'error', {
                 anonymous: 'always',

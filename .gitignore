@@ -113,6 +113,7 @@
 !versions.json
 
 !/src
+!/src/*.ts
 /src/node_modules
 /src/playwright
 /src/playwright-report
