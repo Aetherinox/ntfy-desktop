@@ -96,9 +96,9 @@ const bStartHidden = 0;
     Define > Status
 */
 
-let statusBoolError = false;
-let statusBadURL = false;
-let statusStrMsg;
+let statusBoolError = false;                        // user instance url returned error
+let statusBadURL = false;                           // user instance url entered a bad url
+let statusStrMsg;                                   // string status message
 let isShuttingDown = false;                         // determine if app is currently attempting to shut down
 let pollInterval = null;                            // store interval reference for proper cleanup
 
@@ -110,8 +110,8 @@ let pollInterval = null;                            // store interval reference 
         ["{\"code\":42909,\"http\":429,\"error\":\"limit reached: too many auth failures; increase your limits with a paid plan, see https://ntfy.sh\",\"link\":\"https://ntfy.sh/docs/publish/#limitations\"}"]
 */
 
-const defInstanceUrl = 'https://ntfy.sh/app';
-const defDatetime = 'YYYY-MM-DD hh:mm a';
+const defInstanceUrl = `https://ntfy.sh/app`;       // default instance url
+const defDatetime = `YYYY-MM-DD hh:mm a`;           // default datetime format
 const defPollrate = 60;                             // default polling rate
 const minPollrate = 5;                              // minimum poll rate to prevent rate limiting
 const maxPollrate = 3600;                           // maximum poll rate (1 hour)
@@ -666,6 +666,15 @@ async function GetMessages( )
     helper functions to manage state
 */
 
+function setStatusBadURL( value )
+{
+    statusBadURL = value;
+}
+
+function setStatusStrMsg( value )
+{
+    statusStrMsg = value;
+}
 
 function setPollInterval( value )
 {
