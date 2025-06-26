@@ -54,17 +54,19 @@
   - [CLI Arguments](#cli-arguments)
 - [Build](#build)
   - [Method: Build Script](#method-build-script)
-    - [Linux](#linux)
     - [Windows](#windows)
+    - [Linux](#linux)
     - [MacOSX](#macosx)
   - [Method: Package.json Command](#method-packagejson-command)
     - [Summary](#summary)
-    - [Linux](#linux-1)
     - [Windows](#windows-1)
+    - [Linux](#linux-1)
     - [MacOSX](#macosx-1)
 - [Tests](#tests)
   - [Github Workflow](#github-workflow)
   - [Manual Test](#manual-test)
+    - [Playwright Tests](#playwright-tests)
+    - [Vitest Tests](#vitest-tests)
 - [Signed Releases](#signed-releases)
   - [Validate .Sig](#validate-sig)
   - [Validate SHA256SUM](#validate-sha256sum)
@@ -112,12 +114,17 @@ To install Ntfy on your system, visit the following links:
   - Can disable the keyboard shortcuts
 - Receive push notifications from ntfy server to desktop
   - Ability to adjust polling rate
-  - Modify Datetime format
-  - Optional persistent (sticky) notifications which require user interaction to clear
-  - Topic filtering
+  - Modify `datetime` format
+  - Notifications (two options):
+    1. Persistent (sticky) notifications which require user interaction to clear
+    2. Timed notifications which disappear after X seconds
+  - Topic filtering & support
+    - Defaults: `news, announcements`
 - Supports Ntfy API token
+- Taskbar unread message count / count
 - Includes [command-line arguments](#cli-arguments)
 
+<br />
 <br />
 
 ## Self-hosted vs Ntfy.sh
@@ -211,6 +218,21 @@ npm run start -- --hidden --hotkey
 
 <br />
 
+If using the pre-built binaries, pass arguments by opening your terminal / command prompt, and passing the arguments using:
+
+```shell
+# Windows
+ntfy-desktop-win32-x64/ntfy-desktop.exe --hidden --hotkey
+
+# Linux
+ntfy-desktop-linux-x64/ntfy-desktop --hidden --hotkey
+
+# MacOS
+ntfy-desktop-darwin-x64/ntfy-desktop.app/Contents/MacOS/ntfy-desktop --hidden --hotkey
+```
+
+<br />
+
 ---
 
 <br />
@@ -225,34 +247,10 @@ There are numerous ways to build this application.
 
 This method makes use of the `build.bat` and `build.sh` scripts provided in this repository. Find your operating system below and follow the instructions:
 
-- [Linux](#linux)
 - [Windows](#windows)
+- [Linux](#linux)
 - [MacOSX](#macosx)
 
-<br />
-
-### Linux
-
-Run the following commands to install NodeJS + NPM, and then Ntfy Desktop:
-
-```shell
-# Install NodeJS and NPM
-sudo apt update
-sudo apt install git nodejs npm wine64
-
-# Clone ntfy-desktop repo, make sure you are in an EMPTY folder:
-mkdir ntfy-desktop && cd ntfy-desktop/
-git clone https://github.com/aetherinox/ntfy-desktop.git .
-npm install
-npm install -g electron-packager
-sudo ln -s /usr/bin/wine /usr/bin/wine64
-sudo chmod +x build.sh
-
-# build ntfy-desktop
-./build.sh
-```
-
-<br />
 <br />
 
 ### Windows
@@ -269,6 +267,8 @@ Next, run the following commands in Powershell or Windows Command Prompt:
 # Clone ntfy-desktop repo, make sure you are in an EMPTY folder:
 mkdir ntfy-desktop && cd ntfy-desktop/
 git clone https://github.com/aetherinox/ntfy-desktop.git .
+
+# install npm packages
 npm install
 npm install -g electron
 
@@ -279,15 +279,50 @@ npm install -g electron
 <br />
 <br />
 
+### Linux
+
+Run the following commands to install NodeJS + NPM, and then Ntfy Desktop:
+
+```shell
+# Install packages
+sudo apt update
+sudo apt install git nodejs npm wine64
+
+# create the needed folders
+mkdir ntfy-desktop && cd ntfy-desktop/
+
+# clone repo
+git clone https://github.com/aetherinox/ntfy-desktop.git .
+
+# install npm packages
+npm install
+npm install -g electron-packager
+
+# set wine symlink
+sudo ln -s /usr/bin/wine /usr/bin/wine64
+
+# change permissions
+sudo chmod +x build.sh
+
+# build ntfy
+./build.sh
+```
+
+<br />
+<br />
+
 ### MacOSX
 
-Install NodeJS with NPM by going to the following URL. Make sure to select your current operating system at the top:
+Install NodeJS with NPM by going to the following URL. Make sure to select your current operating system at the top.
 
+<br />
+
+To install **node / npm**, download from:
 - https://nodejs.org/en/download
 
 <br />
 
-Install **Git** on your system next:
+To install **Git** on your system:
 
 - https://git-scm.com/downloads/mac
 
@@ -295,15 +330,32 @@ Install **Git** on your system next:
 
 Open your Terminal app and run the following commands:
 
+<br />
+
 ```shell
-# Clone ntfy-desktop repo, make sure you are in an EMPTY folder:
+# install git
+brew install git
+
+# install wine
+brew install --cask wine-stable
+
+# create the needed folders
 mkdir ntfy-desktop && cd ntfy-desktop/
+
+# clone repo
 git clone https://github.com/aetherinox/ntfy-desktop.git .
+
+# install npm packages
 npm install
 npm install -g electron-packager
+
+# set wine symlink
+sudo ln -s /usr/bin/wine /usr/bin/wine64
+
+# change permissions
 sudo chmod +x build.sh
 
-# build ntfy-desktop
+# build ntfy
 ./build.sh
 ```
 
@@ -314,8 +366,8 @@ sudo chmod +x build.sh
 
 You can also build your own copy of ntfy-desktop by executing the included `package.json` run commands.
 
-- [Linux](#linux-1)
 - [Windows](#windows-1)
+- [Linux](#linux-1)
 - [MacOSX](#macosx-1)
 
 <br />
@@ -344,32 +396,6 @@ If you are building ntfy-desktop from a **Linux** or **MacOS** machine:
 - `npm run build:lin:linux`
 - `npm run build:lin:mac`
 
-<br >
-<br >
-
-### Linux
-
-Run the following commands to install NodeJS + NPM, and then Ntfy Desktop:
-
-```shell
-# Install NodeJS and NPM
-sudo apt update
-sudo apt install git nodejs npm wine64
-
-# Clone ntfy-desktop repo, make sure you are in an EMPTY folder:
-mkdir ntfy-desktop && cd ntfy-desktop/
-git clone https://github.com/aetherinox/ntfy-desktop.git .
-npm install
-npm install -g electron-packager
-sudo ln -s /usr/bin/wine /usr/bin/wine64
-
-# build ntfy-desktop from Windows machine
-npm run build:win:linux
-
-# build ntfy-desktop from Linux machine
-npm run build:lin:linux
-```
-
 <br />
 <br />
 
@@ -384,21 +410,54 @@ Install NodeJS with NPM by going to the following URL. Make sure to select your 
 Next, run the following commands in Powershell or Windows Command Prompt:
 
 ```shell
-# Clone ntfy-desktop repo, make sure you are in an EMPTY folder:
+# create the needed folders
 mkdir ntfy-desktop && cd ntfy-desktop/
-git clone https://github.com/aetherinox/ntfy-desktop.git .
-npm install
-npm install -g electron
 
-# build ntfy-desktop from Windows machine
+# clone repo
+git clone https://github.com/aetherinox/ntfy-desktop.git .
+
+# install npm packages
+npm install
+npm install -g electron-packager
+
+# build ntfy-desktop from Windows to Windows machine
 npm run build:win:windows
 
-# build ntfy-desktop from Linux machine
+# build ntfy-desktop from Windows to Linux machine
 npm run build:lin:windows
 ```
 
-<br />
-<br />
+<br >
+<br >
+
+### Linux
+
+Run the following commands to install NodeJS + NPM, and then Ntfy Desktop:
+
+```shell
+# Install NodeJS and NPM
+sudo apt update
+sudo apt install git nodejs npm wine64
+
+# create the needed folders
+mkdir ntfy-desktop && cd ntfy-desktop/
+
+# clone repo
+git clone https://github.com/aetherinox/ntfy-desktop.git .
+
+# install npm packages
+npm install
+npm install -g electron-packager
+
+# set wine symlink
+sudo ln -s /usr/bin/wine /usr/bin/wine64
+
+# build ntfy-desktop from Linux to Windows machine
+npm run build:lin:linux
+
+# build ntfy-desktop from Linux to Linux machine
+npm run build:lin:windows
+```
 
 <br />
 <br />
@@ -420,16 +479,27 @@ Install **Git** on your system next:
 Open your Terminal app and run the following commands:
 
 ```shell
-# Clone ntfy-desktop repo, make sure you are in an EMPTY folder:
+# Install NodeJS and NPM
+sudo apt update
+sudo apt install git nodejs npm wine64
+
+# create the needed folders
 mkdir ntfy-desktop && cd ntfy-desktop/
+
+# clone repo
 git clone https://github.com/aetherinox/ntfy-desktop.git .
+
+# install npm packages
 npm install
 npm install -g electron-packager
 
-# build ntfy-desktop from Windows machine
+# set wine symlink
+sudo ln -s /usr/bin/wine /usr/bin/wine64
+
+# build ntfy-desktop from Windows to MacOS machine
 npm run build:win:mac
 
-# build ntfy-desktop from Linux machine
+# build ntfy-desktop from Linux toL MacOS machine
 npm run build:lin:mac
 ```
 
@@ -473,7 +543,7 @@ npx playwright install
 
 ## Github Workflow
 
-You can fork this repository and run the Github workflow
+You can fork this repository and run the included Github workflows
 - https://github.com/Aetherinox/ntfy-desktop/blob/f794bb835cb68a2b6da74d9161e7432c673179ea/.github/workflows/npm-tests.yml
 
 <br />
@@ -484,9 +554,16 @@ In order for the workflow to work, your Github or self-hosted runner must have n
 
 ## Manual Test
 
-You can manually test this project by running the command:
+You can also run the included tests manually without a Github workflow with the instructions below.
+
+<br />
+
+### Playwright Tests
+
+These tests specifically check the Electron app itself. They will attempt to open ntfy-desktop and make sure the application is in working order. These tests do NOT test the back-end code of the app. 
 
 ```shell
+cd ./src
 npm run test
 ```
 
@@ -499,7 +576,9 @@ You should see numerous windows open and multiple copies of Ntfy Desktop start u
 If you want to run the tests from a CI without having a GUI available to see the tests; you can run the command:
 
 ```shell
-xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" npx playwright test --trace on
+xvfb-run --auto-servernum \
+  --server-args="-screen 0 1280x960x24" npx playwright test \
+  --trace on
 ```
 
 <br />
@@ -507,7 +586,10 @@ xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" npx playwright t
 If you want to run the tests, while having Electron running in debug / verbose mode; run the command:
 
 ```shell
-DISPLAY=:0 DEBUG=pw:browser xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" npx playwright test --trace on
+DISPLAY=:0 DEBUG=pw:browser xvfb-run \
+  --auto-servernum \
+  --server-args="-screen 0 1280x960x24" npx playwright test \
+  --trace on
 ```
 
 <br />
@@ -535,6 +617,35 @@ ntfy
 To open last HTML report run:
 
   npx playwright show-report
+```
+
+<br />
+<br />
+
+### Vitest Tests
+
+These tests check the back-end functionality of the app, including a lot of the functions that the source code comes with.
+
+```shell
+cd ./src
+npm run test:unit:run
+```
+
+<br />
+
+The results for the tests will be printed in your terminal / command prompt.
+
+```shell
+ RUN  v3.2.4 ntfy-desktop/src
+
+ ✓ tests/storage.test.js (23 tests) 17ms
+ ✓ tests/utils.test.js (26 tests) 31ms
+ ✓ tests/logging.test.js (8 tests) 28ms
+
+ Test Files  3 passed (3)
+      Tests  57 passed (57)
+   Start at  10:19:17
+   Duration  577ms (transform 158ms, setup 0ms, collect 427ms, tests 76ms, environment 1ms, prepare 377ms)
 ```
 
 <br />
