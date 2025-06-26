@@ -563,6 +563,7 @@ function ready()
         height: 720,
         icon: appIcon,
             nodeIntegration: false,                             // security: disable node integration
+            contextIsolation: true,                             // security: enable context isolation
         backgroundColor: '#212121'
     });
 
