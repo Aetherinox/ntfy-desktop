@@ -1,0 +1,75 @@
+<html lang="en">
+	<head>
+		<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
+		<title>About</title>
+		<link href="css/bootstrap.min.css" rel="stylesheet">
+		<link rel="stylesheet" href="css/style.css?v=1.0.1">
+
+		<!--
+		Electron:	Line required for script imports
+					Add before all other JS files are loaded.
+		-->
+		<script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
+	</head>
+
+	<body>
+		<div class="banner">
+			<div class="text-white banner-title" id="app_name">Ntfy Desktop</div>
+			<div class="text-white banner-version" id="app_version">v2.0.0</div>
+		</div>
+
+		<div class="align-c mt-4">
+			<img class="img" src="images/cover_1.png" alt="icon" style="width: 260px;">
+		</div>
+
+		<div class="mt-3 mb-3 align-c text-primary author" id="app_author">Aetherinox</div>
+		<div class="mt-1 mb-1 align-c text-primary derived" id="app_electron">Electron v34.0.0</div>
+		<div class="mt-1 mb-3 align-c text-white license">ntfy-desktop is licensed under GPLv3 or later.</div>
+
+		<div class="mt-4" id="images">
+			<a onclick="lnk_Github(event)" target="_blank" rel="noopener noreferrer" href="{$REPO}">
+				<img class="badges" border="0" alt="Badge: Github Repo" src="https://img.shields.io/badge/View%20Repo-Github?style=for-the-badge&logo=github&logoColor=FFFFFF&color=de2343">
+			</a>
+			<a onclick="lnk_Docs(event)" target="_blank" rel="noopener noreferrer" href="{$REPO}">
+				<img class="badges" border="0" alt="Badge: Docs" src="https://img.shields.io/badge/View%20Docs-Github?style=for-the-badge&logo=gitbook&logoColor=FFFFFF&color=29685b">
+			</a>
+			<a onclick="lnk_Donate(event)" target="_blank" rel="noopener noreferrer" href="{$REPO}">
+				<img class="badges" border="0" alt="Badge: Donate" src="https://img.shields.io/badge/Sponsor-Project?style=for-the-badge&logo=buymeacoffee&logoColor=FFFFFF&color=1c66a7">
+			</a>
+		</div>
+
+		<script>
+			window.addEventListener('blur', function () {
+				window.close();
+			});
+
+			function lnk_Github(e) {
+				e.preventDefault();
+				require('electron').shell.openExternal('https://github.com/aetherinox/ntfy-desktop');
+			}
+
+			function lnk_Docs(e) {
+				e.preventDefault();
+				require('electron').shell.openExternal('https://github.com/aetherinox/ntfy-desktop/blob/main/README.md');
+			}
+
+			function lnk_Donate(e) {
+				e.preventDefault();
+				require('electron').shell.openExternal('https://buymeacoffee.com/aetherinox');
+			}
+
+			function setTitle(title) {
+			    document.title = title;
+			}
+
+			function setAppInfo(repo, name, ver, author, electron) {
+                document.querySelector("a[href^='{$REPO}']").href = repo;
+				document.querySelector('#app_name').textContent = name;
+				document.querySelector('#app_version').textContent = 'v' + ver;
+				document.querySelector('#app_author').textContent = author;
+				document.querySelector('#app_electron').textContent = 'Electron v' + electron;
+			}
+		</script>
+	</body>
+</html>

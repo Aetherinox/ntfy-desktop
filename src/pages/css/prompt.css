@@ -1,0 +1,253 @@
+body
+{
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    line-height: 1.5em;
+	background-color: #212121;
+	color: #FFFFFF;
+    overflow-y: hidden;
+}
+
+::-webkit-scrollbar
+{
+    width: 0 !important;
+    display: none;
+}
+
+#container
+{
+	overflow: hidden;
+    justify-content: center;
+    display: flex;
+    height: 100%;
+    overflow-y: hidden;
+}
+
+#data-container
+{
+    text-align: left;
+}
+
+#data-container > label
+{
+    text-align: left;
+    font-size: 0.95rem;
+    padding-bottom: 0px;
+    font-weight: 200;
+}
+
+#data-container > description
+{
+    text-align: left;
+    font-size: 0.83rem;
+    padding-bottom: 10px;
+    opacity: 0.5;
+    font-weight: 100;
+}
+
+#label
+{
+    max-width: 100%;
+    max-height: 100%;
+    margin-bottom: 0.8em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+	text-align: left;
+	padding: 0 0 0 0;
+    font-size: 1.5em;
+    font-weight: 100;
+}
+
+#description
+{
+    max-width: 100%;
+    max-height: 100%;
+    margin-bottom: 0.8em;
+    padding: 0 0.5em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 0.7em;
+}
+
+#data
+{
+    border-radius: 2px;
+    background: #fff;
+    width: 90%;
+    padding: 0.4em 0.5em;
+    border: 1px solid black;
+    min-height: 2em;
+    margin: 0 0 1.2em;
+}
+
+select#data
+{
+    height: 2em;
+}
+
+#buttons
+{
+    text-align: right;
+    padding: 0 0 0 0;
+}
+
+#buttons > button, #buttons > input[type="submit"]
+{
+    line-height: 0.9;
+    padding: 7px 14px 7px 14px;
+    border-radius: 2px;
+    border: 0;
+    margin: 0 0 0 0.5em;
+    font-size: 0.8em;
+}
+
+#ok:hover, #ok:focus,
+#custom:hover, #custon:focus
+#cancel:hover, #cancel:focus
+{
+	outline: rgba(60, 0, 0, 0.4) solid 2px;
+}
+
+#cancel, .clearButton
+{
+	background-color: #b82355;
+	color: #FFFFFF;
+	cursor: pointer;
+}
+
+#ok, #custom, .clearButton
+{
+	background-color: #286256;
+	color: #FFFFFF;
+	cursor: pointer;
+}
+
+#ok:hover, #cancel:hover, #custom:hover, .clearButton:hover
+{
+    cursor: pointer;
+    filter: brightness(1.25);
+}
+
+/* Counter mode */
+span
+{
+    cursor: pointer;
+}
+
+/* For Counter Prompt */
+.minus, .plus
+{
+	background: rgb(0, 0, 0);
+    user-select: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    padding: 8px 5px;
+    border: 1px solid #686868;
+    display: inline-block;
+    vertical-align: middle;
+    text-align: center;
+}
+
+select:hover
+{
+    cursor: pointer;
+}
+
+/* For Select Prompt */
+option
+{
+	background-color: #07070C;
+}
+
+/** Keybind mode */
+div.keybind
+{
+    display: grid;
+    grid-template-columns: max-content max-content max-content;
+    row-gap: 20px;
+    column-gap: 10px;
+    margin: auto 0;
+    justify-content: center;
+}
+
+div.keybind button
+{
+    width: auto;
+}
+
+div.keybind label
+{
+    text-align: right;
+}
+
+div.keybind label:after
+{
+    content: ":";
+}
+
+/* For Keybind Prompt */
+.clearButton:focus
+{
+	outline: none;
+}
+
+.clearButton:hover
+{
+	background-color: rgb(5, 5, 5);
+}
+
+.keybindData:hover
+{
+	border: 1px solid rgb(56, 0, 0);
+}
+
+.keybindData:focus
+{
+	outline: 3px solid #1E0919;
+	border: 1px solid rgb(56, 0, 0);
+}
+
+#form
+{
+    width: 100%;
+    padding-top: 0.5em;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.label-desc {
+	padding-top: 4px;
+    padding-bottom: 7px;
+	font-size: 0.90rem;
+    font-weight: 200;
+	white-space: normal;
+	color: #c4c4c4;
+}
+
+#data, .keybindData
+{
+	background: rgb(50 50 50);
+    color: #45b79f;
+    border: 1px solid rgb(54, 54, 54);
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 7px;
+    padding-bottom: 7px;
+    margin-bottom: 1.5rem;
+    width: 100%;
+    font-size: 12pt;
+    font-weight: 100;
+}
+
+#data:hover
+{
+	border: 1px solid rgb(85, 85, 85);
+}
+
+#data:focus
+{
+	outline: unset;
+	border: 1px solid rgb(85, 85, 85);
+}

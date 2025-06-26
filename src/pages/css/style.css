@@ -1,0 +1,195 @@
+/*
+    @app        : ntfy-desktop
+    @url        : https://github.com/Aetherinox/ntfy-desktop
+    @author     : Aetherinox
+    @license    : GPLv3
+*/
+
+/*
+    Animation keyframes
+*/
+
+@-webkit-keyframes spin2 {
+	from { -webkit-transform: rotate(0deg);}
+	to { -webkit-transform: rotate(360deg);}
+}
+
+@keyframes spin {
+    from { transform: scale(1) rotate(0deg);}
+    to { transform: scale(1) rotate(360deg);}
+}
+
+@-webkit-keyframes fadeInDown {
+    from {
+        opacity: 0;
+        -webkit-transform: translate3d(0, -100%, 0);
+        transform: translate3d(0, -100%, 0);
+    }
+
+    to {
+        opacity: 1;
+        -webkit-transform: translate3d(0, 0, 0);
+        transform: translate3d(0, 0, 0);
+    }
+}
+
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        -webkit-transform: translate3d(0, -100%, 0);
+        transform: translate3d(0, -100%, 0);
+    }
+
+    to {
+        opacity: 1;
+        -webkit-transform: translate3d(0, 0, 0);
+        transform: translate3d(0, 0, 0);
+    }
+}
+
+@-webkit-keyframes fadeOutUp {
+    from {
+        opacity: 1;
+    }
+
+    to {
+        opacity: 0;
+        -webkit-transform: translate3d(0, -100%, 0);
+        transform: translate3d(0, -100%, 0);
+    }
+}
+
+@keyframes fadeOutUp {
+    from {
+        opacity: 1;
+    }
+
+    to {
+        opacity: 0;
+        -webkit-transform: translate3d(0, -100%, 0);
+        transform: translate3d(0, -100%, 0);
+    }
+}
+
+/*
+    Animation Classes
+*/
+
+.animated {
+    -webkit-animation-duration: 0.5s;
+    animation-duration: 0.5s;
+    -webkit-animation-fill-mode: both;
+    animation-fill-mode: both;
+}
+
+.fadeInDown {
+    -webkit-animation-name: fadeInDown;
+    animation-name: fadeInDown;
+}
+
+.fadeOutUp {
+    -webkit-animation-name: fadeOutUp;
+    animation-name: fadeOutUp;
+}
+
+/*
+    General > About
+*/
+
+body {
+    background-color: #212121;
+}
+
+a {
+    color: transparent;
+    text-decoration: underline;
+}
+
+.fl-l {
+    float: left;
+}
+
+.fl-r {
+    float: right;
+}
+
+.align-c {
+    text-align: center;
+}
+
+.banner-title {
+    font-size: 16pt;
+    font-weight: 100;
+    flex-grow: 1;
+}
+
+.banner-version {
+    font-size: 9pt;
+}
+
+.banner-heading {
+    font-size: 13pt;
+}
+
+img:hover {
+    cursor: pointer;
+    filter: brightness(1.25);
+}
+
+img.img {
+    transition: .5s ease all;
+    width: 100%;
+    object-fit:cover;
+}
+
+.img:hover {
+    transform: scale(1.1);
+    cursor: pointer;
+    filter: brightness(1.25);
+}
+
+.author {
+    padding-left: 40px;
+    padding-right: 40px;
+    font-size: 11pt;
+    font-weight: 100;
+    color: #FFFFFF !important;
+}
+
+.derived {
+    padding-left: 40px;
+    padding-right: 40px;
+    font-size: 8pt;
+    color: #a5a5a5 !important;
+}
+
+.license {
+    padding-left: 40px;
+    padding-right: 40px;
+    font-size: 8pt;
+    color: #a5a5a5 !important;
+}
+
+.badges {
+    display: inline-block;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 2px;
+    padding-right: 2px;
+    height: 30px;
+}
+
+#images {
+    text-align:center;
+}
+
+.banner {
+    position: relative;
+    display: flex;
+    -webkit-box-align: center;
+    align-items: center;
+    padding-left: 16px;
+    min-height: 56px;
+    padding-right: 24px;
+    background: linear-gradient(150deg, rgb(32, 54, 49) 0%, rgb(42, 110, 96) 100%);
+}
