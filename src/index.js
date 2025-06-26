@@ -787,8 +787,14 @@ function ready()
         chalk.blueBright( `<version>` ), chalk.gray( `${ appVer }` ),
         chalk.blueBright( `<electron>` ), chalk.gray( `${ appElectron }` ) );
 
-    /*
-        New Window
+    /**
+        initialize menus first
+    */
+
+    initializeMenus();
+
+    /**
+        new window
     */
 
     guiMain = new BrowserWindow(
