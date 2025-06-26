@@ -247,12 +247,12 @@ jobs:
 
             - name: '👁️‍🗨️ Get Package Version'
               id: task_initialize_package_getversion
+              working-directory: ./src
               run: |
                   VER=$(cat package.json | jq -r '.version')
                   echo "PACKAGE_VERSION=$VER" >> $GITHUB_OUTPUT
 
             - name: '👁️‍🗨️ Get Package Version › Print'
-              id: task_initialize_package_getversion_debug
               run: |
                   echo "VERSION: ${{ steps.task_initialize_package_getversion.outputs.PACKAGE_VERSION }}"
 
