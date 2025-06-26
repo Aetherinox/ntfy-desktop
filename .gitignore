@@ -111,13 +111,24 @@
 !root.cjs
 !root.mjs
 !versions.json
+
 !/src
 /src/node_modules
 /src/playwright
 /src/playwright-report
 /src/test-results
+
 !src/Classes/
 !src/Classes/*.js
+
+!/src/assets
+!/src/assets/**
+
+!/src/tests
+!/src/tests/**
+
+!/src/pages
+!/src/pages/**
 
 # #
 #   [WL]: Electron
@@ -131,5 +142,5 @@
 
 !*playwright.config.js
 !/example
-!/test
+!/tests
 !/Tests
