@@ -564,6 +564,8 @@ function ready()
         icon: appIcon,
             nodeIntegration: false,                             // security: disable node integration
             contextIsolation: true,                             // security: enable context isolation
+            enableRemoteModule: false,                          // security: disable remote module
+            allowRunningInsecureContent: false,                 // security: block insecure content
         backgroundColor: '#212121'
     });
 
