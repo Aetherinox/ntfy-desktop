@@ -565,7 +565,10 @@ function ready()
             nodeIntegration: false,                             // security: disable node integration
             contextIsolation: true,                             // security: enable context isolation
             enableRemoteModule: false,                          // security: disable remote module
+            webSecurity: true,                                  // security: enable web security
             allowRunningInsecureContent: false,                 // security: block insecure content
+            experimentalFeatures: false                         // security: disable experimental features
+        },
         backgroundColor: '#212121'
     });
 
