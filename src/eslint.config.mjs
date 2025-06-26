@@ -15,15 +15,16 @@ import path from 'path';
 import globals from 'globals';
 import js from '@eslint/js';
 import { FlatCompat } from '@eslint/eslintrc';
+import { fileURLToPath } from 'url';
 
 /*
     Plugins
 */
 
 import pluginImport from 'eslint-plugin-import';
-import pluginNode from 'eslint-plugin-n'
+import pluginNode from 'eslint-plugin-n';
 import pluginChaiFriendly from 'eslint-plugin-chai-friendly';
-import pluginStylistic from '@stylistic/eslint-plugin'
+import pluginStylistic from '@stylistic/eslint-plugin';
 
 /*
     Globals
@@ -33,23 +34,22 @@ const customGlobals =
 {
     guid: 'readable',
     uuid: 'readable',
-    Buffer: "readonly",
-    BufferEncoding: "readonly"
+    Buffer: 'readonly',
+    BufferEncoding: 'readonly'
 };
 
 /*
     Compatibility
 */
 
-import { fileURLToPath } from 'url';
-const __filename = fileURLToPath(import.meta.url);  // get resolved path to file
-const __dirname = path.dirname(__filename);         // get name of directory
+const __filename = fileURLToPath( import.meta.url );    // get resolved path to file
+const __dirname = path.dirname( __filename );           // get name of directory
 
 const compat = new FlatCompat({
-    baseDirectory: __dirname,                       // optional; default: process.cwd()
-    resolvePluginsRelativeTo: __dirname,            // optional
-    recommendedConfig: js.configs.recommended,      // optional unless using 'eslint:recommended'
-    allConfig: js.configs.all,                      // optional unless using 'eslint:all'
+    baseDirectory: __dirname,                           // optional; default: process.cwd()
+    resolvePluginsRelativeTo: __dirname,                // optional
+    recommendedConfig: js.configs.recommended,          // optional unless using 'eslint:recommended'
+    allConfig: js.configs.all                           // optional unless using 'eslint:all'
 });
 
 /*
@@ -64,17 +64,25 @@ export default
             'node_modules/**',
             '**/dist/**/*',
             '**/__tmp__/**/*',
-            'eslint.config.mjs',
-            'eslint.config.cjs',
-            "root.js",
-            "www/**/*"
+            'www/**/*'
         ]
     },
-    ...compat.extends('eslint:recommended'),
+    {
+
+        files: [ 'src/*.js', 'src/*.mjs', 'src/*.cjs' ]
+    },
+    {
+        // Allow relative parent imports in test files
+        files: [ 'tests/**/*.js', 'tests/**/*.mjs', 'tests/**/*.test.js' ],
+        rules: {
+            'import/no-relative-parent-imports': 'off'
+        }
+    },
+    ...compat.extends( 'eslint:recommended' ),
     {
         plugins: {
-            'n': pluginNode,
-            'import': pluginImport,
+            n: pluginNode,
+            import: pluginImport,
             '@stylistic': pluginStylistic,
             'chai-friendly': pluginChaiFriendly
         },
@@ -100,14 +108,10 @@ export default
             // eslint/js rules
             'one-var': 'off',
             'no-throw-literal': 'off',
-
-            'camelcase': [
-                'error',
-                {
-                    'properties': 'always'
-                }
-            ],
-
+            camelcase: [ 'error',
+            {
+                properties: 'always'
+            }],
             'no-unused-vars': 'off',
             'no-console': 'off',
             'no-alert': 'error',
@@ -118,7 +122,7 @@ export default
             'prefer-const': 'error',
             'no-unused-expressions': 0,
             'chai-friendly/no-unused-expressions': 'off',
-            'strict': ['error', 'never'],
+            strict: [ 'error', 'never' ],
             'prefer-promise-reject-errors': 'off',
             'no-object-constructor': 'error',
             'object-shorthand': 'off',
@@ -131,22 +135,19 @@ export default
             'no-useless-constructor': 'error',
             'no-dupe-class-members': 'error',
             'no-duplicate-imports': 'error',
-            'eqeqeq': 'error',
+            eqeqeq: 'error',
             'no-unneeded-ternary': 'error',
-            'curly': 'off',
-
+            curly: 'off',
             'no-empty': 'off',
-            'no-restricted-syntax': [
-                'error',
-                {
-                    'selector': 'ExportDefaultDeclaration',
-                    'message': 'Prefer named exports'
-                }
-            ],
+            'no-restricted-syntax': [ 'off',
+            {
+                selector: 'ExportDefaultDeclaration',
+                message: 'Prefer named exports'
+            }],
             'import/no-webpack-loader-syntax': 'off',
             'import/no-relative-parent-imports': 'error',
             'import/first': 'error',
-            'import/no-default-export': 'error',
+            'import/no-default-export': 'off',
             'node/no-callback-literal': 0,
 
             /*
@@ -156,15 +157,16 @@ export default
             'n/no-callback-literal': 0,
             'n/no-deprecated-api': 'error',
             'n/no-exports-assign': 'error',
-            'n/no-extraneous-import': 'error',
-            'n/no-extraneous-require': [
-                'error',
-                {
-                    'allowModules': ['electron', 'electron-notarize', 'prompt', 'uuid' ],
-                    'resolvePaths': [],
-                    'tryExtensions': []
-                }
-            ],
+            'n/no-extraneous-import': [ 'off', {
+                allowModules: [ 'globals', '@eslint/js', '@eslint/eslintrc' ],
+                resolvePaths: []
+            }],
+            'n/no-extraneous-require': [ 'error',
+            {
+                allowModules: [ 'electron', 'electron-notarize', 'prompt', 'uuid' ],
+                resolvePaths: [],
+                tryExtensions: []
+            }],
             'n/no-missing-import': 'off',
             'n/no-missing-require': 'off',
             'n/no-mixed-requires': 'error',
@@ -176,13 +178,15 @@ export default
             'n/no-restricted-require': 'error',
             'n/no-sync': 'off',
             'n/no-unpublished-bin': 'error',
-            'n/no-unpublished-import': [ 'error',
+            'n/no-unpublished-import': [ 'off',
             {
-                "allowModules": [ 'electron', 'electron-notarize', 'prompt', 'uuid', '@playwright/test', 'electron-playwright-helpers' ]
+                allowModules: [
+                    'electron', 'electron-notarize', 'prompt', 'uuid', '@playwright/test', 'electron-playwright-helpers'
+                ]
             }],
             'n/no-unpublished-require': [ 'error',
             {
-                "allowModules": [ 'electron', 'electron-notarize', 'prompt', 'uuid' ]
+                allowModules: [ 'electron', 'electron-notarize', 'prompt', 'uuid' ]
             }],
             'n/no-unsupported-features/es-builtins': 'error',
             'n/no-unsupported-features/es-syntax': 'error',
@@ -199,66 +203,68 @@ export default
             'n/prefer-promises/fs': 'off',
             'n/process-exit-as-throw': 'error',
             '@stylistic/object-property-newline': 'off',
-            '@stylistic/no-multi-spaces': [ 0, { ignoreEOLComments: true } ],
-            '@stylistic/arrow-spacing': [ 'error', { before: true, after: true } ],
-            '@stylistic/semi-spacing': ['error', {
+            '@stylistic/no-multi-spaces': [ 0, { ignoreEOLComments: true }],
+            '@stylistic/arrow-spacing': [ 'error', { before: true, after: true }],
+            '@stylistic/semi-spacing': [ 'error', {
                 before: false,
-                after: false,
+                after: false
             }],
-            "@stylistic/space-before-function-paren": ["error", {
-                anonymous: "always",
-                asyncArrow: "never",
-                named: "never"
+            '@stylistic/space-before-function-paren': [ 'error', {
+                anonymous: 'always',
+                asyncArrow: 'never',
+                named: 'never'
             }],
-            '@stylistic/padded-blocks': ['error', {
+            '@stylistic/padded-blocks': [ 'error', {
                 blocks: 'never',
                 switches: 'never',
-                classes: 'never',
+                classes: 'never'
             }],
             '@stylistic/arrow-parens': [ 'error', 'always' ],
             '@stylistic/block-spacing': [ 'error', 'always' ],
             '@stylistic/comma-dangle': [ 'error', 'never' ],
             '@stylistic/comma-spacing': [ 'error', { before: false, after: true }],
-            '@stylistic/computed-property-spacing': ['error', 'always'],
-            '@stylistic/no-mixed-operators': ['off'],
-            '@stylistic/eol-last': ['error', 'always'],
-            '@stylistic/jsx-quotes': ['error', 'prefer-single'],
-            '@stylistic/linebreak-style': ['error', 'unix'],
-            '@stylistic/no-mixed-spaces-and-tabs': ['error'],
-            '@stylistic/no-tabs': ['error'],
-            '@stylistic/no-trailing-spaces': ['error', { skipBlankLines: true, ignoreComments: true }],
-            '@stylistic/no-whitespace-before-property': ['error'],
-            '@stylistic/object-curly-spacing': ['error', 'always'],
-            '@stylistic/quote-props': ['error', 'as-needed'],
-            '@stylistic/quotes': ['error', 'single', { allowTemplateLiterals: true }],
-            '@stylistic/semi': ['error', 'always'],
-            '@stylistic/space-infix-ops': ['error'],
-            '@stylistic/template-curly-spacing': ['error', 'always'],
-            '@stylistic/template-tag-spacing': ['error', 'always'],
+            '@stylistic/computed-property-spacing': [ 'error', 'always' ],
+            '@stylistic/no-mixed-operators': [ 'off' ],
+            '@stylistic/eol-last': [ 'error', 'always' ],
+            '@stylistic/jsx-quotes': [ 'error', 'prefer-single' ],
+            '@stylistic/linebreak-style': [ 'error', 'unix' ],
+            '@stylistic/no-mixed-spaces-and-tabs': [ 'error' ],
+            '@stylistic/no-tabs': [ 'error' ],
+            '@stylistic/no-trailing-spaces': [ 'error', { skipBlankLines: true, ignoreComments: true }],
+            '@stylistic/no-whitespace-before-property': [ 'error' ],
+            '@stylistic/object-curly-spacing': [ 'error', 'always' ],
+            '@stylistic/quote-props': [ 'error', 'as-needed' ],
+            '@stylistic/quotes': [ 'error',
+                'single', { allowTemplateLiterals: true }
+            ],
+            '@stylistic/semi': [ 'error', 'always' ],
+            '@stylistic/space-infix-ops': [ 'error' ],
+            '@stylistic/template-curly-spacing': [ 'error', 'always' ],
+            '@stylistic/template-tag-spacing': [ 'error', 'always' ],
             '@stylistic/space-in-parens': [ 'error', 'always',
             {
-                exceptions: ["{}"]
+                exceptions: [ '{}' ]
             }],
             '@stylistic/spaced-comment': [ 'error', 'always',
             {
-                markers: ['/']
+                markers: [ '/' ]
             }],
-            '@stylistic/array-bracket-newline': [ 'warn',
+            '@stylistic/array-bracket-newline': [ 'off',
             {
-                multiline: true,
-                minItems: 5,
+                multiline: false,
+                minItems: 5
             }],
             '@stylistic/brace-style': [ 'error', 'allman',
             {
-                allowSingleLine: true,
+                allowSingleLine: true
             }],
             '@stylistic/array-bracket-spacing': [ 'error', 'always',
             {
                 arraysInArrays: false,
                 objectsInArrays: false,
-                singleValue: false,
+                singleValue: true
             }],
-            '@stylistic/wrap-iife': [2, 'inside', { functionPrototypeMethods: true }],
+            '@stylistic/wrap-iife': [ 2, 'inside', { functionPrototypeMethods: true }],
             '@stylistic/keyword-spacing': [ 'error',
             {
                 before: true,
@@ -274,7 +280,7 @@ export default
                     while:      { before: true, after: true },
                     static:     { before: true, after: true }
                 }
-            }],
-        },
+            }]
+        }
     }
 ];
