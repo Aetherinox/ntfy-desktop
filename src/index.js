@@ -820,10 +820,38 @@ function ready()
             chalk.yellowBright( `<url>` ), chalk.gray( `${ defInstanceUrl }` ) );
     }
 
-    /*
-        Validate URL.
+    /**
+        Validate URL
         Invalid URLs should not perform polling.
         load default defInstanceUrl url
+
+        add renderer script injection for all instances
+    */
+
+    guiMain.webContents.on( 'dom-ready', () =>
+    {
+        try
+        {
+            const rendererContent = fs.readFileSync( path.join( __dirname, 'renderer.js' ), 'utf8' );
+            guiMain.webContents.executeJavaScript( rendererContent );
+            Log.info( `core`, chalk.yellow( `[renderer]` ), chalk.white( `:  ` ),
+                chalk.blueBright( `<msg>` ), chalk.gray( `Renderer script injected successfully` ) );
+        }
+        catch ( error )
+        {
+            Log.error( `core`, chalk.redBright( `[renderer]` ), chalk.white( `:  ` ),
+                chalk.redBright( `<msg>` ), chalk.gray( `Failed to inject renderer script` ),
+                chalk.redBright( `<error>` ), chalk.gray( `${ error.message }` ) );
+        }
+    });
+
+    /**
+        get instance url;
+        determine if the user has enabled localhost
+
+        in localhost mode, we do not validate the url
+
+        @todo: add conditions to IsValidUrl to support localhost websites
     */
 
     const instanceUrl = store.get( 'instanceURL' ) || defInstanceUrl;
@@ -1214,6 +1242,47 @@ app.on( 'window-all-closed', () =>
         gracefulShutdown();
 });
 
+/**
+    App > Activate (macOS)
+*/
+
+app.on( 'activate', () =>
+{
+    /**
+        on macos; re-create window when dock icon is clicked
+    */
+
+    if ( BrowserWindow.getAllWindows().length === 0 )
+        ready();
+});
+
+/**
+    ping functionality to announce signals from renderer
+*/
+
+app.whenReady().then( () =>
+{
+    ipcMain.handle( 'ping', () =>
+    {
+        Log.info( `ipc`, chalk.yellow( `[ping]` ), chalk.white( `:  ` ),
+            chalk.blueBright( `<msg>` ), chalk.gray( `Ping received from renderer` ) );
+
+        return 'pong';
+    });
+});
+
+/**
+    ipc > to main process
+*/
+
+ipcMain.on( 'toMain', ( event, args ) =>
+{
+    Log.info( `ipc`, chalk.yellow( `[toMain]` ), chalk.white( `:  ` ),
+        chalk.blueBright( `<msg>` ), chalk.gray( `Received message from renderer` ),
+        chalk.blueBright( `<data>` ), chalk.gray( `${ args }` ) );
+
+    guiMain.webContents.send( 'fromMain', 'Signal from main' );
+});
 
 /**
     ipc > renderer > handle button click events from renderer
