@@ -1,19 +1,31 @@
-@CD 	    /d "%~dp0"
-@ECHO 	    OFF
-TITLE       ntfy-desktop : Build
-SETLOCAL    ENABLEDELAYEDEXPANSION
-MODE        con:cols=125 lines=120
-MODE        125,40
-GOTO        comment_end
------------------------------------------------------------------------------------------------------
-    ntfy-desktop build script for:
-        - windows
-        - linux
-        - macos
------------------------------------------------------------------------------------------------------
-:comment_end
+@ECHO OFF
+@CD /d "%~dp0"
+SETLOCAL ENABLEDELAYEDEXPANSION
+TITLE ntfy-desktop Build Script
+MODE con:cols=140 lines=50
 
-ECHO.
+:: #
+::  clear screen
+:: #
+
+CLS
+
+:: #
+::  header
+:: #
+
+echo.
+echo =============================================================================
+echo                         NTFY DESKTOP BUILD SCRIPT
+echo =============================================================================
+echo.
+echo Building cross-platform desktop client for:
+echo   * Windows (x64, ia32, arm64)
+echo   * Linux   (x64, arm64, armv7l)
+echo   * macOS   (x64, arm64)
+echo.
+echo =============================================================================
+echo.
 
 :: #
 ::  Powershell zip compression
@@ -34,9 +46,11 @@ ECHO.
 ::  define:     directories
 :: #
 
-set dir_home=%~dp0
+set "dir_home=%~dp0"
+set "dir_home=%dir_home:~0,-1%"
 set dir_build=build
 set dir_dist=dist
+set dir_src=src
 
 :: #
 ::  define:     misc
@@ -60,18 +74,25 @@ set "IconMacOS=assets/icons/ntfy.icns"
 ::  /dist               contains zip archive
 :: #
 
-IF exist !dir_build! (
-    del /S /Q !dir_build!\*
-    echo Folder !dir_build! already exists
+echo [INFO] Initializing build environment...
+echo.
+
+IF exist !dir_home!\!dir_build! (
+    echo [CLEAN] Cleaning existing build directory...
+    del /S /Q !dir_home!\!dir_build!\* >nul 2>&1
+    echo [OK] Build directory cleaned
 ) ELSE (
-    md !dir_build! && echo Folder !dir_build! created
+    md !dir_home!\!dir_build! >nul 2>&1
+    echo [OK] Build directory created
 )
 
-IF exist !dir_dist! (
-    del /S /Q !dir_dist!\*
-    echo Folder !dir_dist! already exists
+IF exist !dir_home!\!dir_dist! (
+    echo [CLEAN] Cleaning existing dist directory...
+    del /S /Q !dir_home!\!dir_dist!\* >nul 2>&1
+    echo [OK] Dist directory cleaned
 ) ELSE (
-    md !dir_dist! && echo Folder !dir_dist! created
+    md !dir_home!\!dir_dist! >nul 2>&1
+    echo [OK] Dist directory created
 )
 
 :: #
@@ -83,21 +104,40 @@ set platformLinux=x64 arm64 armv7l
 set platformMac=x64 arm64
 
 :: #
+:: Change directories to /src folder
+:: ##
+
+cd !dir_home!\!dir_src!
+
+:: #
 ::  Build > Windows
 :: #
 
+echo [BUILD] Starting Windows platform builds...
+echo.
+
 for %%a in (%platformWin%) do (
     echo.
-    echo -------------------------------------------------------------------------
-    echo Building Windows-%%a
-    echo Setting Ignore Pattern: !IgnorePattern!
-    CALL electron-packager . ntfy-desktop --asar --platform="win32" --arch="%%a" --icon="!IconWindows!" --overwrite --ignore=\"!IgnorePattern!\" --prune=true --out=!dir_build! --appCopyright="!Copyright!" --win32metadata.FileDescription="!FileDescription!" --win32metadata.ProductName="!ProductName!" --win32metadata.OriginalFilename="!OriginalFilename!" --win32metadata.CompanyName="!CompanyName!"
-    powershell Compress-Archive -Path "!dir_build!/ntfy-desktop-win32-%%a" -DestinationPath "!dir_dist!/ntfy-desktop-windows-%%a.zip"
+    echo =============================================================================
+    echo [WINDOWS] Building architecture: %%a
+    echo =============================================================================
+
+    IF not exist !dir_home!\!dir_build!\ntfy-desktop-win32-%%a (
+        md !dir_home!\!dir_build!\ntfy-desktop-win32-%%a >nul 2>&1
+        echo [OK] Output directory created
+    )
+
+    echo [PACKAGE] Packaging Electron application...
+    CALL npx @electron/packager . ntfy-desktop --asar --platform="win32" --arch="%%a" --icon="!IconWindows!" --overwrite --ignore=\"!IgnorePattern!\" --prune=true --out=!dir_home!\!dir_build! --appCopyright="!Copyright!" --win32metadata.FileDescription="!FileDescription!" --win32metadata.ProductName="!ProductName!" --win32metadata.OriginalFilename="!OriginalFilename!" --win32metadata.CompanyName="!CompanyName!"
+
+    echo [COMPRESS] Creating ZIP archive...
+    powershell Compress-Archive -Path "!dir_home!\!dir_build!\ntfy-desktop-win32-%%a" -DestinationPath "!dir_home!\!dir_dist!\ntfy-desktop-windows-%%a.zip"
+    echo [OK] Windows %%a build completed successfully
 
     if "!bDeleteBuild!" == "true" (
-        rd /s /q "!dir_build!/ntfy-desktop-win32-%%a"
+        rd /s /q "!dir_home!\!dir_build!\ntfy-desktop-win32-%%a"
+        echo [CLEAN] Temporary build files removed
     )
-    echo -------------------------------------------------------------------------
     echo.
 )
 
@@ -105,18 +145,31 @@ for %%a in (%platformWin%) do (
 ::  Build > Linux
 :: #
 
+echo [BUILD] Starting Linux platform builds...
+echo.
+
 for %%a in (%platformLinux%) do (
     echo.
-    echo -------------------------------------------------------------------------
-    echo Building Linux-%%a
-    echo Setting Ignore Pattern: !IgnorePattern!
-    CALL electron-packager . ntfy-desktop --asar --platform="linux" --arch="%%a" --icon="!IconLinux!" --overwrite --ignore=\"!IgnorePattern!\" --prune=true --out=!dir_build! --appCopyright="!Copyright!" --win32metadata.FileDescription="!FileDescription!" --win32metadata.ProductName="!ProductName!" --win32metadata.OriginalFilename="!OriginalFilename!" --win32metadata.CompanyName="!CompanyName!"
-    powershell Compress-Archive -Path "!dir_build!/ntfy-desktop-linux-%%a" -DestinationPath "!dir_dist!/ntfy-desktop-linux-%%a.zip"
+    echo =============================================================================
+    echo [LINUX] Building architecture: %%a
+    echo =============================================================================
+
+    IF not exist !dir_home!\!dir_build!\ntfy-desktop-linux-%%a (
+        md !dir_home!\!dir_build!\ntfy-desktop-linux-%%a >nul 2>&1
+        echo [OK] Output directory created
+    )
+
+    echo [PACKAGE] Packaging Electron application...
+    CALL npx @electron/packager . ntfy-desktop --asar --platform="linux" --arch="%%a" --icon="!IconLinux!" --overwrite --ignore=\"!IgnorePattern!\" --prune=true --out=!dir_home!\!dir_build! --appCopyright="!Copyright!" --win32metadata.FileDescription="!FileDescription!" --win32metadata.ProductName="!ProductName!" --win32metadata.OriginalFilename="!OriginalFilename!" --win32metadata.CompanyName="!CompanyName!"
+
+    echo [COMPRESS] Creating ZIP archive...
+    powershell Compress-Archive -Path "!dir_home!\!dir_build!\ntfy-desktop-linux-%%a" -DestinationPath "!dir_home!\!dir_dist!\ntfy-desktop-linux-%%a.zip"
+    echo [OK] Linux %%a build completed successfully
 
     if "!bDeleteBuild!" == "true" (
-        rd /s /q "!dir_build!/ntfy-desktop-linux-%%a"
+        rd /s /q "!dir_home!\!dir_build!\ntfy-desktop-linux-%%a"
+        echo [CLEAN] Temporary build files removed
     )
-    echo -------------------------------------------------------------------------
     echo.
 )
 
@@ -124,30 +177,60 @@ for %%a in (%platformLinux%) do (
 ::  Build > MacOS
 :: #
 
+echo [BUILD] Starting macOS platform builds...
+echo.
+
 for %%a in (%platformMac%) do (
     echo.
-    echo -------------------------------------------------------------------------
-    echo Building MacOS-%%a
-    echo Setting Ignore Pattern: !IgnorePattern!
-    CALL electron-packager . ntfy-desktop --asar --platform="darwin" --arch="%%a" --icon="!IconMacOS!" --overwrite --ignore=\"!IgnorePattern!\"  --prune=true --out=!dir_build! --appCopyright="!Copyright!" --win32metadata.FileDescription="!FileDescription!" --win32metadata.ProductName="!ProductName!" --win32metadata.OriginalFilename="!OriginalFilename!" --win32metadata.CompanyName="!CompanyName!"
-    powershell Compress-Archive -Path "!dir_build!/ntfy-desktop-darwin-%%a" -DestinationPath "!dir_dist!/ntfy-desktop-mac-%%a.zip"
+    echo =============================================================================
+    echo [MACOS] Building architecture: %%a
+    echo =============================================================================
+
+    IF not exist !dir_home!\!dir_build!\ntfy-desktop-darwin-%%a (
+        md !dir_home!\!dir_build!\ntfy-desktop-darwin-%%a >nul 2>&1
+        echo [OK] Output directory created
+    )
+
+    echo [PACKAGE] Packaging Electron application...
+    CALL npx @electron/packager . ntfy-desktop --asar --platform="darwin" --arch="%%a" --icon="!IconMacOS!" --overwrite --ignore=\"!IgnorePattern!\" --prune=true --out=!dir_home!\!dir_build! --appCopyright="!Copyright!" --win32metadata.FileDescription="!FileDescription!" --win32metadata.ProductName="!ProductName!" --win32metadata.OriginalFilename="!OriginalFilename!" --win32metadata.CompanyName="!CompanyName!"
+
+    echo [COMPRESS] Creating TAR.GZ archive...
+    cd "!dir_home!\!dir_build!"
+    tar -czf "!dir_home!\!dir_dist!\ntfy-desktop-mac-%%a.tar.gz" "ntfy-desktop-darwin-%%a"
+    cd "!dir_home!\!dir_src!"
+    echo [OK] macOS %%a build completed successfully
 
     if "!bDeleteBuild!" == "true" (
-        rd /s /q "!dir_build!/ntfy-desktop-darwin-%%a"
+        rd /s /q "!dir_home!\!dir_build!\ntfy-desktop-darwin-%%a"
+        echo [CLEAN] Temporary build files removed
     )
-    echo -------------------------------------------------------------------------
     echo.
 )
+:: ##
 
-goto :END
+cd !dir_home!
 
 :: #
 ::  end
 :: #
 
+goto :END
 :END
     echo.
-    echo Build Complete
-    timeout /t 5 /nobreak >nul
+    echo =============================================================================
+    echo                           BUILD PROCESS COMPLETED
+    echo =============================================================================
     echo.
+    echo [SUCCESS] All platform builds have been completed successfully!
+    echo.
+    echo Output files are available in: %dir_home%\%dir_dist%
+    echo.
+    echo Build summary:
+    echo   - Windows packages: ntfy-desktop-windows-*.zip
+    echo   - Linux packages:   ntfy-desktop-linux-*.zip
+    echo   - macOS packages:   ntfy-desktop-mac-*.tar.gz
+    echo.
+    echo =============================================================================
+    echo.
+    timeout /t 5 /nobreak >nul
 Exit /B 0
