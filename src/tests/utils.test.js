@@ -442,7 +442,8 @@ describe( 'Utils JSON Functionality Tests', () =>
     {
         it( 'should return the name of a constructor when called with new', () =>
         {
-            function TestConstructor() {
+            function TestConstructor()
+            {
                 this.constructorName = Utils.getConstructorName();
             }
 
@@ -482,7 +483,7 @@ describe( 'Utils JSON Functionality Tests', () =>
                 this.init();
             }
 
-            HelperConstructor.prototype.init = function()
+            HelperConstructor.prototype.init = function ()
             {
                 this.constructorName = Utils.getConstructorName();
             };

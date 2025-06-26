@@ -350,7 +350,7 @@ async function GetMessageData( uri )
         const json = await req.text();
         const jsonArr = [];
         const entries = json.split( '\n' );
-        for ( let i = 0;i < entries.length;i++ )
+        for ( let i = 0; i < entries.length; i++ )
         {
             jsonArr.push( entries[ i ] );
         }
@@ -545,7 +545,7 @@ async function GetMessages( )
         Loop all messages to send to user notifications
     */
 
-    for ( let i = 0;i < json.length;i++ )
+    for ( let i = 0; i < json.length; i++ )
     {
         const object = JSON.parse( json[ i ] );
         const id = object.id;
@@ -919,7 +919,12 @@ function ready()
         });
     }
 
-    /*
+    // Log both at dev console and at running node console instance
+
+
+    Log.broadcast( guiMain, 'ntfy-desktop main trigger' );
+
+    /**
         Event > Page Title Update
     */
 
@@ -1150,7 +1155,7 @@ function ready()
         --quit          : quit app when close button pressed
     */
 
-    for ( let i = 0;i < process.argv.length;i++ )
+    for ( let i = 0; i < process.argv.length; i++ )
     {
         if ( process.argv[ i ] === '--hidden' )
         {
