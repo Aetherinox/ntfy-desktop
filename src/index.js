@@ -1,3 +1,9 @@
+/*
+    electron > main process
+
+    this is the main project file to initiate the electron app
+*/
+
 import { app, BrowserWindow, ipcMain, Tray, shell, Menu, MenuItem } from 'electron';
 import path from 'path';
 import moment from 'moment';
@@ -11,17 +17,8 @@ import Utils from './classes/Utils.js';
 import { fileURLToPath } from 'url';
 import { newMenuMain, newMenuContext, setMenuDeps } from './classes/Menu.js';
 
-/*
-    Define > Prompt
-
-    @docs   : https://araxeus.github.io/custom-electron-prompt/
-*/
-
-// eslint-disable-next-line n/no-extraneous-import
-import prompt from 'electron-plugin-prompts';
-
-/*
-    Define > Package
+/**
+    Define > Package.json
 */
 
 import packageJson from './package.json' with { type: 'json' };
@@ -39,27 +36,27 @@ const appIcon = app.getAppPath() + '/assets/icons/ntfy.png';
 
 let menuMain, contextMenu;
 
-/*
+/**
     Define > Env Variables
 */
 
 const LOG_LEVEL = process.env.LOG_LEVEL || 4;
 
-/*
+/**
     Define > cjs vars converted to esm
 */
 
 const __filename = fileURLToPath( import.meta.url );        // get resolved path to the file
 const __dirname = path.dirname( __filename );               // get name of the directory
 
-/*
+/**
     chalk.level
 
-    @ref        https://npmjs.com/package/chalk
-                - 0    All colors disabled
-                - 1    Basic color support (16 colors)
-                - 2    256 color support
-                - 3    Truecolor support (16 million colors)
+    @ref                https://npmjs.com/package/chalk
+                            - 0    All colors disabled
+                            - 1    Basic color support (16 colors)
+                            - 2    256 color support
+                            - 3    Truecolor support (16 million colors)
 
     When assigning text colors, terminals and the windows command prompt can display any color; however apps
     such as Portainer console cannot. If you use 16 million colors and are viewing console in Portainer, colors will
@@ -68,7 +65,7 @@ const __dirname = path.dirname( __filename );               // get name of the d
 
 chalk.level = 3;
 
-/*
+/**
     Debug > Print args
 */
 
@@ -80,23 +77,22 @@ console.log( process.argv );
 
 let guiMain, guiAbout, guiTray;
 
-/*
+/**
     Define > CLI State
 
-    bWinHidden          --hidden        app closes to tray on start
     bDevTools           --dev           dev tools added to menu
     bHotkeysEnabled     --hotkeys       keyboard shortcuts added to menu
     bQuitOnClose        --quit          when pressing top-right close button, app exits instead of going to tray
+    bWinHidden          --hidden        app closes to tray on start
 */
 
 let bDevTools = 0;
 let bHotkeysEnabled = 0;
 let bQuitOnClose = 0;
-// eslint-disable-next-line prefer-const
-let bStartHidden = 0;
 let bWinHidden = 0;
+const bStartHidden = 0;
 
-/*
+/**
     Define > Status
 */
 
@@ -116,11 +112,11 @@ const defInstanceUrl = 'https://ntfy.sh/app';
 const defDatetime = 'YYYY-MM-DD hh:mm a';
 const defPollrate = 60;
 
-/*
+/**
     Define > Store Values
 
-    @note   : defaults will not be set until the first time a user edits any of their settings.
-              storage: AppData\Roaming\ntfy-desktop
+    @note               defaults will not be set until the first time a user edits any of their settings.
+                        storage: AppData\Roaming\ntfy-desktop
 */
 
 const store = new Storage(
@@ -140,8 +136,11 @@ const store = new Storage(
     }
 });
 
-/*
+/**
     helper > validate instance url
+
+    checks a given instance url to see if it is valid.
+    this check is bypassed if the user enables localhost mode in the interface settings.
 */
 
 function IsValidUrl( uri, tries, delay )
@@ -210,7 +209,7 @@ async function GetMessageData( uri )
             jsonArr.push( entries[ i ] );
         }
 
-        /*
+        /**
             Filter out empty entry in array which was caused by the last newline
         */
 
@@ -268,7 +267,7 @@ async function GetMessages( )
         chalk.blueBright( `<topics>` ), chalk.gray( `${ cfgTopics }` ),
         chalk.blueBright( `<pollrate>` ), chalk.gray( `${ cfgPollrate }` ) );
 
-    /*
+    /**
         For the official ntfy.sh API, url must be changed internally
             https://ntfy.sh/app/ -> https://ntfy.sh/
     */
@@ -276,7 +275,7 @@ async function GetMessages( )
     if ( uri.includes( 'ntfy.sh/app' ) )
         uri = uri.replace( 'ntfy.sh/app', 'ntfy.sh' );
 
-    /*
+    /**
         Bad URL detected, skip polling
     */
 
@@ -315,7 +314,7 @@ async function GetMessages( )
         chalk.blueBright( `<query>` ), chalk.gray( `${ uri }` ),
         chalk.blueBright( `<topics>` ), chalk.gray( `${ cfgTopics }` ) );
 
-    /*
+    /**
         Loop ntfy api results.
         only items with event = 'message' will be allowed through to display in a notification.
     */
@@ -325,7 +324,7 @@ async function GetMessages( )
         chalk.blueBright( `<history>` ), chalk.gray( `${ msgHistory }` ),
         chalk.blueBright( `<messages>` ), chalk.gray( `${ JSON.stringify( json ) }` ) );
 
-    /*
+    /**
         Loop all messages to send to user notifications
     */
 
@@ -339,7 +338,7 @@ async function GetMessages( )
         const message = object.message;
         const topic = object.topic;
 
-        /*
+        /**
             Auth Error > 401
                 Unauthorized connection
         */
@@ -354,7 +353,7 @@ async function GetMessages( )
             continue;
         }
 
-        /*
+        /**
             Auth Error > 429
                 Poll limit reached
         */
@@ -369,7 +368,7 @@ async function GetMessages( )
             continue;
         }
 
-        /*
+        /**
             Other errors
         */
 
@@ -383,21 +382,21 @@ async function GetMessages( )
                 chalk.yellowBright( `<docs>` ), chalk.gray( `${ object.link }` ) );
         }
 
-        /*
+        /**
             skip other notifications that aren't messages
         */
 
         if ( type !== 'message' )
             continue;
 
-        /*
+        /**
             convert unix timestamp into human readable
         */
 
         // eslint-disable-next-line no-constant-binary-expression
         const dateHuman = moment.unix( time ).format( store.get( 'datetime' || defDatetime ) );
 
-        /*
+        /**
             debugging to console to show the status of messages
         */
 
@@ -409,7 +408,7 @@ async function GetMessages( )
             chalk.blueBright( `<id>` ), chalk.gray( `${ id }` ),
             chalk.blueBright( `<status>` ), chalk.gray( `${ msgStatus }` ) );
 
-        /*
+        /**
             @ref    : https://github.com/Aetherinox/toasted-notifier
         */
 
@@ -508,7 +507,7 @@ function initializeMenus()
     return { menuMain, contextMenu };
 }
 
-/*
+/**
     Main Menu > Developer Tools
     slides in top position of 'App' menu
 
@@ -542,8 +541,8 @@ function activeDevTools()
     }
 }
 
-/*
-    App > Ready
+/**
+    app > ready
 */
 
 function ready()
@@ -657,7 +656,7 @@ function ready()
         return false;
     });
 
-    /*
+    /**
         Event > Closed
     */
 
@@ -666,7 +665,7 @@ function ready()
         guiMain = null;
     });
 
-    /*
+    /**
         Event > New Window
 
         buttons leading to external websites should open in user browser
@@ -678,7 +677,7 @@ function ready()
         require( 'electron' ).shell.openExternal( url );
     });
 
-    /*
+    /**
         Display footer div on website if something has gone wrong.
         user shouldn't see this unless its something serious
     */
@@ -716,49 +715,41 @@ function ready()
         }
     );
 
-    /*
+    /**
         Event > Input
     */
 
     guiMain.webContents.on( 'before-input-event', ( e, input ) =>
     {
-        /*
+        /**
             Input > Refresh Page (CTRL + r)
         */
 
         if ( ( bHotkeysEnabled === 1 || store.getInt( 'bHotkeys' ) === 1 ) && input.type === 'keyDown' && input.control && input.key === 'r' )
-        {
             guiMain.webContents.reload();
-        }
 
-        /*
+        /**
             Input > Zoom In (CTRL + =)
         */
 
         if ( ( bHotkeysEnabled === 1 || store.getInt( 'bHotkeys' ) === 1 ) && input.type === 'keyDown' && input.control && input.key === '=' )
-        {
             guiMain.webContents.zoomFactor += 0.1;
-        }
 
-        /*
+        /**
             Input > Zoom Out (CTRL + -)
         */
 
         if ( ( bHotkeysEnabled === 1 || store.getInt( 'bHotkeys' ) === 1 ) && input.type === 'keyDown' && input.control && input.key === '-' )
-        {
             guiMain.webContents.zoomFactor -= 0.1;
-        }
 
-        /*
+        /**
             Input > Zoom Reset (CTRL + 0)
         */
 
         if ( ( bHotkeysEnabled === 1 || store.getInt( 'bHotkeys' ) === 1 ) && input.type === 'keyDown' && input.control && input.key === '0' )
-        {
             guiMain.webContents.zoomFactor = 1;
-        }
 
-        /*
+        /**
             Input > Quit (CTRL + q)
         */
 
@@ -768,7 +759,7 @@ function ready()
             app.quit();
         }
 
-        /*
+        /**
             Input > Minimize to tray (CTRL + m)
         */
 
@@ -778,7 +769,7 @@ function ready()
             guiMain.hide();
         }
 
-        /*
+        /**
             Input > Dev Tools (CTRL + SHIFT + I || F12)
         */
 
@@ -823,7 +814,7 @@ function ready()
         }
     });
 
-    /*
+    /**
         Tray
 
         Windows         : left-click opens app, right-click opens context menu
@@ -847,7 +838,7 @@ function ready()
         }
     });
 
-    /*
+    /**
         Loop args
 
         --hidden        : automatically hide window
@@ -883,15 +874,15 @@ function ready()
     const fetchInterval = ( ( store.get( 'pollrate' ) || defPollrate ) * 1000 ) + 600;
     setInterval( GetMessages, fetchInterval );
 
-    /*
-        Check stored setting for developer tools and set state when
+    /**
+        check stored setting for developer tools and set state when
         app launches
     */
 
     activeDevTools();
 
-    /*
-        Start minimized in tray
+    /**
+        start minimized in tray
     */
 
     if ( store.getInt( 'bStartHidden' ) === 1 || bWinHidden === 1 )
