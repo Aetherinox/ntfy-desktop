@@ -115,6 +115,7 @@ const defDatetime = 'YYYY-MM-DD hh:mm a';
 const defPollrate = 60;                             // default polling rate
 const minPollrate = 5;                              // minimum poll rate to prevent rate limiting
 const maxPollrate = 3600;                           // maximum poll rate (1 hour)
+const maxRetries = 3;                               // maximum retry attempts for network requests
 
 /**
     Define > Store Values
@@ -766,7 +767,7 @@ function ready()
     }
     else
     {
-        IsValidUrl( instanceUrl, 3, 1000 ).then( ( item ) =>
+        IsValidUrl( instanceUrl, maxRetries, 1000 ).then( ( item ) =>
         {
             Log.ok( `core`, chalk.yellow( `[instance]` ), chalk.white( `:  ` ),
                 chalk.greenBright( `<msg>` ), chalk.gray( `Specified instance successfully resolves` ),
