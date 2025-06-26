@@ -835,7 +835,7 @@ function ready()
         backgroundColor: '#212121'
     });
 
-    /*
+    /**
         Load default url to main window
 
         since the user has settings they can modify; add check to instanceUrl and ensure it is a valid string.
@@ -981,7 +981,7 @@ function ready()
     guiMain.webContents.on( 'new-window', ( e, url ) =>
     {
         e.preventDefault();
-        require( 'electron' ).shell.openExternal( url );
+        shell.openExternal( url );
     });
 
     /**
@@ -1061,10 +1061,7 @@ function ready()
         */
 
         if ( ( bHotkeysEnabled === 1 || store.getInt( 'bHotkeys' ) === 1 ) && input.type === 'keyDown' && input.control && input.key === 'q' )
-        {
-            app.isQuiting = true;
-            app.quit();
-        }
+            gracefulShutdown();
 
         /**
             Input > Minimize to tray (CTRL + m)
