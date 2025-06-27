@@ -252,6 +252,66 @@ describe( 'Storage Class Tests', () =>
         Storage.getInt
     */
 
+    /*
+        Storage.getSanitized
+    */
+
+    describe( 'getSanitized() method', () =>
+    {
+        beforeEach( () =>
+        {
+            const testData =
+            {
+                stringWithSpaces: '  hello world  ',
+                stringWithTabs: '\thello\tworld\t',
+                stringWithNewlines: '\nhello\nworld\n',
+                stringMixed: ' \t\n hello \t world \n\t ',
+                stringNoSpaces: 'helloworld',
+                emptyString: '',
+                spacesOnly: '   '
+            };
+
+            fs.readFileSync.mockReturnValue( JSON.stringify( testData ) );
+            storage = new Storage({ configName: 'test-config', defaults: {} });
+        });
+
+        it( 'should remove all whitespace from string values', () =>
+        {
+            expect( storage.getSanitized( 'stringWithSpaces' ) ).toBe( 'helloworld' );
+            expect( storage.getSanitized( 'stringWithTabs' ) ).toBe( 'helloworld' );
+            expect( storage.getSanitized( 'stringWithNewlines' ) ).toBe( 'helloworld' );
+            expect( storage.getSanitized( 'stringMixed' ) ).toBe( 'helloworld' );
+        });
+
+        it( 'should handle strings with no whitespace', () =>
+        {
+            expect( storage.getSanitized( 'stringNoSpaces' ) ).toBe( 'helloworld' );
+        });
+
+        it( 'should handle empty strings and whitespace-only strings', () =>
+        {
+            expect( storage.getSanitized( 'emptyString' ) ).toBe( '' );
+            expect( storage.getSanitized( 'spacesOnly' ) ).toBe( '' );
+        });
+
+        it( 'should handle special characters and preserve non-whitespace', () =>
+        {
+            const specialData =
+            {
+                specialChars: ' hello@world#test$ ',
+                numbers: ' 123 456 789 ',
+                symbols: ' !@#$%^&*() '
+            };
+
+            fs.readFileSync.mockReturnValue( JSON.stringify( specialData ) );
+            storage = new Storage({ configName: 'special-config', defaults: {} });
+
+            expect( storage.getSanitized( 'specialChars' ) ).toBe( 'hello@world#test$' );
+            expect( storage.getSanitized( 'numbers' ) ).toBe( '123456789' );
+            expect( storage.getSanitized( 'symbols' ) ).toBe( '!@#$%^&*()' );
+        });
+    });
+
     describe( 'getInt() method', () =>
     {
         beforeEach( () =>

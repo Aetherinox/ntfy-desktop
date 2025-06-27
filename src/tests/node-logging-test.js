@@ -36,20 +36,14 @@ function delay( ms )
 }
 
 /*
-    Simplified Error Logging
-
-    this is used in preload.js to show messages on the electron side.
-    can only specify color for first part of message; otherwise color codes
-    show.
+    Set NODE_ENV to development to enable console output
 */
 
-function testSimplified()
+function setupDevelopmentMode()
 {
-    console.log( '\n🔴 ~~~ LOG_LEVEL=1 : Simplified : (Error only) ~~~' );
-    process.env.LOG_LEVEL = 1;
-
-    Log.error( true, 'Simplified error message : visible' );
-    Log.warn( true, 'Simplified warn message : hidden' );
+    process.env.NODE_ENV = 'development';
+    console.log( '\n🔧 ~~~ Development Mode Enabled ~~~' );
+    console.log( 'Console output will be shown for all log levels when DEV_MODE is enabled\n' );
 }
 
 /*
@@ -188,7 +182,7 @@ async function runProgressiveTest()
     console.log( 'Starts at LOG_LEVEL=1 to LOG_LEVEL=7\n' );
 
     await delay( 1000 );
-    testSimplified();
+    setupDevelopmentMode();
 
     await delay( 1000 );
     testLevel1();

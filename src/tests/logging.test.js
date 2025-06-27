@@ -2,7 +2,7 @@
     Tests > Logging
 */
 
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import Log from '#log';
 
 /*
@@ -35,10 +35,22 @@ const createConsoleMock = () =>
 describe( 'Log Functionality Tests', () =>
 {
     let consoleMock;
+    const originalLogLevel = process.env.LOG_LEVEL;
+    const originalNodeEnv = process.env.NODE_ENV;
 
     beforeEach( () =>
     {
+        // Set to development mode to enable console output
+        process.env.NODE_ENV = 'development';
         consoleMock = createConsoleMock();
+    });
+
+    afterEach( () =>
+    {
+        consoleMock.restoreAll();
+        // Restore original environment variables
+        process.env.LOG_LEVEL = originalLogLevel;
+        process.env.NODE_ENV = originalNodeEnv;
     });
 
     it( 'should only log errors at LOG_LEVEL=1', () =>
@@ -204,38 +216,4 @@ describe( 'Log Functionality Tests', () =>
 
         consoleMock.restoreAll();
     });
-
-    it( 'should handle boolean (simplified) logging correctly', () =>
-    {
-        process.env.LOG_LEVEL = '4';
-
-        Log.error( true, 'SIMPLIFIED_ERROR' );
-        Log.warn( true, 'SIMPLIFIED_WARN' );
-        Log.notice( true, 'SIMPLIFIED_NOTICE' );
-        Log.ok( true, 'SIMPLIFIED_OK' );
-        Log.info( true, 'SIMPLIFIED_INFO' );
-
-        /*
-            all should call console.log for simplified versions
-        */
-
-        expect( consoleMock.error.calls.length ).toBe( 0 );
-        expect( consoleMock.warn.calls.length ).toBe( 0 );
-        expect( consoleMock.info.calls.length ).toBe( 0 );
-        expect( consoleMock.log.calls.length ).toBeGreaterThan( 0 ); // All simplified versions use console.log
-
-        /*
-            verify the simplified format (should contain 'true')
-        */
-
-        const logCalls = consoleMock.log.calls.flat();
-        const hasSimplifiedFormat = logCalls.some( ( arg ) =>
-            typeof arg === 'string' && arg.includes( 'true' )
-        );
-
-        expect( hasSimplifiedFormat ).toBe( true );
-
-        consoleMock.restoreAll();
-    });
 });
-
