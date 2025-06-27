@@ -223,7 +223,7 @@ let guiMain, guiAbout, guiTray;
 
     bDevTools           --dev           dev tools added to menu
     bHotkeysEnabled     --hotkeys       keyboard shortcuts added to menu
-    bQuitOnClose        --quit          when pressing top-right close button, app exits instead of going to tray
+    bQuitOnClose        --terminate     when pressing top-right close button, app exits instead of going to tray
     bWinHidden          --hidden        app closes to tray on start
 */
 
@@ -1088,7 +1088,7 @@ function ready()
     /**
         Event > Close
 
-        if --quit cli argument specified, app will completely quit when close pressed.
+        if --terminate cli argument specified, app will completely terminate when close pressed.
         otherwise; app will hide
     */
 
@@ -1292,9 +1292,9 @@ function ready()
     /**
         Loop args
 
-        --hidden        : automatically hide window
-        --dev           : enable developer tools
-        --quit          : quit app when close button pressed
+        --hidden            automatically hide window
+        --dev               enable developer tools
+        --terminate         quit app when close button pressed
     */
 
     for ( let i = 0; i < process.argv.length; i++ )
@@ -1308,7 +1308,7 @@ function ready()
             bDevTools = 1;
             activeDevTools();
         }
-        else if ( process.argv[ i ] === '--quit' )
+        else if ( process.argv[ i ] === '--terminate' )
         {
             bQuitOnClose = 1;
         }
