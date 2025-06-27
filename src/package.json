@@ -69,7 +69,8 @@
     },
     "scripts": {
         "pretest": "npm run lint",
-        "test": "npx playwright test",
+        "test": "npm run test:unit && npm run test:playwright",
+        "test:playwright": "npx playwright test",
         "test:unit": "vitest",
         "test:unit:run": "vitest run --silent",
         "test:unit:coverage": "vitest run --coverage",

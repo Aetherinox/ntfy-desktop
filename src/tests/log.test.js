@@ -618,14 +618,16 @@ describe( 'Log Class Tests', () =>
             mockBrowserWindow.getAllWindows = originalGetAllWindows;
         });
 
-        it( 'should handle file logging errors gracefully', () => {
+        it( 'should handle file logging errors gracefully', () =>
+        {
             vi.clearAllMocks();
 
             /*
                 mock electron-log to throw error silently (should be caught internally)
             */
 
-            mockElectronLog.info.mockImplementationOnce( () => {
+            mockElectronLog.info.mockImplementationOnce( () =>
+            {
                 throw new Error( 'File write error' );
             });
 
@@ -719,7 +721,8 @@ describe( 'Log Extended Coverage Tests', () =>
             const originalMkdirSync = fs.mkdirSync;
 
             fs.existsSync = vi.fn( () => false );
-            fs.mkdirSync = vi.fn( () => {
+            fs.mkdirSync = vi.fn( () =>
+            {
                 throw new Error( 'Permission denied' );
             });
 
@@ -1078,7 +1081,8 @@ describe( 'Log Extended Coverage Tests', () =>
 
     describe( 'Production environment behavior', () =>
     {
-        it( 'should suppress console output in production but still log to file', () => {
+        it( 'should suppress console output in production but still log to file', () =>
+        {
             const originalEnv = process.env.NODE_ENV;
             process.env.NODE_ENV = 'production';
 

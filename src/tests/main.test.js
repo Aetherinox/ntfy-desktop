@@ -928,7 +928,8 @@ describe( 'Main Process Tests', () =>
                 mock storage to return valid values
             */
 
-            mockStorage.get.mockImplementation( ( key ) => {
+            mockStorage.get.mockImplementation( ( key ) =>
+            {
                 if ( key === 'instanceURL' ) return 'https://ntfy.sh/app';
                 if ( key === 'pollrate' ) return 60;
                 return 'default';

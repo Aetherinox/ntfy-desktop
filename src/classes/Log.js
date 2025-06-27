@@ -8,7 +8,7 @@
     Logs are automatically forwarded to three destinations:
         1. File logs (logs/main.log)        plain text without colors
         2. Command prompt/terminal          full color output (development mode only)
-        3   . Electron dev console          app name colored, message plain text (via IPC)
+        3. Electron dev console             app name colored, message plain text (via IPC)
 
     Various levels of logs with the following usage:
         Log.verbose(`This is verbose`)
@@ -170,8 +170,8 @@ const initializeElectronLog = async() =>
             console.debug( 'Logs will be sent via IPC to main process for file writing' );
 
             /**
-                IMPORTANT: Completely disable electron-log console output in renderer
-                We handle renderer console output via our custom IPC system
+                @important              completely disable electron-log console output in renderer
+                                        We handle renderer console output via our custom IPC system
             */
 
             if ( log.transports.console )

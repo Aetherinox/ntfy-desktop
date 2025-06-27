@@ -5,7 +5,7 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import Log from '#log';
 
-/*
+/**
     mock console methods so we can capture outputs
 */
 
@@ -28,7 +28,7 @@ const createConsoleMock = () =>
     };
 };
 
-/*
+/**
     Test > Log Functionality
 */
 
@@ -40,7 +40,10 @@ describe( 'Log Functionality Tests', () =>
 
     beforeEach( () =>
     {
-        // Set to development mode to enable console output
+        /**
+            set development mode to enable console output
+        */
+
         process.env.NODE_ENV = 'development';
         consoleMock = createConsoleMock();
     });
@@ -48,7 +51,11 @@ describe( 'Log Functionality Tests', () =>
     afterEach( () =>
     {
         consoleMock.restoreAll();
-        // Restore original environment variables
+
+        /*
+            restore original env variables
+        */
+
         process.env.LOG_LEVEL = originalLogLevel;
         process.env.NODE_ENV = originalNodeEnv;
     });
@@ -112,7 +119,7 @@ describe( 'Log Functionality Tests', () =>
         expect( consoleMock.error.calls.length ).toBeGreaterThan( 0 );
         expect( consoleMock.warn.calls.length ).toBeGreaterThan( 0 );
 
-        /*
+        /**
             notice() uses console.log
         */
 
@@ -139,7 +146,7 @@ describe( 'Log Functionality Tests', () =>
         expect( consoleMock.error.calls.length ).toBeGreaterThan( 0 );
         expect( consoleMock.warn.calls.length ).toBeGreaterThan( 0 );
 
-        /*
+        /**
             notice() and ok() use console.log, info() uses console.info
         */
 
@@ -189,7 +196,7 @@ describe( 'Log Functionality Tests', () =>
         expect( consoleMock.warn.calls.length ).toBeGreaterThan( 0 );
         expect( consoleMock.log.calls.length ).toBeGreaterThan( 0 );
         expect( consoleMock.info.calls.length ).toBeGreaterThan( 0 );
-        expect( consoleMock.debug.calls.length ).toBeGreaterThan( 0 ); // debug + verbose
+        expect( consoleMock.debug.calls.length ).toBeGreaterThan( 0 );      // debug + verbose
         expect( consoleMock.trace.calls.length ).toBe( 0 );
 
         consoleMock.restoreAll();
