@@ -24,7 +24,29 @@
         - LOG_LEVEL=7: all above + debug (console.trace)
 */
 
+/*
+    Mock electron-log to prevent duplicate console output
+*/
+import log from 'electron-log';
 import Log from '#log';
+
+/**
+    Disable all electron-log console output for this test
+*/
+
+if ( log.transports && log.transports.console )
+    log.transports.console.level = false;
+
+/**
+    mock the log methods to prevent extra output
+*/
+
+log.error = () => {};
+log.warn = () => {};
+log.info = () => {};
+log.debug = () => {};
+log.verbose = () => {};
+log.silly = () => {};
 
 /*
     add delay functionality
