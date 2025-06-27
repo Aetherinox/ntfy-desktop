@@ -9,6 +9,7 @@ import path from 'path';
 import moment from 'moment';
 import chalk from 'chalk';
 import fs from 'fs';
+import log from 'electron-log';
 import toasted from 'toasted-notifier';
 import prompt from 'electron-plugin-prompts';
 import Log from './classes/Log.js';
@@ -31,16 +32,156 @@ const appRepo = packageJson.repository;
 const appIcon = app.getAppPath() + '/assets/icons/ntfy.png';
 
 /**
-    Define > Menus
-*/
-
-let menuMain, menuTray;
-
-/**
     Define > Env Variables
 */
 
 const LOG_LEVEL = process.env.LOG_LEVEL || 4;
+const DEV_MODE = process.env.DEV_MODE || false;
+
+/**
+    initialize electron-log for main process
+    this will be called after app is ready
+*/
+
+function initializeMainProcessLogging()
+{
+    try
+    {
+        /*
+            set up file transport for main process
+        */
+
+        log.transports.file.level = 'debug';
+
+        /*
+            for packaged apps; use a better location.
+            try mutliple possible paths for better compatibility, because why not.
+        */
+
+        let logDir, logPath;
+        const isPackaged = app.isPackaged;
+
+        if ( DEV_MODE === true )
+        {
+            Log.info( 'Starting main process logging...' );
+            Log.info( '(bool) App packaged:', isPackaged );
+            Log.info( '(str)  App path:', app.getAppPath() );
+            Log.info( '(str)  User data path:', app.getPath( 'userData' ) );
+            Log.info( '(str)  Logs path:', app.getPath( 'logs' ) );
+        }
+
+        if ( isPackaged )
+        {
+            /*
+                for packaged version of ntfy, use the folder where the exe is located.
+                process.execPath will output the path to the .exe file
+            */
+
+            const exeDir = path.dirname( process.execPath );
+            logDir = path.join( exeDir, 'logs' );
+        }
+        else
+        {
+            /*
+                in development mode; use app path
+            */
+
+            logDir = path.join( app.getAppPath(), 'logs' );
+        }
+
+        // eslint-disable-next-line prefer-const
+        logPath = path.join( logDir, 'main.log' );
+
+        if ( DEV_MODE === true )
+        {
+            console.log( 'Selected log directory:', logDir );
+            console.log( 'Selected log file path:', logPath );
+        }
+
+        /*
+            make sure our folder exists
+        */
+
+        try
+        {
+            if ( !fs.existsSync( logDir ) )
+            {
+                fs.mkdirSync( logDir, { recursive: true });
+                if ( DEV_MODE === true )
+                    console.log( 'Created log directory:', logDir );
+            }
+            else
+            {
+                if ( DEV_MODE === true )
+                    console.log( 'Log directory already exists:', logDir );
+            }
+
+            /*
+                test write permissions
+            */
+
+            const testFile = path.join( logDir, 'test.log' );
+            fs.writeFileSync( testFile, 'test' );
+            fs.unlinkSync( testFile );
+
+            if ( DEV_MODE === true )
+                console.log( 'Log directory is writable' );
+        }
+        catch ( dirError )
+        {
+            console.error( 'Failed to create/access log directory:', dirError.message );
+
+            // Fallback to electron-log's default path
+            console.log( 'Using electron-log default path as fallback' );
+            log.transports.file.level = 'debug';
+            log.transports.console.level = 'debug';
+            log.info( 'Main process electron-log initialized with default path' );
+
+            return true;
+        }
+
+        // Configure the file transport
+        log.transports.file.resolvePathFn = () =>
+        {
+            if ( DEV_MODE === true )
+                console.log( 'electron-log requesting file path, returning:', logPath );
+
+            return logPath;
+        };
+
+        log.transports.file.fileName = 'main.log';
+
+        // Disable console transport to prevent double logging
+        // We handle console output manually with chalk colors
+        log.transports.console.level = false;
+
+        /*
+            debugging > force test write
+        */
+
+        setTimeout( () =>
+        {
+            Log.info( 'Log file should be at:', logPath );
+        }, 500 );
+
+        Log.debug( 'electron-log file transport configured for main process' );
+
+        return true;
+    }
+    catch ( error )
+    {
+        Log.error( 'Failed to initialize main process logging:', error.message );
+        Log.error( 'Error stack:', error.stack );
+
+        return false;
+    }
+}
+
+/**
+    Define > Menus
+*/
+
+let menuMain, menuTray;
 
 /**
     Define > cjs vars converted to esm
@@ -801,6 +942,9 @@ function activeDevTools()
 
 function ready()
 {
+    // Initialize main process logging first
+    initializeMainProcessLogging();
+
     Log.info( `core`, chalk.yellow( `[initiate]` ), chalk.white( `:  ` ),
         chalk.blueBright( `<msg>` ), chalk.gray( `Starting ${ appName }` ),
         chalk.blueBright( `<version>` ), chalk.gray( `${ appVer }` ),
@@ -921,10 +1065,6 @@ function ready()
         });
     }
 
-    // Log both at dev console and at running node console instance
-
-
-    Log.broadcast( guiMain, 'ntfy-desktop main trigger' );
 
     /**
         Event > Page Title Update
@@ -1199,7 +1339,7 @@ function ready()
 
             dialog.showMessageBox( null, warnTopicsEmpty, ( response, cboxChk ) =>
             {
-                console.log( `User input received: ${ response }` );
+                Log.debug( `User input received: ${ response }` );
             });
         }, 5000 );
     }
@@ -1280,7 +1420,7 @@ app.on( 'ready', ready );
 
 app.on( 'before-quit', () =>
 {
-    Log.info( `core`, chalk.yellow( `[cleanup]` ), chalk.white( `:  ` ),
+    Log.info( `core`, chalk.yellow( `[shutdown]` ), chalk.white( `:  ` ),
         chalk.blueBright( `<msg>` ), chalk.gray( `App is quitting - performing cleanup` ) );
 
     isShuttingDown = true;
@@ -1328,7 +1468,7 @@ app.whenReady().then( () =>
 {
     ipcMain.handle( 'ping', () =>
     {
-        Log.info( `ipc`, chalk.yellow( `[ping]` ), chalk.white( `:  ` ),
+        Log.debug( `ipc`, chalk.yellow( `[ping]` ), chalk.white( `:  ` ),
             chalk.blueBright( `<msg>` ), chalk.gray( `Ping received from renderer` ) );
 
         return 'pong';
@@ -1341,7 +1481,7 @@ app.whenReady().then( () =>
 
 ipcMain.on( 'toMain', ( event, args ) =>
 {
-    Log.info( `ipc`, chalk.yellow( `[toMain]` ), chalk.white( `:  ` ),
+    Log.debug( `ipc`, chalk.yellow( `[toMain]` ), chalk.white( `:  ` ),
         chalk.blueBright( `<msg>` ), chalk.gray( `Received message from renderer` ),
         chalk.blueBright( `<data>` ), chalk.gray( `${ args }` ) );
 
@@ -1354,7 +1494,7 @@ ipcMain.on( 'toMain', ( event, args ) =>
 
 ipcMain.on( 'button-clicked', ( event, data ) =>
 {
-    Log.info( `ipc`, chalk.yellow( `[button-clicked]` ), chalk.white( `:  ` ),
+    Log.debug( `ipc`, chalk.yellow( `[button-clicked]` ), chalk.white( `:  ` ),
         chalk.blueBright( `<msg>` ), chalk.gray( `MuiButtonBase-root button clicked - resetting badge count` ),
         chalk.blueBright( `<data>` ), chalk.gray( `${ JSON.stringify( data ) }` ) );
 
@@ -1365,7 +1505,44 @@ ipcMain.on( 'button-clicked', ( event, data ) =>
     app.badgeCount = 0;
     store.set( 'indicatorMessages', 0 );
 
-    Log.ok( `badge`, chalk.yellow( `[reset]` ), chalk.white( `:  ` ),
+    Log.debug( `badge`, chalk.yellow( `[reset]` ), chalk.white( `:  ` ),
         chalk.greenBright( `<msg>` ), chalk.gray( `Badge count reset to 0` ),
         chalk.greenBright( `<trigger>` ), chalk.gray( `MuiButtonBase-root click detected` ) );
 });
+
+/**
+    IPC > Log forwarding from main to renderer
+    This handles forwarding main process logs to renderer dev console
+*/
+
+ipcMain.on( 'main-log-to-renderer', ( event, logData ) =>
+{
+    /*
+        this is handled automagically by the log class sendToRendererConsole method;
+        this handler exists for any future custom log forwarding
+    */
+});
+
+/**
+ * Export functions for testing
+ * Only export when in test environment to avoid polluting the main app
+ */
+
+if ( process.env.NODE_ENV === 'test' )
+{
+    // Export the functions that tests need to access
+    global.IsValidUrl = IsValidUrl;
+    global.GetMessageData = GetMessageData;
+    global.GetMessages = GetMessages;
+    global.UpdateBadge = UpdateBadge;
+    global.initializeMainProcessLogging = initializeMainProcessLogging;
+}
+
+// For ES modules, we need named exports
+export {
+    IsValidUrl,
+    GetMessageData,
+    GetMessages,
+    UpdateBadge,
+    initializeMainProcessLogging
+};

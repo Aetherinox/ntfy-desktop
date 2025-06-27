@@ -22,8 +22,11 @@ const bDeveloperMode = false;
 /**
     LogRenderer Class
 
-    inlined to avoid import issues when injected. import and require also disabled for security reasons.
-    Browser-compatible version of Log class for renderer process
+    Inlined browser-compatible version of Log class for renderer process.
+    This is used for local logging within the injected renderer script.
+    
+    Note: Main process logs are automatically forwarded to the renderer console
+    via IPC with proper styling (colored app name, plain text message).
 
     LOG_LEVEL               default log level since we can't read from process.env in renderer
     APP_NAME                name of app; we also can't read from package.json
