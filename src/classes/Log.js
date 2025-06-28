@@ -45,269 +45,6 @@ import log from 'electron-log';
 import packageJson from '#package' with { type: 'json' };
 
 /**
-    electron > log transports
-
-    Handle different configurations for main and renderer processes
-    check if we're in the main process or renderer process
-*/
-
-const isMainProcess = process?.type === 'browser';
-const isRendererProcess = process?.type === 'renderer';
-
-/**
-    initialize electron-log with safe config
-*/
-
-const initializeElectronLog = async() =>
-{
-    try
-    {
-        /**
-            force initialization of electron-log package
-        */
-
-        if ( typeof log.initialize === 'function' )
-            log.initialize();
-
-        /**
-            wait for transport to be available
-        */
-
-        if ( !log.transports )
-        {
-            Log.warn( 'electron-log transports not available, using fallback' );
-            return false;
-        }
-
-        Log.debug( 'Available transports:', Object.keys( log.transports ) );
-        Log.debug( 'Process type:', process.type );
-
-        if ( isMainProcess )
-        {
-            /**
-                Process > Main
-            */
-
-            try
-            {
-                /**
-                    dynamic import for es modules
-                */
-
-                const electron = await import( 'electron' );
-                const { app } = electron;
-
-                /**
-                    config file transport with custom path
-                */
-
-                if ( log.transports.file )
-                {
-                    const customLogPath = path.join( app.getAppPath(), 'logs', 'main.log' );
-                    Log.debug( 'Setting main process log path to:', customLogPath );
-
-                    /**
-                        make sure log directory exists
-                    */
-
-                    const logDir = path.dirname( customLogPath );
-                    if ( !fs.existsSync( logDir ) )
-                    {
-                        fs.mkdirSync( logDir, { recursive: true });
-                        Log.debug( 'Created log directory:', logDir );
-                    }
-
-                    log.transports.file.level = 'debug';
-                    log.transports.file.resolvePathFn = () => customLogPath;
-                    log.transports.file.fileName = 'main.log';
-
-                    /**
-                        disable electron-log console output for main process
-                        we handle console output manually with chalk colors
-                    */
-
-                    if ( log.transports.console )
-                        log.transports.console.level = false;
-
-                    /**
-                        test write to verify path
-                    */
-
-                    setTimeout( () =>
-                    {
-                        Log.debug( 'electron-log initialized for main process' );
-                    }, 100 );
-                }
-                else
-                {
-                    Log.warn( 'File transport not available in main process' );
-                }
-            }
-            catch ( appError )
-            {
-                Log.warn( 'Could not configure main process logging:', appError.message );
-
-                /**
-                    fallback: try to use default electron-log file behavior
-                */
-
-                if ( log.transports.file )
-                {
-                    log.transports.file.level = 'debug';
-                    Log.debug( 'Using default electron-log file path' );
-                }
-            }
-        }
-        else
-        {
-            /**
-                Process > Renderer > Progress Log Configuration
-
-                since renderer doesn't have file transport by default, use IPC to send to main process
-            */
-
-            console.debug( 'Renderer process detected - file transport not available by default' );
-            console.debug( 'Logs will be sent via IPC to main process for file writing' );
-
-            /**
-                @important              completely disable electron-log console output in renderer
-                                        We handle renderer console output via our custom IPC system
-            */
-
-            if ( log.transports.console )
-            {
-                log.transports.console.level = false;
-                console.debug( 'Disabled electron-log console output in renderer - using custom IPC system' );
-            }
-
-            /**
-                config IPC transport for renderer to main communication
-                Disable this to prevent duplicate logging through electron-log's IPC
-            */
-
-            if ( log.transports.ipc )
-            {
-                log.transports.ipc.level = false;
-                console.debug( 'Disabled electron-log IPC transport - using custom Log class IPC system' );
-            }
-
-            /**
-                test write to verify renderer logging
-            */
-
-            setTimeout( () =>
-            {
-                Log.debug( 'electron-log initialized for renderer process' );
-            }, 100 );
-        }
-
-
-        /**
-            during tests: completely disable electron-log output to prevent test pollution
-            while keeping the API available for our code to call
-        */
-
-        if ( process.env.NODE_ENV === 'test' )
-        {
-            /**
-                save original methods; we may need them later
-            */
-
-            const originalMethods =
-            {
-                error: log.error,
-                warn: log.warn,
-                info: log.info,
-                debug: log.debug,
-                verbose: log.verbose
-            };
-
-            /**
-                replace all electron-log methods with no-ops during tests
-            */
-
-            log.error = () => {};
-            log.warn = () => {};
-            log.info = () => {};
-            log.debug = () => {};
-            log.verbose = () => {};
-            log.silly = () => {};
-
-            /**
-                disable electron-log transports
-            */
-
-            if ( log.transports.file )
-                log.transports.file.level = false;
-            if ( log.transports.ipc )
-                log.transports.ipc.level = false;
-        }
-
-        /**
-            disable remote transport
-        */
-
-        if ( log.transports.remote )
-            log.transports.remote.level = false;
-
-        /**
-            debugging > log current configuration
-        */
-
-        Log.debug( 'File transport level:', log.transports.file?.level );
-        Log.debug( 'Console transport level:', log.transports.console?.level );
-        Log.debug( 'IPC transport level:', log.transports.ipc?.level );
-
-        return true;
-    }
-    catch ( error )
-    {
-        /**
-            only show warning in development or if NODE_ENV is not 'test'
-        */
-
-        if ( process.env.NODE_ENV !== 'test' && ( process.env.NODE_ENV === 'development' || process.env.DEV_MODE === 'true' ) )
-            Log.warn( 'Failed to initialize electron-log:', error.message );
-
-        return false;
-    }
-};
-
-/**
-    initialize electron-log asynchronously
-*/
-
-( async() =>
-{
-    const logInitialized = await initializeElectronLog();
-
-    /**
-        fallback logging if electron-log fails
-    */
-
-    if ( !logInitialized && process.env.NODE_ENV !== 'test' && ( process.env.NODE_ENV === 'development' || process.env.DEV_MODE === 'true' ) )
-        Log.warn( 'Using console fallback for logging' );
-
-    /**
-        make sure log level is set
-    */
-
-    process.env.LOG_LEVEL = process.env.LOG_LEVEL || '4';
-
-    /**
-        use a dummy log message to ensure everything is initialized
-    */
-
-    Log.debug( 'Log system initialized' );
-})();
-
-/**
-    override console.log
-*/
-
-// console.log = log.log;
-
-/**
     chalk.level
 
     @ref        https://npmjs.com/package/chalk
@@ -329,59 +66,6 @@ chalk.level = 3;
 
 const getLogLevel = () => parseInt( process.env.LOG_LEVEL ) || 4;           // dynamic LOG_LEVEL getter to allow runtime changes
 const name = packageJson.name;
-
-/**
-    send log to all renderer processes (Electron dev console)
-*/
-
-async function sendToRendererConsole( level, message, isSimplified = false )
-{
-    if ( typeof process !== 'undefined' )
-    {
-        if ( process.type === 'browser' )
-        {
-            /**
-                Process > Main
-
-                send to all renderer processes via IPC
-            */
-
-            try
-            {
-                const electron = await import( 'electron' );
-                const { BrowserWindow } = electron;
-                const allWindows = BrowserWindow.getAllWindows();
-
-                allWindows.forEach( ( window ) =>
-                {
-                    if ( window && window.webContents && !window.webContents.isDestroyed() )
-                    {
-                        /**
-                            send log data via IPC to renderer
-                        */
-
-                        window.webContents.send( 'main-log-to-renderer',
-                        {
-                            level: level,
-                            message: message,
-                            isSimplified: isSimplified,
-                            appName: name
-                        });
-                    }
-                });
-            }
-            catch ( error )
-            {
-                /**
-                    fail silently if electron not available
-                */
-
-                Log.error( 'Failed to send log to renderer:', error.message );
-            }
-        }
-    }
-}
-
 
 /**
     detect if we're in development or production mode
@@ -723,9 +407,344 @@ class Log
 }
 
 /**
-    export class
+    electron > log transports
+
+    Handle different configurations for main and renderer processes
+    check if we're in the main process or renderer process
+*/
+
+const isMainProcess = process?.type === 'browser';
+const isRendererProcess = process?.type === 'renderer';
+
+/**
+    initialize electron-log with safe config
+*/
+
+const initializeElectronLog = async() =>
+{
+    try
+    {
+        /**
+            force initialization of electron-log package
+        */
+
+        if ( typeof log.initialize === 'function' )
+            log.initialize();
+
+        /**
+            wait for transport to be available
+        */
+
+        if ( !log.transports )
+        {
+            Log.warn( 'electron-log transports not available, using fallback' );
+            return false;
+        }
+
+        Log.debug( 'Available transports:', Object.keys( log.transports ) );
+        Log.debug( 'Process type:', process.type );
+
+        if ( isMainProcess )
+        {
+            /**
+                Process > Main
+            */
+
+            try
+            {
+                /**
+                    dynamic import for es modules
+                */
+
+                const electron = await import( 'electron' );
+                const { app } = electron;
+
+                /**
+                    config file transport with custom path
+                */
+
+                if ( log.transports.file )
+                {
+                    const customLogPath = path.join( app.getAppPath(), 'logs', 'main.log' );
+                    Log.debug( 'Setting main process log path to:', customLogPath );
+
+                    /**
+                        make sure log directory exists
+                    */
+
+                    const logDir = path.dirname( customLogPath );
+                    if ( !fs.existsSync( logDir ) )
+                    {
+                        fs.mkdirSync( logDir, { recursive: true });
+                        Log.debug( 'Created log directory:', logDir );
+                    }
+
+                    log.transports.file.level = 'debug';
+                    log.transports.file.resolvePathFn = () => customLogPath;
+                    log.transports.file.fileName = 'main.log';
+
+                    /**
+                        disable electron-log console output for main process
+                        we handle console output manually with chalk colors
+                    */
+
+                    if ( log.transports.console )
+                        log.transports.console.level = false;
+
+                    /**
+                        test write to verify path
+                    */
+
+                    setTimeout( () =>
+                    {
+                        Log.debug( 'electron-log initialized for main process' );
+                    }, 100 );
+                }
+                else
+                {
+                    Log.warn( 'File transport not available in main process' );
+                }
+            }
+            catch ( appError )
+            {
+                Log.warn( 'Could not configure main process logging:', appError.message );
+
+                /**
+                    fallback: try to use default electron-log file behavior
+                */
+
+                if ( log.transports.file )
+                {
+                    log.transports.file.level = 'debug';
+                    Log.debug( 'Using default electron-log file path' );
+                }
+            }
+        }
+        else
+        {
+            /**
+                Process > Renderer > Progress Log Configuration
+
+                since renderer doesn't have file transport by default, use IPC to send to main process
+            */
+
+            console.debug( 'Renderer process detected - file transport not available by default' );
+            console.debug( 'Logs will be sent via IPC to main process for file writing' );
+
+            /**
+                @important              completely disable electron-log console output in renderer
+                                        We handle renderer console output via our custom IPC system
+            */
+
+            if ( log.transports.console )
+            {
+                log.transports.console.level = false;
+                console.debug( 'Disabled electron-log console output in renderer - using custom IPC system' );
+            }
+
+            /**
+                config IPC transport for renderer to main communication
+                Disable this to prevent duplicate logging through electron-log's IPC
+            */
+
+            if ( log.transports.ipc )
+            {
+                log.transports.ipc.level = false;
+                console.debug( 'Disabled electron-log IPC transport - using custom Log class IPC system' );
+            }
+
+            /**
+                test write to verify renderer logging
+            */
+
+            setTimeout( () =>
+            {
+                Log.debug( 'electron-log initialized for renderer process' );
+            }, 100 );
+        }
+
+
+        /**
+            during tests: completely disable electron-log output to prevent test pollution
+            while keeping the API available for our code to call
+        */
+
+        if ( process.env.NODE_ENV === 'test' )
+        {
+            /**
+                save original methods; we may need them later
+            */
+
+            const originalMethods =
+            {
+                error: log.error,
+                warn: log.warn,
+                info: log.info,
+                debug: log.debug,
+                verbose: log.verbose
+            };
+
+            /**
+                replace all electron-log methods with no-ops during tests
+            */
+
+            log.error = () => {};
+            log.warn = () => {};
+            log.info = () => {};
+            log.debug = () => {};
+            log.verbose = () => {};
+            log.silly = () => {};
+
+            /**
+                disable all electron-log transports during tests
+            */
+
+            if ( log.transports.file )
+                log.transports.file.level = false;
+            if ( log.transports.console )
+                log.transports.console.level = false;
+            if ( log.transports.ipc )
+                log.transports.ipc.level = false;
+            if ( log.transports.remote )
+                log.transports.remote.level = false;
+        }
+        else
+        {
+            /**
+                disable remote transport (only when not in test environment)
+            */
+
+            if ( log.transports.remote )
+                log.transports.remote.level = false;
+        }
+
+        /**
+            debugging > log current configuration
+        */
+
+        Log.debug( 'File transport level:', log.transports.file?.level );
+        Log.debug( 'Console transport level:', log.transports.console?.level );
+        Log.debug( 'IPC transport level:', log.transports.ipc?.level );
+
+        return true;
+    }
+    catch ( error )
+    {
+        /**
+            only show warning in development or if NODE_ENV is not 'test'
+        */
+
+        if ( process.env.NODE_ENV !== 'test' && ( process.env.NODE_ENV === 'development' || process.env.DEV_MODE === 'true' ) )
+            Log.warn( 'Failed to initialize electron-log:', error.message );
+
+        return false;
+    }
+};
+
+/**
+    initialize the log system
+    This function is called automatically but can also be called manually for testing
+*/
+
+const initializeLogSystem = async() =>
+{
+    const logInitialized = await initializeElectronLog();
+
+    /**
+        fallback logging if electron-log fails
+    */
+
+    if ( !logInitialized && process.env.NODE_ENV !== 'test' && ( process.env.NODE_ENV === 'development' || process.env.DEV_MODE === 'true' ) )
+        Log.warn( 'Using console fallback for logging' );
+
+    /**
+        make sure log level is set
+    */
+
+    process.env.LOG_LEVEL = process.env.LOG_LEVEL || '4';
+
+    /**
+        use a dummy log message to ensure everything is initialized
+    */
+
+    Log.debug( 'Log system initialized' );
+
+    return logInitialized;
+};
+
+/**
+    auto-initialize unless we're in test environment
+*/
+
+if ( process.env.NODE_ENV !== 'test' )
+{
+    initializeLogSystem();
+}
+
+/**
+    override console.log
+*/
+
+// console.log = log.log;
+
+/**
+    send log to all renderer processes (Electron dev console)
+*/
+
+async function sendToRendererConsole( level, message, isSimplified = false )
+{
+    if ( typeof process !== 'undefined' )
+    {
+        if ( process.type === 'browser' )
+        {
+            /**
+                Process > Main
+
+                send to all renderer processes via IPC
+            */
+
+            try
+            {
+                const electron = await import( 'electron' );
+                const { BrowserWindow } = electron;
+                const allWindows = BrowserWindow.getAllWindows();
+
+                allWindows.forEach( ( window ) =>
+                {
+                    if ( window && window.webContents && !window.webContents.isDestroyed() )
+                    {
+                        /**
+                            send log data via IPC to renderer
+                        */
+
+                        window.webContents.send( 'main-log-to-renderer',
+                        {
+                            level: level,
+                            message: message,
+                            isSimplified: isSimplified,
+                            appName: name
+                        });
+                    }
+                });
+            }
+            catch ( error )
+            {
+                /**
+                    fail silently if electron not available
+                */
+
+                Log.error( 'Failed to send log to renderer:', error.message );
+            }
+        }
+    }
+}
+
+/**
+    export class and initialization function
 
     @usage          import Log from './classes/Log.js';
+    @usage          import { initializeLogSystem } from './classes/Log.js';
 */
 
 export default Log;
+export { initializeLogSystem };
