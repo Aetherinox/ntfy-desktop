@@ -1061,7 +1061,12 @@ function ready()
             statusStrMsg = `Failed to resolve ` + instanceUrl + `; defaulting to ${ defInstanceUrl }`;
 
             store.set( 'instanceURL', defInstanceUrl );
-            guiMain.loadURL( defInstanceUrl );
+            
+            // Check if guiMain is still valid before calling loadURL
+            if ( guiMain && typeof guiMain.loadURL === 'function' )
+            {
+                guiMain.loadURL( defInstanceUrl );
+            }
         });
     }
 

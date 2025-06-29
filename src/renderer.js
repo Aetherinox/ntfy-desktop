@@ -247,12 +247,12 @@ function initializeRenderer()
                 {
                     message: 'Button element clicked',
                     timestamp: new Date().toISOString(),
-                    elementClass: env.target.className,
-                    elementTag: env.target.tagName,
-                    elementText: env.target.textContent?.trim() || '',
-                    elementId: env.target.id,
-                    elementRole: env.target.role,
-                    elementType: env.target.type
+                    elementClass: String( env.target.className || '' ),
+                    elementTag: String( env.target.tagName || '' ),
+                    elementText: String( env.target.textContent?.trim() || '' ),
+                    elementId: String( env.target.id || '' ),
+                    elementRole: String( env.target.role || '' ),
+                    elementType: String( env.target.type || '' )
                 });
 
                 if ( bDeveloperMode )
@@ -424,8 +424,8 @@ function initializeRenderer()
             {
                 message: 'MuiButtonBase-root element was clicked',
                 timestamp: new Date().toISOString(),
-                elementClass: env.target.className,
-                elementTag: env.target.tagName
+                elementClass: String( env.target.className || '' ),
+                elementTag: String( env.target.tagName || '' )
             });
 
             if ( bDeveloperMode )
@@ -538,7 +538,7 @@ function devTestElectronAPI()
             test send to main
         */
 
-        window.electron.sendToMain( 'toMain', 'Test message from renderer' );
+        window.electron.sendToMain( 'toMain', String( 'Test message from renderer' ) );
         console.log( '✅ Test message sent to main process' );
 
         /**
@@ -564,53 +564,54 @@ window.addEventListener( 'load', devTestElectronAPI );
 
 /**
     add test function that can be called from console to simulate .MuiButtonBase-root click
+    Note: Disabled to prevent IPC cloning issues in production
 */
 
-window.testBadgeReset = function ()
+if ( bDeveloperMode )
 {
-    if ( !bDeveloperMode )
-        return;
-
-    if ( typeof window.electron !== 'undefined' )
+    window.testBadgeReset = function ()
     {
-        window.electron.sendToMain( 'button-clicked',
+        if ( typeof window.electron !== 'undefined' )
         {
-            message: 'Manual test - MuiButtonBase-root element clicked',
-            timestamp: new Date().toISOString(),
-            elementClass: 'MuiButtonBase-root test-class',
-            elementTag: 'DIV',
-            testMode: true
-        });
+            window.electron.sendToMain( 'button-clicked',
+            {
+                message: String( 'Manual test - MuiButtonBase-root element clicked' ),
+                timestamp: new Date().toISOString(),
+                elementClass: String( 'MuiButtonBase-root test-class' ),
+                elementTag: String( 'DIV' ),
+                testMode: true
+            });
 
-        console.log( '✅ Test badge reset signal sent to main process' );
-    }
-    else
-    {
-        console.error( '❌ window.electron is not available' );
-    }
-};
+            console.log( '✅ Test badge reset signal sent to main process' );
+        }
+        else
+        {
+            console.error( '❌ window.electron is not available' );
+        }
+    };
 
-console.log( '🧪 Test function available: window.testBadgeReset()' );
+    console.log( '🧪 Test function available: window.testBadgeReset()' );
+}
 
 /**
     add function to inspect current page elements
+    Note: Only available in developer mode to prevent IPC cloning issues
 */
 
-window.inspectPage = function ()
+if ( bDeveloperMode )
 {
-    if ( bDeveloperMode )
+    window.inspectPage = function ()
+    {
         console.log( '🔍 === PAGE INSPECTION ===' );
 
-    /**
-        gather a list of all the clickable elements
-    */
+        /**
+            gather a list of all the clickable elements
+        */
 
-    const clickableElements = document.querySelectorAll(
-        'button, [role="button"], [type="button"], a, [onclick], [class*="button"], [class*="Button"], [class*="btn"], [class*="Mui"]'
-    );
+        const clickableElements = document.querySelectorAll(
+            'button, [role="button"], [type="button"], a, [onclick], [class*="button"], [class*="Button"], [class*="btn"], [class*="Mui"]'
+        );
 
-    if ( bDeveloperMode )
-    {
         console.log( `Found ${ clickableElements.length } potentially clickable elements:` );
 
         clickableElements.forEach( ( el, i ) =>
@@ -624,18 +625,15 @@ window.inspectPage = function ()
                 console.log( `${ i }: ${ el.tagName } - "${ el.className }" - "${ el.textContent?.trim().substring( 0, 30 ) || '' }"` );
             }
         });
-    }
 
-    /**
-        get all elements that might be related to ntfy noficiations
-    */
+        /**
+            get all elements that might be related to ntfy noficiations
+        */
 
-    const ntfyElements = document.querySelectorAll(
-        '[class*="notif"], [class*="Notif"], [class*="badge"], [class*="Badge"], [class*="count"], [class*="Count"]'
-    );
+        const ntfyElements = document.querySelectorAll(
+            '[class*="notif"], [class*="Notif"], [class*="badge"], [class*="Badge"], [class*="count"], [class*="Count"]'
+        );
 
-    if ( bDeveloperMode )
-    {
         console.log( `\nFound ${ ntfyElements.length } notification-related elements:` );
         ntfyElements.forEach( ( el, i ) =>
         {
@@ -644,39 +642,58 @@ window.inspectPage = function ()
                 console.log( `${ i }: ${ el.tagName } - "${ el.className }" - "${ el.textContent?.trim().substring( 0, 30 ) || '' }"` );
             }
         });
-    }
 
-    return { clickable: Array.from( clickableElements ), notifications: Array.from( ntfyElements ) };
-};
-
-/**
-    force click detection on ANY element
-*/
-
-window.forceClickDetection = function ()
-{
-    if ( bDeveloperMode )
-        console.log( `🎯 === FORCE CLICK DETECTION ===` );
-
-    /**
-        override all click events to detect when a user clicks on the interface
-    */
-
-    const originalAddEventListener = Element.prototype.addEventListener;
-
-    Element.prototype.addEventListener = function ( type, listener, options )
-    {
-        if ( type === 'click' && bDeveloperMode )
-            console.log( `🎯 Click listener being added to:`, this.tagName, this.className );
-
-        return originalAddEventListener.call( this, type, listener, options );
+        return { clickable: Array.from( clickableElements ), notifications: Array.from( ntfyElements ) };
     };
 
-    if ( bDeveloperMode )
-        console.log( `✅ Click detection override installed` );
-};
+    /**
+        force click detection on ANY element
+    */
 
-console.log( `🧪 Additional functions available: window.inspectPage(), window.forceClickDetection()` );
+    window.forceClickDetection = function ()
+    {
+        console.log( `🎯 === FORCE CLICK DETECTION ===` );
+
+        /**
+            override all click events to detect when a user clicks on the interface
+        */
+
+        const originalAddEventListener = Element.prototype.addEventListener;
+
+        Element.prototype.addEventListener = function ( type, listener, options )
+        {
+            if ( type === 'click' )
+                console.log( `🎯 Click listener being added to:`, this.tagName, this.className );
+
+            return originalAddEventListener.call( this, type, listener, options );
+        };
+
+        console.log( `✅ Click detection override installed` );
+    };
+
+    console.log( `🧪 Additional functions available: window.inspectPage(), window.forceClickDetection()` );
+}
+ else
+{
+    // In production, create safe stub functions that won't cause IPC issues
+    window.inspectPage = function ()
+{
+        const clickableElements = document.querySelectorAll(
+            'button, [role="button"], [type="button"], a, [onclick], [class*="button"], [class*="Button"], [class*="btn"], [class*="Mui"]'
+        );
+        const ntfyElements = document.querySelectorAll(
+            '[class*="notif"], [class*="Notif"], [class*="badge"], [class*="Badge"], [class*="count"], [class*="Count"]'
+        );
+        return { clickable: Array.from( clickableElements ), notifications: Array.from( ntfyElements ) };
+    };
+    
+    window.forceClickDetection = function ()
+{
+        // No-op in production
+    };
+    
+    console.log( `🧪 Additional functions available: window.inspectPage(), window.forceClickDetection()` );
+}
 
 /**
     clicking can be finicky, we need to utilize multiple strategies to ensure we can actually detect
@@ -741,12 +758,12 @@ evnTypes.forEach( ( envType ) =>
                 if ( typeof window.electron !== 'undefined' )
                 {
                     window.electron.sendToMain( 'button-clicked', {
-                        message: `Mui element ${ envType } - optimized detection`,
+                        message: String( `Mui element ${ envType } - optimized detection` ),
                         timestamp: new Date().toISOString(),
-                        elementClass: env.target.className,
-                        elementTag: env.target.tagName,
-                        elementText: env.target.textContent?.trim() || '',
-                        envType: envType
+                        elementClass: String( env.target.className || '' ),
+                        elementTag: String( env.target.tagName || '' ),
+                        elementText: String( env.target.textContent?.trim() || '' ),
+                        envType: String( envType )
                     });
 
                     if ( bDeveloperMode )
@@ -811,12 +828,12 @@ function directClickHandler( env )
         {
             window.electron.sendToMain( 'button-clicked',
             {
-                message: 'Direct listener - Mui element clicked',
+                message: String( 'Direct listener - Mui element clicked' ),
                 timestamp: new Date().toISOString(),
-                elementClass: env.target.className,
-                elementTag: env.target.tagName,
-                elementText: env.target.textContent?.trim() || '',
-                envType: env.type
+                elementClass: String( env.target.className || '' ),
+                elementTag: String( env.target.tagName || '' ),
+                elementText: String( env.target.textContent?.trim() || '' ),
+                envType: String( env.type || '' )
             });
         }
     }
@@ -830,3 +847,41 @@ setTimeout( attachDirectListeners, 1000 );
 setInterval( attachDirectListeners, 2000 );
 
 console.log( '🚨 Multi-strategy click detection installed with debouncing' );
+
+/**
+ * Export functionality for testing purposes
+ * Only export in test environments to prevent IPC cloning issues
+ */
+
+// Only export in Node.js testing environments
+if ( typeof module !== 'undefined' && module.exports &&
+    typeof process !== 'undefined' && process.env && process.env.NODE_ENV === 'test' )
+{
+    module.exports = {
+        LogRenderer,
+        devSearchElements,
+        initializeRenderer,
+        attachDirectListeners,
+        directClickHandler
+    };
+}
+
+// For browser environments - be very careful about what we expose
+if ( typeof window !== 'undefined' )
+{
+    // Temporarily disabled all window assignments to debug IPC cloning issues
+    // Only assign to window in test environments where NODE_ENV is explicitly set
+    if ( typeof process !== 'undefined' && process.env && process.env.NODE_ENV === 'test' )
+{
+        try
+{
+            window.LogRenderer = LogRenderer;
+        }
+ catch ( e )
+{
+            console.warn( 'Could not assign LogRenderer to window:', e.message );
+        }
+    }
+    
+    // In production, don't expose any functions to avoid IPC issues
+}
