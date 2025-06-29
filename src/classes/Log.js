@@ -82,7 +82,14 @@ const isProduction = !isDevelopment;
 const stripAnsi = ( str ) =>
 {
     if ( typeof str !== 'string' )
+    {
+        // Handle Symbol values safely
+        if ( typeof str === 'symbol' )
+            return str.toString();
+        
+        // Handle other non-string values
         return String( str );
+    }
 
     /**
         since chalk log messages have colors in them, strip all ANSI escape codes so that
@@ -99,7 +106,32 @@ const stripAnsi = ( str ) =>
 
 const cleanMessage = ( msgArray ) =>
 {
-    return msgArray.map( ( item ) => stripAnsi( String( item ) ) );
+    return msgArray.map( ( item ) => 
+    {
+        // Handle Symbol values safely before passing to stripAnsi
+        if ( typeof item === 'symbol' )
+            return stripAnsi( item.toString() );
+        
+        // Handle other values
+        return stripAnsi( String( item ) );
+    });
+};
+
+/**
+    safely join an array that may contain Symbols
+*/
+
+const safeJoin = ( msgArray, separator = ' ' ) =>
+{
+    return msgArray.map( ( item ) => 
+    {
+        // Handle Symbol values safely
+        if ( typeof item === 'symbol' )
+            return item.toString();
+        
+        // Handle other values
+        return String( item );
+    }).join( separator );
 };
 
 /**
@@ -148,13 +180,13 @@ class Log
         */
 
         if ( isDevelopment )
-            console.debug( chalk.white.bgBlack.blackBright.bold( ` ${ name } ` ), chalk.white( ` ` ), this.now(), chalk.gray( msg.join( ' ' ) ) );
+            console.debug( chalk.white.bgBlack.blackBright.bold( ` ${ name } ` ), chalk.white( ` ` ), this.now(), chalk.gray( safeJoin( msg ) ) );
 
         /**
             send to renderer console (automatic forwarding with first word colored)
         */
 
-        sendToRendererConsole( 'verbose', msg.join( ' ' ), true );
+        sendToRendererConsole( 'verbose', safeJoin( msg ), true );
     }
 
     /**
@@ -188,13 +220,13 @@ class Log
             */
 
             if ( isDevelopment )
-                console.trace( chalk.white.bgMagenta.bold( ` ${ name } ` ), chalk.white( ` ` ), this.now(), chalk.magentaBright( msg.join( ' ' ) ) );
+                console.trace( chalk.white.bgMagenta.bold( ` ${ name } ` ), chalk.white( ` ` ), this.now(), chalk.magentaBright( safeJoin( msg ) ) );
 
             /**
                 send to renderer console (automatic forwarding with first word colored)
             */
 
-            sendToRendererConsole( 'debug', msg.join( ' ' ), true );
+            sendToRendererConsole( 'debug', safeJoin( msg ), true );
         }
         else if ( logLevel >= 5 )
         {
@@ -203,41 +235,36 @@ class Log
             */
 
             if ( isDevelopment )
-                console.debug( chalk.white.bgGray.bold( ` ${ name } ` ), chalk.white( ` ` ), this.now(), chalk.gray( msg.join( ' ' ) ) );
+                console.debug( chalk.white.bgGray.bold( ` ${ name } ` ), chalk.white( ` ` ), this.now(), chalk.gray( safeJoin( msg ) ) );
 
             /**
                 send to renderer console (automatic forwarding with first word colored)
             */
 
-            sendToRendererConsole( 'debug', msg.join( ' ' ), true );
+            sendToRendererConsole( 'debug', safeJoin( msg ), true );
         }
     }
 
 
-    static info( ...msg )
-    {
-        if ( getLogLevel() < 4 ) return;
+    static info(...msg) {
+        if (getLogLevel() < 4) return;
 
-        /**
-            always send clean messages to electron-log for file output
-        */
+        try {
+            // Clean messages and log
+            const msgForLog = msg;
+            const cleanedMsg = cleanMessage(msgForLog);
+            log.info('[info]', cleanedMsg.join(' '));
 
-        const msgForLog = msg;
-        const cleanedMsg = cleanMessage( msgForLog );
-        log.info( `[info]`, cleanedMsg.join( ' ' ) );
+            // Console output for development
+            if (isDevelopment) {
+                console.info(chalk.white.bgBlueBright.bold(` ${name} `), chalk.white(' '), this.now(), chalk.blueBright(safeJoin(msg)));
+            }
 
-        /**
-            always show colored console output for command prompt / terminal
-        */
-
-        if ( isDevelopment )
-            console.info( chalk.white.bgBlueBright.bold( ` ${ name } ` ), chalk.white( ' ' ), this.now(), chalk.blueBright( msg.join( ' ' ) ) );
-
-        /**
-            send to renderer console (automatic forwarding with first word colored)
-        */
-
-        sendToRendererConsole( 'info', msg.join( ' ' ), true );
+            // Send to renderer console
+            sendToRendererConsole('info', safeJoin(msg), true);
+        } catch (error) {
+            console.warn('Error in logging:', error);  // Handle the error
+        }
     }
 
     static ok( ...msg )
@@ -257,13 +284,13 @@ class Log
         */
 
         if ( isDevelopment )
-            console.log( chalk.white.bgGreen.bold( ` ${ name } ` ), chalk.white( ` ` ), this.now(), chalk.greenBright( msg.join( ' ' ) ) );
+            console.log( chalk.white.bgGreen.bold( ` ${ name } ` ), chalk.white( ` ` ), this.now(), chalk.greenBright( safeJoin( msg ) ) );
 
         /**
             send to renderer console (automatic forwarding with first word colored)
         */
 
-        sendToRendererConsole( 'ok', msg.join( ' ' ), true );
+        sendToRendererConsole( 'ok', safeJoin( msg ), true );
     }
 
     static notice( ...msg )
@@ -283,13 +310,13 @@ class Log
         */
 
         if ( isDevelopment )
-            console.log( chalk.white.bgYellow.bold( ` ${ name } ` ), chalk.white( ` ` ), this.now(), chalk.yellowBright( msg.join( ' ' ) ) );
+            console.log( chalk.white.bgYellow.bold( ` ${ name } ` ), chalk.white( ` ` ), this.now(), chalk.yellowBright( safeJoin( msg ) ) );
 
         /**
             send to renderer console (automatic forwarding with first word colored)
         */
 
-        sendToRendererConsole( 'notice', msg.join( ' ' ), true );
+        sendToRendererConsole( 'notice', safeJoin( msg ), true );
     }
 
     static warn( ...msg )
@@ -309,13 +336,13 @@ class Log
         */
 
         if ( isDevelopment )
-            console.warn( chalk.white.bgYellow.bold( ` ${ name } ` ), chalk.white( ` ` ), this.now(), chalk.yellowBright( msg.join( ' ' ) ) );
+            console.warn( chalk.white.bgYellow.bold( ` ${ name } ` ), chalk.white( ` ` ), this.now(), chalk.yellowBright( safeJoin( msg ) ) );
 
         /**
             send to renderer console (automatic forwarding with first word colored)
         */
 
-        sendToRendererConsole( 'warn', msg.join( ' ' ), true );
+        sendToRendererConsole( 'warn', safeJoin( msg ), true );
     }
 
     static error( ...msg )
@@ -335,13 +362,13 @@ class Log
         */
 
         if ( isDevelopment )
-            console.error( chalk.white.bgRedBright.bold( ` ${ name } ` ), chalk.white( ` ` ), this.now(), chalk.redBright( msg.join( ' ' ) ) );
+            console.error( chalk.white.bgRedBright.bold( ` ${ name } ` ), chalk.white( ` ` ), this.now(), chalk.redBright( safeJoin( msg ) ) );
 
         /**
             send to renderer console (automatic forwarding with first word colored)
         */
 
-        sendToRendererConsole( 'error', msg.join( ' ' ), true );
+        sendToRendererConsole( 'error', safeJoin( msg ), true );
     }
 
     /**
@@ -372,7 +399,7 @@ class Log
                 development console; show with colored app name
             */
 
-            console.log( chalk.white.bgBlueBright.bold( ` ${ name } ` ), cleanMsg.join( ' ' ) );
+            console.log( chalk.white.bgBlueBright.bold( ` ${ name } ` ), safeJoin( cleanMsg ) );
 
             /**
                 electron dev console; show with colored app name using css styling
@@ -380,7 +407,7 @@ class Log
 
             if ( window && window.webContents )
             {
-                const styledMessage = `%c ${ name } %c ${ cleanMsg.join( ' ' ) }`;
+                const styledMessage = `%c ${ name } %c ${ safeJoin( cleanMsg ) }`;
                 const appNameStyle = 'background-color: #3b82f6; color: white; font-weight: bold; padding: 2px 6px; border-radius: 3px;';
                 const messageStyle = 'color: inherit; font-weight: normal;';
 
@@ -396,11 +423,11 @@ class Log
             */
 
             const displayMsg = typeof msg[ 0 ] === 'boolean' ? msg.slice( 1 ) : msg;
-            console.log( displayMsg.join( ' ' ) );
+            console.log( safeJoin( displayMsg ) );
 
             if ( window && window.webContents )
             {
-                window.webContents.executeJavaScript( `console.log("${ displayMsg.join( ' ' ) }")` );
+                window.webContents.executeJavaScript( `console.log("${ safeJoin( displayMsg ) }")` );
             }
         }
     }
