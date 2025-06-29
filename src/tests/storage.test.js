@@ -18,8 +18,7 @@ import Storage from '#storage';
 
 vi.mock( 'electron', () => (
 {
-    default:
-    {
+    default: {
         app:
         {
             getPath: vi.fn( ( type ) =>
@@ -172,6 +171,58 @@ describe( 'Storage Class Tests', () =>
 
             expect( storage1.path ).toBe( path.join( tempDir, 'app-settings.json' ) );
             expect( storage2.path ).toBe( path.join( tempDir, 'user-preferences.json' ) );
+        });
+
+        it( 'should handle electron.remote.app fallback when main app is not available', async() =>
+        {
+            /*
+                Create a temporary mock that has no app but has remote.app
+                This will test the ( electron.app || electron.remote.app ) branch
+            */
+
+            const mockRemoteApp = {
+                getPath: vi.fn( ( type ) =>
+                {
+                    if ( type === 'userData' )
+                        return path.join( os.tmpdir(), 'ntfy-desktop-remote-test' );
+                    return os.tmpdir();
+                })
+            };
+
+            /*
+                Get the current electron mock and temporarily modify it
+            */
+            
+            const electronModule = await import( 'electron' );
+            const electronMocked = vi.mocked( electronModule.default );
+            const originalApp = electronMocked.app;
+            const originalRemote = electronMocked.remote;
+
+            /*
+                Set app to falsy and add remote.app
+            */
+            
+            electronMocked.app = null;
+            electronMocked.remote = { app: mockRemoteApp };
+            
+            fs.readFileSync.mockImplementation( () =>
+            {
+                throw new Error( 'File not found' );
+            });
+
+            const storage = new Storage({ configName: 'remote-test', defaults: { test: 'value' } });
+            const expectedPath = path.join( os.tmpdir(), 'ntfy-desktop-remote-test', 'remote-test.json' );
+
+            expect( storage.path ).toBe( expectedPath );
+            expect( storage.data ).toEqual({ test: 'value' });
+            expect( mockRemoteApp.getPath ).toHaveBeenCalledWith( 'userData' );
+
+            /*
+                Restore original mock values
+            */
+            
+            electronMocked.app = originalApp;
+            electronMocked.remote = originalRemote;
         });
     });
 

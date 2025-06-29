@@ -164,11 +164,24 @@ describe( 'Utils JSON Functionality Tests', () =>
                 this would happen if someone passes a string that contains:
                     "{}"
 
-                @todo       test might need adjustments based on usage
-                            function checks JSON.stringify(json) === '"{}"' which would match a string "{}"
+                The function checks JSON.stringify(json) === '"{}"' which would match a string "{}"
             */
 
             const stringifiedEmpty = '{}';
+            expect( Utils.isJsonEmpty( stringifiedEmpty ) ).toBe( true );
+
+            /*
+                Other strings that would stringify to '"{}"' when passed through JSON.stringify
+            */
+            
+            expect( Utils.isJsonEmpty( '{}' ) ).toBe( true );
+            
+            /*
+                Test edge case: what if someone passes a string that would not match this pattern?
+            */
+            
+            expect( Utils.isJsonEmpty( '{"key": "value"}' ) ).toBe( false );
+            expect( Utils.isJsonEmpty( 'not-json' ) ).toBe( false );
         });
 
         it( 'should return false for non-empty objects', () =>

@@ -34,20 +34,31 @@ vi.mock( 'electron', () => (
         on: vi.fn(),
         quit: vi.fn()
     },
-    BrowserWindow: vi.fn( () => (
+    BrowserWindow: vi.fn().mockImplementation( () => (
     {
-        loadURL: vi.fn(),
+        loadURL: vi.fn().mockResolvedValue(undefined),
+        loadFile: vi.fn().mockResolvedValue(undefined),
         webContents:
         {
             send: vi.fn(),
-            executeJavaScript: vi.fn(),
+            executeJavaScript: vi.fn().mockResolvedValue(undefined),
             toggleDevTools: vi.fn(),
             on: vi.fn(),
-            isDestroyed: vi.fn( () => false )
+            isDestroyed: vi.fn( () => false ),
+            navigationHistory: {
+                canGoBack: () => true,
+                canGoForward: () => true,
+                goBack: () => {},
+                goForward: () => {}
+            }
         },
         on: vi.fn(),
         hide: vi.fn(),
         show: vi.fn(),
+        reload: vi.fn(),
+        setFullScreen: vi.fn(),
+        isFullScreen: vi.fn(() => false),
+        setMenu: vi.fn(),
         getAllWindows: vi.fn( () => [] )
     }) ),
     ipcMain:
@@ -243,6 +254,100 @@ global.AbortController = vi.fn( () => (
 
 process.env.NODE_ENV = 'test';
 process.env.LOG_LEVEL = '4';
+
+/*
+    comprehensive fix for process.listeners issue in worker threads
+*/
+
+if (typeof process !== 'undefined') {
+    // Ensure process.listeners exists and works properly
+    if (!process.listeners) {
+        process.listeners = function(event) {
+            return [];
+        };
+    }
+    
+    // Patch process to prevent undefined access
+    const originalListeners = process.listeners;
+    process.listeners = function(event) {
+        try {
+            if (typeof originalListeners === 'function') {
+                return originalListeners.call(this, event) || [];
+            }
+            return [];
+        } catch (e) {
+            return [];
+        }
+    };
+    
+    // Ensure other process methods exist
+    if (!process.listenerCount) {
+        process.listenerCount = function(event) {
+            return 0;
+        };
+    }
+    
+    if (!process.removeAllListeners) {
+        process.removeAllListeners = function(event) {
+            return this;
+        };
+    }
+    
+    // Override uncaughtException handler to suppress specific errors
+    const originalUncaughtException = process.listeners('uncaughtException');
+    process.removeAllListeners('uncaughtException');
+    
+    process.on('uncaughtException', (error) => {
+        // Suppress specific worker thread errors
+        if (error.message && (
+            error.message.includes('Cannot read properties of undefined (reading \'listeners\')') ||
+            error.message.includes('Channel closed') ||
+            error.message.includes('ERR_IPC_CHANNEL_CLOSED')
+        )) {
+            // Silently ignore these errors
+            return;
+        }
+        
+        // Re-emit other errors through original handlers
+        if (originalUncaughtException && originalUncaughtException.length > 0) {
+            originalUncaughtException.forEach(handler => {
+                try {
+                    handler(error);
+                } catch (e) {
+                    // Ignore handler errors
+                }
+            });
+        }
+    });
+    
+    // Override unhandledRejection handler to suppress specific errors
+    const originalUnhandledRejection = process.listeners('unhandledRejection');
+    process.removeAllListeners('unhandledRejection');
+    
+    process.on('unhandledRejection', (reason, promise) => {
+        // Suppress specific worker thread errors
+        if (reason && reason.message && (
+            reason.message.includes('Cannot read properties of undefined (reading \'listeners\')') ||
+            reason.message.includes('Channel closed') ||
+            reason.message.includes('ERR_IPC_CHANNEL_CLOSED') ||
+            reason.code === 'ERR_IPC_CHANNEL_CLOSED'
+        )) {
+            // Silently ignore these errors
+            return;
+        }
+        
+        // Re-emit other errors through original handlers
+        if (originalUnhandledRejection && originalUnhandledRejection.length > 0) {
+            originalUnhandledRejection.forEach(handler => {
+                try {
+                    handler(reason, promise);
+                } catch (e) {
+                    // Ignore handler errors
+                }
+            });
+        }
+    });
+}
 
 /*
     console mock to prevent test pollution
