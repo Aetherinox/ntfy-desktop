@@ -114,6 +114,7 @@
 
 !/src
 !/src/*.ts
+!/src/vitest.config.js
 /src/node_modules
 /src/playwright
 /src/playwright-report
