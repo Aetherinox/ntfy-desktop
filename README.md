@@ -158,14 +158,16 @@ You can set the polling rate lower without any limitations or rate limits:
 
 We provide numerous different architectures you can download this app for. Below is a list:
 
+<br />
+
 | Architecture | Bits | Devices / Examples                         |
 | ------------ | ---- | ------------------------------------------ |
 | **ARMv7l**   | 32   | Raspberry Pi 2, Nexus 7, PS Vita           |
-| **armv6l**   | 32   | Raspberry Pi 1, Pi Zero, iPhone 3G         |
-| **ARM64**    | 64   | Apple M1/M2, modern iPhones, Pi 4          |
+| **ARMv6l**   | 32   | Raspberry Pi 1, Pi Zero, iPhone 3G         |
+| **ARM64**    | 64   | Apple M1, M2, **M3**, Raspberry Pi 4, modern iPhones |
 | **AMD64**    | 64   | Modern PCs, PS5, Xbox Series X, Steam Deck |
-| **i386**     | 32   | 386-era PCs, Win95, Compaq Deskpro         |
-| **ia32**     | 32   | Same as i386 + Intel Atom netbooks         |
+| **I386**     | 32   | 386-era PCs, Win95, Compaq Deskpro         |
+| **IA32**     | 32   | Same as i386 + Intel Atom netbooks         |
 
 <br />
 
