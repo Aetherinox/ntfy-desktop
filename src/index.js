@@ -210,7 +210,11 @@ chalk.level = 3;
     Debug > Print args
 */
 
-console.log( process.argv );
+Log.debug( '-- DEBUGGING ARGUMENTS --' );
+Log.debug( 'Full process.argv:', process.argv );
+Log.debug( 'Arguments after executable:', process.argv.slice( 2 ) );
+Log.debug( 'NODE_ENV from process.env:', process.env.NODE_ENV );
+Log.debug( '------------------------' );
 
 /**
     Define > Electron Elements
@@ -232,7 +236,7 @@ let bDevTools = 0;
 let bHotkeysEnabled = 0;
 let bQuitOnClose = 0;
 let bWinHidden = 0;
-let appEnvironment = process.env.NODE_ENV || 'production';
+let appEnvironment = 'production'; // Will be set after argument parsing
 const bStartHidden = 0;
 
 /**
@@ -947,12 +951,6 @@ function ready()
     // Initialize main process logging first
     initializeMainProcessLogging();
 
-    Log.info( `core`, chalk.yellow( `[initiate]` ), chalk.white( `:  ` ),
-        chalk.blueBright( `<msg>` ), chalk.gray( `Starting ${ appName }` ),
-        chalk.blueBright( `<version>` ), chalk.gray( `${ appVer }` ),
-        chalk.blueBright( `<electron>` ), chalk.gray( `${ appElectron }` ),
-        chalk.blueBright( `<env>` ), chalk.gray( `${ appEnvironment }` ) );
-
     /**
         new window
     */
@@ -1316,40 +1314,68 @@ function ready()
         --env               set runtime environment (production, development, test)
     */
 
+    // initialize appEnvironment from NODE_ENV if set; otherwise use production
+    appEnvironment = process.env.NODE_ENV || 'production';
+    Log.debug( `Before Initialization - NODE_ENV: ${ process.env.NODE_ENV }` );
+    Log.debug( `Before Initialization - appEnvironment: ${ appEnvironment }` );
+
+    Log.debug( '-- Parse Arguments --' );
     for ( let i = 0; i < process.argv.length; i++ )
     {
+        Log.debug( `Processing arg[${ i }]: "${ process.argv[ i ] }"` );
+
         if ( process.argv[ i ] === '--hidden' )
         {
+            Log.debug( 'Setting bWinHidden = 1' );
             bWinHidden = 1;
         }
         else if ( process.argv[ i ] === '--devtools' )
         {
+            Log.debug( 'Setting bDevTools = 1' );
             bDevTools = 1;
             activeDevTools();
         }
         else if ( process.argv[ i ] === '--terminate' )
         {
+            Log.debug( 'Setting bQuitOnClose = 1' );
             bQuitOnClose = 1;
         }
         else if ( process.argv[ i ] === '--hotkeys' )
         {
+            Log.debug( 'Setting bHotkeysEnabled = 1' );
             bHotkeysEnabled = 1;
         }
         else if ( process.argv[ i ] === '--env' && i + 1 < process.argv.length )
         {
             const value = process.argv[ i + 1 ].toLowerCase();
-            if ( value === 'production' || value === 'development' || value === 'test' )
+            const validEnvironments = [ 'production', 'development', 'test' ];
+
+            Log.debug( `Found --env with value: "${ value }"` );
+
+            if ( validEnvironments.includes( value ) )
             {
+                Log.debug( `Setting appEnvironment = ${ value }` );
                 appEnvironment = value;
-                process.env.NODE_ENV = value;   // set NODE_ENV for consistency
-                i++;                            // skip the next arg since it is consumed as env value
+                process.env.NODE_ENV = value;       // set NODE_ENV for consistency
+                i++;                                // skip the next arg since it is consumed as env value
             }
             else
             {
                 console.warn( `Unknown environment: ${ value }, defaulting to production.` );
+                console.warn( `Valid environments: ${ validEnvironments.join( ', ' ) }` );
             }
         }
     }
+
+    Log.debug( `Final appEnvironment: ${ appEnvironment }` );
+    Log.debug( `Final NODE_ENV: ${ process.env.NODE_ENV }` );
+
+    // log startup message
+    Log.info( `core`, chalk.yellow( `[initiate]` ), chalk.white( `:  ` ),
+        chalk.blueBright( `<msg>` ), chalk.gray( `Starting ${ appName }` ),
+        chalk.blueBright( `<version>` ), chalk.gray( `${ appVer }` ),
+        chalk.blueBright( `<electron>` ), chalk.gray( `${ appElectron }` ),
+        chalk.blueBright( `<env>` ), chalk.gray( `${ appEnvironment }` ) );
 
     /*
         no topics are set; warn the user to set some
