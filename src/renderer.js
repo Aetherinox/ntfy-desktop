@@ -24,7 +24,7 @@ const bDeveloperMode = false;
 
     Inlined browser-compatible version of Log class for renderer process.
     This is used for local logging within the injected renderer script.
-    
+
     Note: Main process logs are automatically forwarded to the renderer console
     via IPC with proper styling (colored app name, plain text message).
 
@@ -32,7 +32,6 @@ const bDeveloperMode = false;
     APP_NAME                name of app; we also can't read from package.json
 */
 
-const LOG_LEVEL = 4;
 const APP_NAME = 'ntfy-desktop';
 
 /**
@@ -61,6 +60,8 @@ const styles =
 
 class LogRenderer
 {
+    static LOG_LEVEL = 4; // Default log level for renderer process
+
     static now()
     {
         const now = new Date();
@@ -69,43 +70,43 @@ class LogRenderer
 
     static verbose( ...msg )
     {
-        if ( LOG_LEVEL < 6 ) return;
+        if ( this.LOG_LEVEL < 6 ) return;
         console.log( `%c ${ APP_NAME } `, styles.verbose, this.now(), ...msg );
     }
 
     static debug( ...msg )
     {
-        if ( LOG_LEVEL < 5 ) return;
+        if ( this.LOG_LEVEL < 5 ) return;
         console.debug( `%c ${ APP_NAME } `, styles.debug, this.now(), ...msg );
     }
 
     static info( ...msg )
     {
-        if ( LOG_LEVEL < 4 ) return;
+        if ( this.LOG_LEVEL < 4 ) return;
         console.log( `%c ${ APP_NAME } `, styles.info, this.now(), ...msg );
     }
 
     static ok( ...msg )
     {
-        if ( LOG_LEVEL < 4 ) return;
+        if ( this.LOG_LEVEL < 4 ) return;
         console.log( `%c ${ APP_NAME } `, styles.ok, this.now(), ...msg );
     }
 
     static notice( ...msg )
     {
-        if ( LOG_LEVEL < 3 ) return;
+        if ( this.LOG_LEVEL < 3 ) return;
         console.log( `%c ${ APP_NAME } `, styles.notice, this.now(), ...msg );
     }
 
     static warn( ...msg )
     {
-        if ( LOG_LEVEL < 2 ) return;
+        if ( this.LOG_LEVEL < 2 ) return;
         console.warn( `%c ${ APP_NAME } `, styles.warn, this.now(), ...msg );
     }
 
     static error( ...msg )
     {
-        if ( LOG_LEVEL < 1 ) return;
+        if ( this.LOG_LEVEL < 1 ) return;
         console.error( `%c ${ APP_NAME } `, styles.error, this.now(), ...msg );
     }
 }
@@ -117,58 +118,55 @@ class LogRenderer
     this function will not toggle unless developer mode is on.
 */
 
-function devSearchElements()
+function devSearchElements( )
 {
-    if ( !bDeveloperMode )
-        return;
-
-    console.log( `🔍 ~~~ ELEMENT SEARCH DEBUG ~~~` );
+    LogRenderer.debug( `🔍 ~~~ ELEMENT SEARCH DEBUG ~~~` );
 
     /**
         check for elements with the class "MuiButtonBase-root" from ntfy app
     */
 
     const muiElements = document.getElementsByClassName( 'MuiButtonBase-root' );
-    console.log( `📊 Found ${ muiElements.length } elements with exact class .MuiButtonBase-root` );
+    LogRenderer.debug( `📊 Found ${ muiElements.length } elements with exact class .MuiButtonBase-root` );
 
     /**
         check for any elements containing the class "MuiButton" from ntfy app
     */
 
     const muiButtonElements = document.querySelectorAll( '*[class*="MuiButton"]' );
-    console.log( `📊 Found ${ muiButtonElements.length } elements with classes containing 'MuiButton'` );
+    LogRenderer.debug( `📊 Found ${ muiButtonElements.length } elements with classes containing 'MuiButton'` );
 
     /**
         check for any elements containing the class "Mui" from ntfy app
     */
 
     const allMuiElements = document.querySelectorAll( '*[class*="Mui"]' );
-    console.log( `📊 Found ${ allMuiElements.length } elements with classes containing 'Mui'` );
+    LogRenderer.debug( `📊 Found ${ allMuiElements.length } elements with classes containing 'Mui'` );
 
     /**
         check for any elements on page that are buttons
     */
 
     const buttonElements = document.querySelectorAll( 'button, *[role="button"], *[class*="button"], *[class*="Button"]' );
-    console.log( `📊 Found ${ buttonElements.length } button elements` );
+    LogRenderer.debug( `📊 Found ${ buttonElements.length } button elements` );
 
     /**
         log the first few items from each category
     */
 
-    console.log( '🎯 Sample MuiButton elements:' );
+    LogRenderer.debug( '🎯 Sample MuiButton elements:' );
     Array.from( muiButtonElements ).slice( 0, 5 ).forEach( ( el, i ) =>
     {
-        console.log( `  ${ i }: ${ el.tagName } - ${ el.className } - "${ el.textContent?.trim() || '' }"` );
+        LogRenderer.debug( `  ${ i }: ${ el.tagName } - ${ el.className } - "${ el.textContent?.trim() || '' }"` );
     });
 
-    console.log( '🎯 Sample button elements:' );
+    LogRenderer.debug( '🎯 Sample button elements:' );
     Array.from( buttonElements ).slice( 0, 5 ).forEach( ( el, i ) =>
     {
-        console.log( `  ${ i }: ${ el.tagName } - ${ el.className } - "${ el.textContent?.trim() || '' }"` );
+        LogRenderer.debug( `  ${ i }: ${ el.tagName } - ${ el.className } - "${ el.textContent?.trim() || '' }"` );
     });
 
-    console.log( `🔍 ~~~ END ELEMENT SEARCH ~~~` );
+    LogRenderer.debug( `🔍 ~~~ END ELEMENT SEARCH ~~~` );
 
     return {
         muiElements: muiElements.length,
@@ -184,8 +182,7 @@ function devSearchElements()
 
 function initializeRenderer()
 {
-    if ( bDeveloperMode )
-        console.log( '🔧 Initializing renderer functionality' );
+    LogRenderer.debug( '🔧 Initializing renderer functionality' );
 
     /**
         add universal click listener for debugging - using capture phase to catch events early
@@ -193,18 +190,15 @@ function initializeRenderer()
 
     document.addEventListener( 'click', ( env ) =>
     {
-        if ( bDeveloperMode )
+        LogRenderer.debug( '🖱️ Universal click detected on:',
         {
-            console.log( '🖱️ Universal click detected on:',
-            {
-                tag: env.target.tagName,
-                className: env.target.className,
-                id: env.target.id,
-                text: env.target.textContent?.trim().substring( 0, 50 ) || '',
-                role: env.target.role,
-                type: env.target.type
-            });
-        }
+            tag: env.target.tagName,
+            className: env.target.className,
+            id: env.target.id,
+            text: env.target.textContent?.trim().substring( 0, 50 ) || '',
+            role: env.target.role,
+            type: env.target.type
+        });
 
         /**
             more comprehensive check for clickable elements that should reset badge
@@ -238,8 +232,7 @@ function initializeRenderer()
 
         if ( bShouldResetBadge )
         {
-            if ( bDeveloperMode )
-                console.log( `🎯 Button element clicked - send badge reset signal` );
+            LogRenderer.debug( `🎯 Button element clicked - send badge reset signal` );
 
             if ( typeof window.electron !== 'undefined' )
             {
@@ -255,13 +248,11 @@ function initializeRenderer()
                     elementType: String( env.target.type || '' )
                 });
 
-                if ( bDeveloperMode )
-                    console.log( `✅ Badge reset signal sent to main process` );
+                LogRenderer.debug( `✅ Badge reset signal sent to main process` );
             }
             else
             {
-                if ( bDeveloperMode )
-                    console.error( `❌ window.electron not available` );
+                LogRenderer.error( `❌ window.electron not available` );
             }
         }
     }, true );
@@ -278,8 +269,7 @@ function initializeRenderer()
 
         if ( env.target.tagName === 'BUTTON' || env.target.role === 'button' || env.target.className.includes( 'Button' ) )
         {
-            if ( bDeveloperMode )
-                console.log( `🔄 Bubble phase click on button element` );
+            LogRenderer.debug( `🔄 Bubble phase click on button element` );
         }
     }, false );
 
@@ -289,9 +279,6 @@ function initializeRenderer()
 
     setTimeout( () =>
     {
-        if ( !bDeveloperMode )
-            return;
-
         devSearchElements();
     }, 1000 );
 
@@ -303,16 +290,15 @@ function initializeRenderer()
     {
         const elements = document.getElementsByClassName( 'MuiButtonBase-root' );
 
-        if ( bDeveloperMode )
-            console.log( `🔍 Found ${ elements.length } elements with class .MuiButtonBase-root` );
+        LogRenderer.debug( `🔍 Found ${ elements.length } elements with class .MuiButtonBase-root` );
 
         /**
             if we find no exact matches, try a broader search
         */
 
-        if ( elements.length === 0 && bDeveloperMode )
+        if ( elements.length === 0 )
         {
-            console.log( `⚠️ No .MuiButtonBase-root elements found, attempting broader search...` );
+            LogRenderer.debug( `⚠️ No .MuiButtonBase-root elements found, attempting broader search...` );
 
             /**
                 try different variants of the element names / classes
@@ -333,10 +319,10 @@ function initializeRenderer()
             variations.forEach( ( selector, i ) =>
             {
                 const found = document.querySelectorAll( selector );
-                console.log( `  Variation ${ i } (${ selector }): ${ found.length } elements` );
+                LogRenderer.debug( `  Variation ${ i } (${ selector }): ${ found.length } elements` );
 
                 if ( found.length > 0 && i < 3 )
-                    console.log( `    First element:`, found[ 0 ] );
+                    LogRenderer.debug( `    First element:`, found[ 0 ] );
             });
         }
 
@@ -344,22 +330,19 @@ function initializeRenderer()
             debugging > log all elements with classes containing 'Mui' or 'Button'
         */
 
-        if ( bDeveloperMode )
+        const allElements = document.querySelectorAll( '*[class*="Mui"], *[class*="Button"], *[class*="button"]' );
+        LogRenderer.debug( `🔍 Found ${ allElements.length } elements with Mui/Button related classes:` );
+        allElements.forEach( ( el, i ) =>
         {
-            const allElements = document.querySelectorAll( '*[class*="Mui"], *[class*="Button"], *[class*="button"]' );
-            console.log( `🔍 Found ${ allElements.length } elements with Mui/Button related classes:` );
-            allElements.forEach( ( el, i ) =>
-            {
-                /**
-                    We should only log the first 10 to prevent spammy behavior
-                */
+            /**
+                We should only log the first 10 to prevent spammy behavior
+            */
 
-                if ( i < 10 )
-                {
-                    console.log( `  - Element ${ i }: ${ el.tagName.toLowerCase() } with classes: ${ el.className }` );
-                }
-            });
-        }
+            if ( i < 10 )
+            {
+                LogRenderer.debug( `  - Element ${ i }: ${ el.tagName.toLowerCase() } with classes: ${ el.className }` );
+            }
+        });
 
         /**
             convert HTMLCollection to Array for easier iteration
@@ -386,14 +369,14 @@ function initializeRenderer()
 
             element.addEventListener( 'click', handleMuiListClick, false );
 
-            if ( bDeveloperMode )
+            LogRenderer.debug( `✅ Added click listeners to .MuiButtonBase-root element ${ index }:`, element );
+
+            /**
+                Debug > visual indicator (only in test/development mode)
+            */
+
+            if ( typeof window.electron !== 'undefined' && ( window.electron.env.NODE_ENV === 'test' || window.electron.env.NODE_ENV === 'development' ) )
             {
-                console.log( `✅ Added click listeners to .MuiButtonBase-root element ${ index }:`, element );
-
-                /**
-                    Debug > visual indicator
-                */
-
                 element.style.border = '2px solid red';
                 element.style.boxShadow = '0 0 5px red';
                 element.title = 'Badge Reset Button - Click to reset notification count';
@@ -407,8 +390,7 @@ function initializeRenderer()
 
     function handleMuiListClick( env )
     {
-        if ( bDeveloperMode )
-            console.log( 'MuiButtonBase-root element clicked!', env.target );
+        LogRenderer.debug( 'MuiButtonBase-root element clicked!', env.target );
 
         /**
             see if window.electron is available
@@ -428,13 +410,11 @@ function initializeRenderer()
                 elementTag: String( env.target.tagName || '' )
             });
 
-            if ( bDeveloperMode )
-                console.log( 'Signal sent to main process' );
+            LogRenderer.debug( 'Signal sent to main process' );
         }
         else
         {
-            if ( bDeveloperMode )
-                console.error( 'window.electron is not available - preload script may not be loaded' );
+            LogRenderer.error( 'window.electron is not available - preload script may not be loaded' );
         }
     }
 
@@ -471,8 +451,7 @@ function initializeRenderer()
 
         if ( bShouldRecheck )
         {
-            if ( bDeveloperMode )
-                console.log( `New .MuiButtonBase-root elements detected, re-adding listeners` );
+            LogRenderer.debug( `New .MuiButtonBase-root elements detected, re-adding listeners` );
 
             addClickListeners();
         }
@@ -488,8 +467,7 @@ function initializeRenderer()
         subtree: true
     });
 
-    if ( bDeveloperMode )
-        console.log( `MutationObserver started for dynamic content` );
+    LogRenderer.debug( `MutationObserver started for dynamic content` );
 }
 
 /**
@@ -515,12 +493,9 @@ else
 
 function devTestElectronAPI()
 {
-    if ( !bDeveloperMode )
-        return;
-
     if ( typeof window.electron !== 'undefined' )
     {
-        console.log( `✅ window.electron is available` );
+        LogRenderer.debug( `✅ window.electron is available` );
 
         /**
             test ping
@@ -528,7 +503,7 @@ function devTestElectronAPI()
 
         window.electron.ping().then( ( result ) =>
         {
-            console.log( `✅ Ping test successful:`, result );
+            LogRenderer.debug( `✅ Ping test successful:`, result );
         }).catch( ( error ) =>
         {
             console.error( `❌ Ping test failed:`, error );
@@ -539,7 +514,7 @@ function devTestElectronAPI()
         */
 
         window.electron.sendToMain( 'toMain', String( 'Test message from renderer' ) );
-        console.log( '✅ Test message sent to main process' );
+        LogRenderer.debug( '✅ Test message sent to main process' );
 
         /**
             test receive from main
@@ -547,7 +522,7 @@ function devTestElectronAPI()
 
         window.electron.receiveFromMain( 'fromMain', ( data ) =>
         {
-            console.log( '✅ Received message from main:', data );
+            LogRenderer.debug( '✅ Received message from main:', data );
         });
     }
     else
@@ -567,133 +542,106 @@ window.addEventListener( 'load', devTestElectronAPI );
     Note: Disabled to prevent IPC cloning issues in production
 */
 
-if ( bDeveloperMode )
+window.testBadgeReset = function ()
 {
-    window.testBadgeReset = function ()
+    if ( typeof window.electron !== 'undefined' )
     {
-        if ( typeof window.electron !== 'undefined' )
+        window.electron.sendToMain( 'button-clicked',
         {
-            window.electron.sendToMain( 'button-clicked',
-            {
-                message: String( 'Manual test - MuiButtonBase-root element clicked' ),
-                timestamp: new Date().toISOString(),
-                elementClass: String( 'MuiButtonBase-root test-class' ),
-                elementTag: String( 'DIV' ),
-                testMode: true
-            });
+            message: String( 'Manual test - MuiButtonBase-root element clicked' ),
+            timestamp: new Date().toISOString(),
+            elementClass: String( 'MuiButtonBase-root test-class' ),
+            elementTag: String( 'DIV' ),
+            testMode: true
+        });
 
-            console.log( '✅ Test badge reset signal sent to main process' );
-        }
-        else
-        {
-            console.error( '❌ window.electron is not available' );
-        }
-    };
+        LogRenderer.debug( '✅ Test badge reset signal sent to main process' );
+    }
+    else
+    {
+        console.error( '❌ window.electron is not available' );
+    }
+};
 
-    console.log( '🧪 Test function available: window.testBadgeReset()' );
-}
+LogRenderer.debug( '🧪 Test function available: window.testBadgeReset()' );
 
 /**
     add function to inspect current page elements
     Note: Only available in developer mode to prevent IPC cloning issues
 */
 
-if ( bDeveloperMode )
+window.inspectPage = function ()
 {
-    window.inspectPage = function ()
-    {
-        console.log( '🔍 === PAGE INSPECTION ===' );
-
-        /**
-            gather a list of all the clickable elements
-        */
-
-        const clickableElements = document.querySelectorAll(
-            'button, [role="button"], [type="button"], a, [onclick], [class*="button"], [class*="Button"], [class*="btn"], [class*="Mui"]'
-        );
-
-        console.log( `Found ${ clickableElements.length } potentially clickable elements:` );
-
-        clickableElements.forEach( ( el, i ) =>
-        {
-            /**
-                only show the first 20
-            */
-
-            if ( i < 20 )
-            {
-                console.log( `${ i }: ${ el.tagName } - "${ el.className }" - "${ el.textContent?.trim().substring( 0, 30 ) || '' }"` );
-            }
-        });
-
-        /**
-            get all elements that might be related to ntfy noficiations
-        */
-
-        const ntfyElements = document.querySelectorAll(
-            '[class*="notif"], [class*="Notif"], [class*="badge"], [class*="Badge"], [class*="count"], [class*="Count"]'
-        );
-
-        console.log( `\nFound ${ ntfyElements.length } notification-related elements:` );
-        ntfyElements.forEach( ( el, i ) =>
-        {
-            if ( i < 10 )
-            {
-                console.log( `${ i }: ${ el.tagName } - "${ el.className }" - "${ el.textContent?.trim().substring( 0, 30 ) || '' }"` );
-            }
-        });
-
-        return { clickable: Array.from( clickableElements ), notifications: Array.from( ntfyElements ) };
-    };
+    LogRenderer.debug( '🔍 === PAGE INSPECTION ===' );
 
     /**
-        force click detection on ANY element
+        gather a list of all the clickable elements
     */
 
-    window.forceClickDetection = function ()
-    {
-        console.log( `🎯 === FORCE CLICK DETECTION ===` );
+    const clickableElements = document.querySelectorAll(
+        'button, [role="button"], [type="button"], a, [onclick], [class*="button"], [class*="Button"], [class*="btn"], [class*="Mui"]'
+    );
 
+    LogRenderer.debug( `Found ${ clickableElements.length } potentially clickable elements:` );
+
+    clickableElements.forEach( ( el, i ) =>
+    {
         /**
-            override all click events to detect when a user clicks on the interface
+            only show the first 20
         */
 
-        const originalAddEventListener = Element.prototype.addEventListener;
-
-        Element.prototype.addEventListener = function ( type, listener, options )
+        if ( i < 20 )
         {
-            if ( type === 'click' )
-                console.log( `🎯 Click listener being added to:`, this.tagName, this.className );
+            LogRenderer.debug( `${ i }: ${ el.tagName } - "${ el.className }" - "${ el.textContent?.trim().substring( 0, 30 ) || '' }"` );
+        }
+    });
 
-            return originalAddEventListener.call( this, type, listener, options );
-        };
+    /**
+        get all elements that might be related to ntfy noficiations
+    */
 
-        console.log( `✅ Click detection override installed` );
+    const ntfyElements = document.querySelectorAll(
+        '[class*="notif"], [class*="Notif"], [class*="badge"], [class*="Badge"], [class*="count"], [class*="Count"]'
+    );
+
+    LogRenderer.debug( `\nFound ${ ntfyElements.length } notification-related elements:` );
+    ntfyElements.forEach( ( el, i ) =>
+    {
+        if ( i < 10 )
+        {
+            LogRenderer.debug( `${ i }: ${ el.tagName } - "${ el.className }" - "${ el.textContent?.trim().substring( 0, 30 ) || '' }"` );
+        }
+    });
+
+    return { clickable: Array.from( clickableElements ), notifications: Array.from( ntfyElements ) };
+};
+
+/**
+    force click detection on ANY element
+*/
+
+window.forceClickDetection = function ()
+{
+    LogRenderer.debug( `🎯 === FORCE CLICK DETECTION ===` );
+
+    /**
+        override all click events to detect when a user clicks on the interface
+    */
+
+    const originalAddEventListener = Element.prototype.addEventListener;
+
+    Element.prototype.addEventListener = function ( type, listener, options )
+    {
+        if ( type === 'click' )
+            LogRenderer.debug( `🎯 Click listener being added to:`, this.tagName, this.className );
+
+        return originalAddEventListener.call( this, type, listener, options );
     };
 
-    console.log( `🧪 Additional functions available: window.inspectPage(), window.forceClickDetection()` );
-}
- else
-{
-    // In production, create safe stub functions that won't cause IPC issues
-    window.inspectPage = function ()
-{
-        const clickableElements = document.querySelectorAll(
-            'button, [role="button"], [type="button"], a, [onclick], [class*="button"], [class*="Button"], [class*="btn"], [class*="Mui"]'
-        );
-        const ntfyElements = document.querySelectorAll(
-            '[class*="notif"], [class*="Notif"], [class*="badge"], [class*="Badge"], [class*="count"], [class*="Count"]'
-        );
-        return { clickable: Array.from( clickableElements ), notifications: Array.from( ntfyElements ) };
-    };
-    
-    window.forceClickDetection = function ()
-{
-        // No-op in production
-    };
-    
-    console.log( `🧪 Additional functions available: window.inspectPage(), window.forceClickDetection()` );
-}
+    LogRenderer.debug( `✅ Click detection override installed` );
+};
+
+LogRenderer.debug( `🧪 Additional functions available: window.inspectPage(), window.forceClickDetection()` );
 
 /**
     clicking can be finicky, we need to utilize multiple strategies to ensure we can actually detect
@@ -734,15 +682,12 @@ evnTypes.forEach( ( envType ) =>
 
         if ( isMuiButton || ( isMuiElement && isButton ) )
         {
-            if ( bDeveloperMode )
+            LogRenderer.debug( `🚨 ${ envType.toUpperCase() } detected on Mui element:`,
             {
-                console.log( `🚨 ${ envType.toUpperCase() } detected on Mui element:`,
-                {
-                    tag: env.target.tagName,
-                    className: env.target.className,
-                    text: env.target.textContent?.trim().substring( 0, 30 ) || ''
-                });
-            }
+                tag: env.target.tagName,
+                className: env.target.className,
+                text: env.target.textContent?.trim().substring( 0, 30 ) || ''
+            });
 
             /**
                 prevent duplicate signals by using debounce
@@ -752,8 +697,7 @@ evnTypes.forEach( ( envType ) =>
             {
                 lastClickTime = now;
 
-                if ( bDeveloperMode )
-                    console.log( '🎯 SENDING BADGE RESET (via optimized detection)' );
+                LogRenderer.debug( '🎯 SENDING BADGE RESET (via optimized detection)' );
 
                 if ( typeof window.electron !== 'undefined' )
                 {
@@ -766,14 +710,12 @@ evnTypes.forEach( ( envType ) =>
                         envType: String( envType )
                     });
 
-                    if ( bDeveloperMode )
-                        console.log( '✅ Badge reset signal sent via optimized detection' );
+                    LogRenderer.debug( '✅ Badge reset signal sent via optimized detection' );
                 }
             }
             else
             {
-                if ( bDeveloperMode )
-                    console.log( '⏰ Click debounced - too soon after last click' );
+                LogRenderer.debug( '⏰ Click debounced - too soon after last click' );
             }
         }
     }, true ); // use capture phase
@@ -805,8 +747,7 @@ function attachDirectListeners()
         element.addEventListener( 'mousedown', directClickHandler, true );
     });
 
-    if ( bDeveloperMode )
-        console.log( `🔄 Attached direct listeners to ${ muiButtons.length } Mui elements` );
+    LogRenderer.debug( `🔄 Attached direct listeners to ${ muiButtons.length } Mui elements` );
 }
 
 /**
@@ -821,8 +762,7 @@ function directClickHandler( env )
     {
         lastClickTime = now;
 
-        if ( bDeveloperMode )
-            console.log( '🎯 DIRECT LISTENER TRIGGERED - sending badge reset' );
+        LogRenderer.debug( '🎯 DIRECT LISTENER TRIGGERED - sending badge reset' );
 
         if ( typeof window.electron !== 'undefined' )
         {
@@ -846,42 +786,44 @@ function directClickHandler( env )
 setTimeout( attachDirectListeners, 1000 );
 setInterval( attachDirectListeners, 2000 );
 
-console.log( '🚨 Multi-strategy click detection installed with debouncing' );
+LogRenderer.debug( '🚨 Multi-strategy click detection installed with debouncing' );
 
-/**
- * Export functionality for testing purposes
- * Only export in test environments to prevent IPC cloning issues
- */
+/*
+    Export functionality for testing purposes
+    Only export in test environments to prevent IPC cloning issues
+*/
 
-// Only export in Node.js testing environments
-if ( typeof module !== 'undefined' && module.exports &&
-    typeof process !== 'undefined' && process.env && process.env.NODE_ENV === 'test' )
+/*
+    Only export in Node.js testing environments
+*/
+
+// Export for Node.js testing environments
+if ( typeof module !== 'undefined' && module.exports && typeof process !== 'undefined' && typeof process.env !== 'undefined' && process.env.NODE_ENV === 'test' )
 {
-    module.exports = {
-        LogRenderer,
-        devSearchElements,
-        initializeRenderer,
-        attachDirectListeners,
-        directClickHandler
-    };
+    module.exports = { LogRenderer, devSearchElements, initializeRenderer, attachDirectListeners, directClickHandler };
 }
 
-// For browser environments - be very careful about what we expose
+/*
+    for browser environments - be very careful about what we expose
+*/
+
 if ( typeof window !== 'undefined' )
 {
-    // Temporarily disabled all window assignments to debug IPC cloning issues
-    // Only assign to window in test environments where NODE_ENV is explicitly set
-    if ( typeof process !== 'undefined' && process.env && process.env.NODE_ENV === 'test' )
-{
+    /*
+        Temporarily disabled all window assignments to debug IPC cloning issues
+        Only assign to window in test environments where NODE_ENV is explicitly set
+        In production, don't expose any functions to avoid IPC issues
+    */
+
+    if ( typeof window.electron !== 'undefined' && window.electron.env && window.electron.env.NODE_ENV === 'test' )
+    {
         try
-{
+        {
             window.LogRenderer = LogRenderer;
         }
- catch ( e )
-{
+        catch ( e )
+        {
             console.warn( 'Could not assign LogRenderer to window:', e.message );
         }
     }
-    
-    // In production, don't expose any functions to avoid IPC issues
 }
