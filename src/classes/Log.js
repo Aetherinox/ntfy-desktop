@@ -471,6 +471,14 @@ const initializeElectronLog = async() =>
             return false;
         }
 
+        /**
+            @important          disable electron-log console output IMMEDIATELY to prevent duplicate logging
+                                this must be done before any Log.debug() calls
+        */
+
+        if ( log.transports.console )
+            log.transports.console.level = false;
+
         Log.debug( 'Available transports:', Object.keys( log.transports ) );
         Log.debug( 'Process type:', process.type );
 
@@ -512,14 +520,6 @@ const initializeElectronLog = async() =>
                     log.transports.file.level = 'debug';
                     log.transports.file.resolvePathFn = () => customLogPath;
                     log.transports.file.fileName = 'main.log';
-
-                    /**
-                        disable electron-log console output for main process
-                        we handle console output manually with chalk colors
-                    */
-
-                    if ( log.transports.console )
-                        log.transports.console.level = false;
 
                     /**
                         test write to verify path
