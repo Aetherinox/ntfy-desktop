@@ -558,18 +558,18 @@ const initializeElectronLog = async() =>
                 since renderer doesn't have file transport by default, use IPC to send to main process
             */
 
-            console.debug( 'Renderer process detected - file transport not available by default' );
-            console.debug( 'Logs will be sent via IPC to main process for file writing' );
+            Log.debug( 'Renderer process detected - file transport not available by default' );
+            Log.debug( 'Logs will be sent via IPC to main process for file writing' );
 
             /**
                 @important              completely disable electron-log console output in renderer
-                                        We handle renderer console output via our custom IPC system
+                                        handle renderer console output via our custom IPC system
             */
 
             if ( log.transports.console )
             {
                 log.transports.console.level = false;
-                console.debug( 'Disabled electron-log console output in renderer - using custom IPC system' );
+                Log.debug( 'Disabled electron-log console output in renderer - using custom IPC system' );
             }
 
             /**
@@ -580,7 +580,7 @@ const initializeElectronLog = async() =>
             if ( log.transports.ipc )
             {
                 log.transports.ipc.level = false;
-                console.debug( 'Disabled electron-log IPC transport - using custom Log class IPC system' );
+                Log.debug( 'Disabled electron-log IPC transport - using custom Log class IPC system' );
             }
 
             /**
