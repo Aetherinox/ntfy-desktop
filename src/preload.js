@@ -68,7 +68,15 @@ contextBridge.exposeInMainWorld( 'electron',
         handle ping for testing
     */
 
-    ping: () => ipcRenderer.invoke( 'ping' )
+    ping: () => ipcRenderer.invoke( 'ping' ),
+
+    /**
+        expose environment information
+    */
+
+    env: {
+        NODE_ENV: process.env.NODE_ENV || 'production'
+    }
 });
 
 /**
