@@ -375,7 +375,9 @@ function initializeRenderer()
                 Debug > visual indicator (only in test/development mode)
             */
 
-            if ( typeof window.electron !== 'undefined' && ( window.electron.env.NODE_ENV === 'test' || window.electron.env.NODE_ENV === 'development' ) )
+            if ( typeof window.electron !== 'undefined' && 
+                 window.electron.env && 
+                 ( window.electron.env.NODE_ENV === 'test' || window.electron.env.NODE_ENV === 'development' ) )
             {
                 element.style.border = '2px solid red';
                 element.style.boxShadow = '0 0 5px red';

@@ -225,12 +225,14 @@ let guiMain, guiAbout, guiTray;
     bHotkeysEnabled     --hotkeys       keyboard shortcuts added to menu
     bQuitOnClose        --terminate     when pressing top-right close button, app exits instead of going to tray
     bWinHidden          --hidden        app closes to tray on start
+    appEnvironment      --env           runtime environment (production, development, test)
 */
 
 let bDevTools = 0;
 let bHotkeysEnabled = 0;
 let bQuitOnClose = 0;
 let bWinHidden = 0;
+let appEnvironment = process.env.NODE_ENV || 'production';
 const bStartHidden = 0;
 
 /**
@@ -948,7 +950,8 @@ function ready()
     Log.info( `core`, chalk.yellow( `[initiate]` ), chalk.white( `:  ` ),
         chalk.blueBright( `<msg>` ), chalk.gray( `Starting ${ appName }` ),
         chalk.blueBright( `<version>` ), chalk.gray( `${ appVer }` ),
-        chalk.blueBright( `<electron>` ), chalk.gray( `${ appElectron }` ) );
+        chalk.blueBright( `<electron>` ), chalk.gray( `${ appElectron }` ),
+        chalk.blueBright( `<env>` ), chalk.gray( `${ appEnvironment }` ) );
 
     /**
         new window
@@ -1309,6 +1312,8 @@ function ready()
         --hidden            automatically hide window
         --dev               enable developer tools
         --terminate         quit app when close button pressed
+        --hotkeys           enable keyboard shortcuts
+        --env               set runtime environment (production, development, test)
     */
 
     for ( let i = 0; i < process.argv.length; i++ )
@@ -1329,6 +1334,20 @@ function ready()
         else if ( process.argv[ i ] === '--hotkeys' )
         {
             bHotkeysEnabled = 1;
+        }
+        else if ( process.argv[ i ] === '--env' && i + 1 < process.argv.length )
+        {
+            const value = process.argv[ i + 1 ].toLowerCase();
+            if ( value === 'production' || value === 'development' || value === 'test' )
+            {
+                appEnvironment = value;
+                process.env.NODE_ENV = value;   // set NODE_ENV for consistency
+                i++;                            // skip the next arg since it is consumed as env value
+            }
+            else
+            {
+                console.warn( `Unknown environment: ${ value }, defaulting to production.` );
+            }
         }
     }
 
