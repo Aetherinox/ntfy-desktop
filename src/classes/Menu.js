@@ -139,9 +139,7 @@ function newMenuMain()
                                                 value: deps.store.get( 'instanceURL' ) || deps.defInstanceUrl,
                                                 inputAttrs: {
                                                     placeholder: 'Enter URL to ntfy server',
-                                                    type: 'url',
-                                                    min: 5,
-                                                    step: 1
+                                                    type: 'url'
                                                 }
                                             },
                                             {
@@ -330,7 +328,7 @@ function newMenuMain()
                                         inputAttrs: {
                                             type: 'number',
                                             required: true,
-                                            min: 5,
+                                            min: 1,
                                             step: 1
                                         }
                                     }
