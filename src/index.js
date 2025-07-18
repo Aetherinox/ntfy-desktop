@@ -563,14 +563,14 @@ async function GetMessages( )
 
     try
     {
-        const cfgInstanceURL = store.get( 'instanceURL' );
+        let cfgInstanceURL = store.get( 'instanceURL' );
         const cfgTopics = store.getSanitized( 'topics', defTopics );
-        let cfgPollrate = store.get( 'pollrate' ) || defPollrate;
 
         /*
             validate and clamp poll rate
         */
 
+        let cfgPollrate = store.get( 'pollrate' ) || defPollrate;
         cfgPollrate = Math.max( minPollrate, Math.min( maxPollrate, cfgPollrate ) );
         if ( cfgPollrate !== store.get( 'pollrate' ) )
         {
@@ -638,35 +638,35 @@ async function GetMessages( )
         return;
     }
 
-        /**
-            get pending messages from polling
-        */
+    /**
+        get pending messages from polling
+    */
 
-        const json = await GetMessageData( uri );
+    const json = await GetMessageData( uri );
 
-        /**
-            Check if request failed or returned null
-        */
+    /**
+        Check if request failed or returned null
+    */
 
-        if ( json === null )
-        {
-            Log.debug( `core`, chalk.yellow( `[messages]` ), chalk.white( `:  ` ),
-                chalk.blueBright( `<msg>` ), chalk.gray( `Message fetch returned null, skipping processing` ) );
-            return;
-        }
+    if ( json === null )
+    {
+        Log.debug( `core`, chalk.yellow( `[messages]` ), chalk.white( `:  ` ),
+            chalk.blueBright( `<msg>` ), chalk.gray( `Message fetch returned null, skipping processing` ) );
+        return;
+    }
 
-        /**
-            will be thrown if the instance url does not return valid json (ntfy server possibly down?)
-        */
+    /**
+        will be thrown if the instance url does not return valid json (ntfy server possibly down?)
+    */
 
-        if ( Utils.isJsonString( json ) === false )
-        {
-            Log.error( `core`, chalk.redBright( `[messages]` ), chalk.white( `:  ` ),
-                chalk.redBright( `<msg>` ), chalk.gray( `Polling for new messages returned invalid json; skipping fetch. Change your instance URL to a valid ntfy instance.` ),
-                chalk.redBright( `<func>` ), chalk.gray( `GetMessages()` ) );
+    if ( Utils.isJsonString( json ) === false )
+    {
+        Log.error( `core`, chalk.redBright( `[messages]` ), chalk.white( `:  ` ),
+            chalk.redBright( `<msg>` ), chalk.gray( `Polling for new messages returned invalid json; skipping fetch. Change your instance URL to a valid ntfy instance.` ),
+            chalk.redBright( `<func>` ), chalk.gray( `GetMessages()` ) );
 
-            return;
-        }
+        return;
+    }
 
     Log.info( `core`, chalk.yellow( `[messages]` ), chalk.white( `:  ` ),
         chalk.blueBright( `<msg>` ), chalk.gray( `Fetching new messages` ),
@@ -707,7 +707,7 @@ async function GetMessages( )
         {
             Log.warn( `auth`, chalk.yellow( `[messages]` ), chalk.white( `:  ` ),
                 chalk.yellowBright( `<msg>` ), chalk.red( `Unauthorized connection, ensure you set the correct instance URL, and provide your API Token` ),
-                chalk.yellowBright( `<url>` ), chalk.gray( `${ defInstanceUrl }` ),
+                chalk.yellowBright( `<url>` ), chalk.gray( `${ cfgInstanceURL }` ),
                 chalk.yellowBright( `<docs>` ), chalk.gray( `${ object.link }` ) );
 
             continue;
@@ -722,7 +722,7 @@ async function GetMessages( )
         {
             Log.warn( `auth`, chalk.yellow( `[messages]` ), chalk.white( `:  ` ),
                 chalk.yellowBright( `<msg>` ), chalk.red( `poll limit reached: too many auth failures; increase your limits with a paid plan, see https://ntfy.sh` ),
-                chalk.yellowBright( `<url>` ), chalk.gray( `${ defInstanceUrl }` ),
+                chalk.yellowBright( `<url>` ), chalk.gray( `${ cfgInstanceURL }` ),
                 chalk.yellowBright( `<docs>` ), chalk.gray( `${ object.link }` ) );
 
             continue;
@@ -738,7 +738,7 @@ async function GetMessages( )
                 chalk.yellowBright( `<msg>` ), chalk.red( `skipped getting pending messages` ),
                 chalk.yellowBright( `<error>` ), chalk.red( `${ object.error }` ),
                 chalk.yellowBright( `<code>` ), chalk.red( `${ object.http }` ),
-                chalk.yellowBright( `<url>` ), chalk.gray( `${ defInstanceUrl }` ),
+                chalk.yellowBright( `<url>` ), chalk.gray( `${ cfgInstanceURL }` ),
                 chalk.yellowBright( `<docs>` ), chalk.gray( `${ object.link }` ) );
         }
 
@@ -773,7 +773,7 @@ async function GetMessages( )
         */
 
         const cfgPersistent = store.getInt( 'bPersistentNoti' ) !== 0;
-        const cfgInstanceURL = store.get( 'instanceURL' );
+        cfgInstanceURL = store.get( 'instanceURL' );
 
         if ( !msgHistory.includes( id ) )
         {
