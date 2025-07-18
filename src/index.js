@@ -221,7 +221,7 @@ let guiMain, guiAbout, guiTray;
 /**
     Define > CLI State
 
-    bDevTools           --dev           dev tools added to menu
+    bDevTools           --devtools      dev tools added to menu
     bHotkeysEnabled     --hotkeys       keyboard shortcuts added to menu
     bQuitOnClose        --terminate     when pressing top-right close button, app exits instead of going to tray
     bWinHidden          --hidden        app closes to tray on start
@@ -1310,7 +1310,7 @@ function ready()
         Loop args
 
         --hidden            automatically hide window
-        --dev               enable developer tools
+        --devtools          enable developer tools
         --terminate         quit app when close button pressed
         --hotkeys           enable keyboard shortcuts
         --env               set runtime environment (production, development, test)
@@ -1322,7 +1322,7 @@ function ready()
         {
             bWinHidden = 1;
         }
-        else if ( process.argv[ i ] === '--dev' )
+        else if ( process.argv[ i ] === '--devtools' )
         {
             bDevTools = 1;
             activeDevTools();
