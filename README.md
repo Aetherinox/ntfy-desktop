@@ -49,6 +49,7 @@
   - [What is Ntfy](#what-is-ntfy)
   - [Ntfy Desktop Features](#ntfy-desktop-features)
   - [Self-hosted vs Ntfy.sh](#self-hosted-vs-ntfysh)
+  - [Architecture Outline](#architecture-outline)
 - [Usage](#usage)
   - [Key Binds](#key-binds)
   - [CLI Arguments](#cli-arguments)
@@ -160,14 +161,14 @@ We provide numerous different architectures you can download this app for. Below
 
 <br />
 
-| Architecture | Bits | Devices / Examples                         |
-| ------------ | ---- | ------------------------------------------ |
-| **ARMv7l**   | 32   | Raspberry Pi 2, Nexus 7, PS Vita           |
-| **ARMv6l**   | 32   | Raspberry Pi 1, Pi Zero, iPhone 3G         |
-| **ARM64**    | 64   | Apple M1, M2, **M3**, Raspberry Pi 4, modern iPhones |
-| **AMD64**    | 64   | Modern PCs, PS5, Xbox Series X, Steam Deck |
-| **I386**     | 32   | 386-era PCs, Win95, Compaq Deskpro         |
-| **IA32**     | 32   | Same as i386 + Intel Atom netbooks         |
+| Architecture | Bits | Devices / Examples                                             |
+| ------------ | ---- | -------------------------------------------------------------- |
+| **ARMv7l**   | 32   | Raspberry Pi 2 & 3 (32-bit), Nexus 7, PS Vita (ARM Cortex-A9)  |
+| **ARMv6l**   | 32   | Raspberry Pi 1, Pi Zero, iPhone 3G                             |
+| **ARM64**    | 64   | Apple M1/M2/M3 Macs, Raspberry Pi 4 (64-bit OS), iPhone 5s+    |
+| **AMD64**    | 64   | Modern PCs, PS5, Xbox Series X, Steam Deck                     |
+| **I386**     | 32   | 386-era PCs, Windows 95 machines, Compaq Deskpro, old netbooks |
+| **IA32**     | 32   | Same as i386; Intel Atom netbooks, Pentium 4 PCs               |
 
 <br />
 
@@ -223,7 +224,8 @@ This client allows you to utilize the following command-line arguments with ntfy
 | `--hidden` | Start app hidden in tray, suitable for auto-starting on system login/boot | ✅ |
 | `--hotkey` | Start app with hotkeys enabled | ✅ |
 | `--quit` | Top-right close button will completely exit app instead of minimize to tray | ✅ |
-| `--dev` | Start app with developer tools in `App` menu | ✅ |
+| `--devtools` | Start app with developer tools in `App` menu | ✅ |
+| `--env <env_name>` | Define startup environment | ❌ |
 
 <br />
 
