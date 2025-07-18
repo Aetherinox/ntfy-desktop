@@ -4,7 +4,7 @@
     this is the main project file to initiate the electron app
 */
 
-import { app, BrowserWindow, dialog, ipcMain, Tray, shell, Menu, MenuItem } from 'electron';
+import { app, BrowserWindow, dialog, ipcMain, Tray, shell, Menu, MenuItem, nativeImage } from 'electron';
 import path from 'path';
 import moment from 'moment';
 import chalk from 'chalk';
@@ -959,7 +959,7 @@ function ready()
         title: `${ appTitle } : v${ appVer }`,
         width: 1280,
         height: 720,
-        icon: appIcon,
+        icon: nativeImage.createFromPath( appIcon ).resize({ width: 16, height: 16 }),
         webPreferences:
         {
             preload: path.join( __dirname, 'preload.js' ),      // use a preload script
@@ -1013,14 +1013,23 @@ function ready()
         try
         {
             const rendererContent = fs.readFileSync( path.join( __dirname, 'renderer.js' ), 'utf8' );
-            guiMain.webContents.executeJavaScript( rendererContent );
-            Log.info( `core`, chalk.yellow( `[renderer]` ), chalk.white( `:  ` ),
-                chalk.blueBright( `<msg>` ), chalk.gray( `Renderer script injected successfully` ) );
+            guiMain.webContents.executeJavaScript( rendererContent )
+                .then( () =>
+                {
+                    Log.info( `core`, chalk.yellow( `[renderer]` ), chalk.white( `:  ` ),
+                        chalk.blueBright( `<msg>` ), chalk.gray( `Renderer script injected successfully` ) );
+                })
+                .catch( ( error ) =>
+                {
+                    Log.error( `core`, chalk.redBright( `[renderer]` ), chalk.white( `:  ` ),
+                        chalk.redBright( `<msg>` ), chalk.gray( `Failed to execute renderer script` ),
+                        chalk.redBright( `<error>` ), chalk.gray( `${ error.message }` ) );
+                });
         }
         catch ( error )
         {
             Log.error( `core`, chalk.redBright( `[renderer]` ), chalk.white( `:  ` ),
-                chalk.redBright( `<msg>` ), chalk.gray( `Failed to inject renderer script` ),
+                chalk.redBright( `<msg>` ), chalk.gray( `Failed to read renderer script` ),
                 chalk.redBright( `<error>` ), chalk.gray( `${ error.message }` ) );
         }
     });
@@ -1061,7 +1070,7 @@ function ready()
             statusStrMsg = `Failed to resolve ` + instanceUrl + `; defaulting to ${ defInstanceUrl }`;
 
             store.set( 'instanceURL', defInstanceUrl );
-            
+
             // Check if guiMain is still valid before calling loadURL
             if ( guiMain && typeof guiMain.loadURL === 'function' )
             {
