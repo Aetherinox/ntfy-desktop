@@ -322,7 +322,10 @@ function initializeRenderer()
                 LogRenderer.debug( `  Variation ${ i } (${ selector }): ${ found.length } elements` );
 
                 if ( found.length > 0 && i < 3 )
-                    LogRenderer.debug( `    First element:`, found[ 0 ] );
+                {
+                    const firstEl = found[ 0 ];
+                    LogRenderer.debug( `    First element: ${ firstEl.tagName } - ${ firstEl.className }` );
+                }
             });
         }
 
@@ -369,14 +372,14 @@ function initializeRenderer()
 
             element.addEventListener( 'click', handleMuiListClick, false );
 
-            LogRenderer.debug( `✅ Added click listeners to .MuiButtonBase-root element ${ index }:`, element );
+            LogRenderer.debug( `✅ Added click listeners to .MuiButtonBase-root element ${ index } (${ element.tagName } - ${ element.className })` );
 
             /**
                 Debug > visual indicator (only in test/development mode)
             */
 
-            if ( typeof window.electron !== 'undefined' && 
-                 window.electron.env && 
+            if ( typeof window.electron !== 'undefined' &&
+                 window.electron.env &&
                  ( window.electron.env.NODE_ENV === 'test' || window.electron.env.NODE_ENV === 'development' ) )
             {
                 element.style.border = '2px solid red';
@@ -392,7 +395,7 @@ function initializeRenderer()
 
     function handleMuiListClick( env )
     {
-        LogRenderer.debug( 'MuiButtonBase-root element clicked!', env.target );
+        LogRenderer.debug( `MuiButtonBase-root element clicked! (${ env.target.tagName } - ${ env.target.className })` );
 
         /**
             see if window.electron is available
@@ -615,7 +618,10 @@ window.inspectPage = function ()
         }
     });
 
-    return { clickable: Array.from( clickableElements ), notifications: Array.from( ntfyElements ) };
+    return {
+        clickable: clickableElements.length,
+        notifications: ntfyElements.length
+    };
 };
 
 /**
@@ -829,3 +835,6 @@ if ( typeof window !== 'undefined' )
         }
     }
 }
+
+// Explicitly return undefined to prevent cloning issues
+undefined;
