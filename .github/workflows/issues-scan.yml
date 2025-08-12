@@ -170,7 +170,7 @@ jobs:
             # #
 
             - name: '☑️ Checkout'
-              uses: actions/checkout@v4
+              uses: actions/checkout@v5
               with:
                   fetch-depth: 0
 
@@ -380,7 +380,7 @@ jobs:
 
             - name: >-
                   ☑️ Checkout
-              uses: actions/checkout@v4
+              uses: actions/checkout@v5
               if: |
                   ( github.event_name == 'pull_request_target' ) || ( github.event_name == 'pull_request' ) || ( github.event_name == 'issue_comment' && contains( github.event.comment.html_url, '/pull/' ) && contains( github.event.comment.body, '/rescan' ) )
               with:
