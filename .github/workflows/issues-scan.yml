@@ -394,7 +394,7 @@ jobs:
 
             - name: >-
                   ⚙️ Setup Node
-              uses: actions/setup-node@v4
+              uses: actions/setup-node@v5
 
             # #
             #     PR Scan › Get List of Changed Files
