@@ -295,7 +295,7 @@ jobs:
 
             - name: >-
                   🎫 Labels › Verify Existing
-              uses: actions/github-script@v7
+              uses: actions/github-script@v8
               with:
                   github-token: ${{ secrets.ADMINSERV_TOKEN_CL || github.token }}
                   script: |
@@ -335,7 +335,7 @@ jobs:
             - name: >-
                   #️⃣ Pull-Request ID › Set
               id: task_prscan_issue_num_set
-              uses: actions/github-script@v7
+              uses: actions/github-script@v8
               with:
                   github-token: ${{ secrets.ADMINSERV_TOKEN_CL || github.token }}
                   script: |
@@ -448,7 +448,7 @@ jobs:
 
             - name: >-
                   ☑️ Run Autocheck
-              uses: actions/github-script@v7
+              uses: actions/github-script@v8
               with:
                   github-token: ${{ secrets.ADMINSERV_TOKEN_CL }}
                   script: |
