@@ -500,7 +500,9 @@ async function GetMessageData( uri )
         const entries = json.split( '\n' );
         for ( let i = 0; i < entries.length; i++ )
         {
-            jsonArr.push( entries[ i ] );
+            if('' !== entries[ i ].trim()) {
+                jsonArr.push( entries[ i ] );
+            }            
         }
 
         /**
@@ -512,7 +514,7 @@ async function GetMessageData( uri )
             return el !== null && el !== '';
         });
 
-        return jsonResult;
+        return jsonArr.length === 0 ? null : jsonResult;
     }
     catch ( err )
     {
@@ -667,8 +669,10 @@ async function GetMessages( )
 
     if ( Utils.isJsonString( json ) === false )
     {
+        Log.info( `core`, chalk.yellow( `[invalid response]` ), chalk.white( `:  ${json}` ), chalk.blueBright( `<query>` ), chalk.gray( `${ uri }` ));
+
         Log.error( `core`, chalk.redBright( `[messages]` ), chalk.white( `:  ` ),
-            chalk.redBright( `<msg>` ), chalk.gray( `Polling for new messages returned invalid json; skipping fetch. Change your instance URL to a valid ntfy instance.` ),
+            chalk.redBright( `<msg>` ), chalk.gray( `Polling for new messages returned invalid json (2); skipping fetch. Change your instance URL to a valid ntfy instance.` ),
             chalk.redBright( `<func>` ), chalk.gray( `GetMessages()` ) );
 
         return;
@@ -703,6 +707,7 @@ async function GetMessages( )
         const expires = object.expires;
         const message = object.message;
         const topic = object.topic;
+        const url = object.click || null;
 
         /**
             Auth Error > 401
@@ -772,6 +777,7 @@ async function GetMessages( )
             chalk.blueBright( `<msg>` ), chalk.gray( `Pending messages received` ),
             chalk.blueBright( `<type>` ), chalk.gray( `${ type }` ),
             chalk.blueBright( `<id>` ), chalk.gray( `${ id }` ),
+            chalk.blueBright( `<url>` ), chalk.gray( `${ url }` ),
             chalk.blueBright( `<status>` ), chalk.gray( `${ msgStatus }` ) );
 
         /**
@@ -783,14 +789,43 @@ async function GetMessages( )
 
         if ( !msgHistory.includes( id ) )
         {
+            Log.info( `core`, chalk.yellow( `[toast:notify]` ), chalk.white( `:  ` ),
+                    chalk.blueBright( `<object>` ), chalk.gray( `${ object }` ));
+
             toasted.notify({
                 title: `${ topic } - ${ dateHuman }`,
                 subtitle: `${ dateHuman }`,
                 message: `${ message }`,
                 sound: 'Pop',
-                open: cfgInstanceURL,
+                open: url || cfgInstanceURL,
                 persistent: cfgPersistent,
-                sticky: cfgPersistent
+                sticky: cfgPersistent,
+                wait: true
+            },
+            ( error, response ) =>
+            {
+                Log.info( `core`, chalk.yellow( `[toast:response]` ), chalk.white( `:  ` ),
+                    chalk.blueBright( `<response>` ), chalk.gray( `${ response }` ),
+                    chalk.blueBright( `<error>` ), chalk.gray( `${ error }` ),
+                    chalk.blueBright( `<bWinHidden>` ), chalk.gray( `${ bWinHidden }` ));
+                    
+                if ( bWinHidden )
+                {
+                    bWinHidden = 0;
+                }
+                if (guiMain.isMinimized()) guiMain.restore();
+                guiMain.show();
+                if(url)shell.openExternal(url);
+            });
+
+            toasted.on('click', function (obj, options, event) {
+                // Triggers if `wait: true` and user clicks notification
+                Log.info( `core`, chalk.yellow( `[toast:clicked]` ), chalk.white( `:  ` ),
+                    chalk.blueBright( `<obj>` ), chalk.gray( `${ obj }` ),
+                    chalk.blueBright( `<options>` ), chalk.gray( `${ options }` ),
+                    chalk.blueBright( `<event>` ), chalk.gray( `${ event }` ) );
+
+                    guiMain.show();
             });
 
             msgHistory.push( id );
@@ -1098,6 +1133,7 @@ function ready()
     {
         store.set( 'indicatorMessages', 0 );
         app.badgeCount = 0;
+        bWinHidden = 0;
     });
 
     /**
@@ -1118,6 +1154,7 @@ function ready()
             }
             else
             {
+                bWinHidden = 1;
                 guiMain.hide();
             }
         }
@@ -1144,6 +1181,16 @@ function ready()
     {
         e.preventDefault();
         shell.openExternal( url );
+    });
+
+    /**
+        Event > Minimize
+    */
+    guiMain.on("minimize", () => {
+        Log.info( `core`, chalk.yellow( `[minimize]` ), chalk.white( `:  ` ),
+            chalk.blueBright( `<msg>` ), chalk.gray( `App has been minimized - update bWinHidden var` ) );
+
+        bWinHidden = 1;
     });
 
     /**
@@ -1292,6 +1339,9 @@ function ready()
     guiTray.setContextMenu( menuTray );
     guiTray.on( 'click', () =>
     {
+        Log.info( `core`, chalk.yellow( `[contextMenu:click]` ), chalk.white( `:  ` ),
+            chalk.blueBright( `<bWinHidden>` ), chalk.gray( `${ bWinHidden }` ));
+
         if ( bWinHidden )
         {
             bWinHidden = 0;
@@ -1518,6 +1568,26 @@ app.on( 'activate', () =>
     if ( BrowserWindow.getAllWindows().length === 0 )
         ready();
 });
+
+
+/**
+    App > Do not allow multiple instances
+*/
+const gotTheLock = app.requestSingleInstanceLock();
+if (!gotTheLock) {
+    gracefulShutdown();
+} else {
+    app.on("second-instance", () => {
+
+    if (!guiMain) return;
+    
+    Log.info( `core`, chalk.yellow( `[second-instance]` ), chalk.white( `:  ` ),
+            chalk.blueBright( `<msg>` ), chalk.gray( `App re-open: try to regain focus` ) );
+
+    if (guiMain.isMinimized()) guiMain.restore();
+    guiMain.focus();
+    });
+}
 
 /**
     ping functionality to announce signals from renderer
