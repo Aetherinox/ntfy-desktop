@@ -115,7 +115,7 @@
         "all-contributors-cli": "^6.26.1",
         "codecov": "^3.8.3",
         "electron": "^37.0.0",
-        "electron-playwright-helpers": "^1.7.1",
+        "electron-playwright-helpers": "^2.0.0",
         "env-cmd": "^10.1.0",
         "eslint": "9.29.0",
         "eslint-plugin-chai-friendly": "^1.1.0",
