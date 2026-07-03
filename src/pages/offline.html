@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
+		<title>Offline</title>
+		<link href="css/bootstrap.min.css" rel="stylesheet">
+		<link rel="stylesheet" href="css/style.css?v=1.0.1">
+
+		<!--
+		Electron:	Line required for script imports
+					Add before all other JS files are loaded.
+		-->
+		<script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
+
+		<style>
+			html, body {
+				height: 100%;
+				margin: 0;
+				background-color: #212121;
+			}
+
+			.offline-wrap {
+				height: 100%;
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				justify-content: center;
+				text-align: center;
+				padding: 24px;
+				color: #FFFFFF;
+				font-weight: 100;
+			}
+
+			.offline-icon {
+				font-size: 54px;
+				line-height: 1;
+				margin-bottom: 18px;
+			}
+
+			.offline-title {
+				font-size: 1.5rem;
+				margin-bottom: 10px;
+			}
+
+			.offline-desc {
+				font-size: 0.95rem;
+				max-width: 460px;
+				color: #cfcfcf;
+				margin-bottom: 6px;
+			}
+
+			#instance-url {
+				color: #ffffff;
+				word-break: break-all;
+			}
+
+			.offline-retry {
+				margin-top: 22px;
+				font-size: 0.85rem;
+				color: #9a9a9a;
+			}
+
+			.offline-spinner {
+				width: 18px;
+				height: 18px;
+				border: 2px solid rgba(255, 255, 255, 0.25);
+				border-top-color: #ffffff;
+				border-radius: 50%;
+				display: inline-block;
+				vertical-align: middle;
+				margin-right: 8px;
+				animation: offline-spin 0.9s linear infinite;
+			}
+
+			@keyframes offline-spin {
+				to { transform: rotate(360deg); }
+			}
+		</style>
+	</head>
+
+	<body>
+		<div class="offline-wrap">
+			<div class="offline-icon">📡</div>
+			<div class="offline-title">You appear to be offline</div>
+			<div class="offline-desc">Unable to reach your ntfy instance:</div>
+			<div class="offline-desc"><span id="instance-url">your instance</span></div>
+			<div class="offline-retry"><span class="offline-spinner"></span>Reconnecting automatically&hellip;</div>
+		</div>
+	</body>
+</html>

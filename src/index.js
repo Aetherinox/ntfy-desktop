@@ -248,6 +248,8 @@ let statusBadURL = false;                           // user instance url entered
 let statusStrMsg;                                   // string status message
 let isShuttingDown = false;                         // determine if app is currently attempting to shut down
 let pollInterval = null;                            // store interval reference for proper cleanup
+let instanceReconnectTimer = null;                  // background reconnect timer used while the instance is unreachable
+let offlinePageShown = false;                        // whether the local offline page is currently displayed
 
 /**
     Define > Default Fallbacks
@@ -264,6 +266,7 @@ const defPollrate = 60;                             // default polling rate
 const minPollrate = 5;                              // minimum poll rate to prevent rate limiting
 const maxPollrate = 3600;                           // maximum poll rate (1 hour)
 const maxRetries = 3;                               // maximum retry attempts for network requests
+const instanceReconnectDelay = 15000;               // delay between background reconnect attempts while offline (issue #152)
 
 /**
     Define > Store Values
@@ -431,6 +434,113 @@ function IsValidUrl( uri, tries, delay )
                 setTimeout( () => rec( --tries ), delay );
             });
         })( tries );
+    });
+}
+
+/**
+    Instance > Reconnect timer cleanup
+
+    stops any pending background reconnect attempt. called on shutdown and when
+    the main window is closed so we never fire a retry against a destroyed window.
+*/
+
+function stopInstanceReconnect()
+{
+    if ( instanceReconnectTimer )
+    {
+        clearTimeout( instanceReconnectTimer );
+        instanceReconnectTimer = null;
+    }
+}
+
+/**
+    Instance > Show Offline Page
+
+    loads the bundled local offline page (works with no network) and injects the
+    unreachable instance url. shown while we cannot reach the configured instance.
+*/
+
+function showOfflinePage( targetUrl )
+{
+    if ( !guiMain || typeof guiMain.loadFile !== 'function' )
+        return;
+
+    offlinePageShown = true;
+
+    guiMain.loadFile( path.join( app.getAppPath(), `pages`, `offline.html` ) )
+        .then( () =>
+        {
+            if ( !guiMain || guiMain.webContents.isDestroyed() )
+                return;
+
+            guiMain.webContents.executeJavaScript(
+                `( () => { const el = document.getElementById( 'instance-url' ); if ( el ) el.textContent = ${ JSON.stringify( targetUrl ) }; })();`
+            ).catch( () => {});
+        })
+        .catch( ( err ) =>
+        {
+            Log.error( `core`, chalk.redBright( `[instance]` ), chalk.white( `:  ` ),
+                chalk.redBright( `<msg>` ), chalk.gray( `Failed to load offline page` ),
+                chalk.redBright( `<error>` ), chalk.gray( `${ err.message }` ) );
+        });
+}
+
+/**
+    Instance > Resolve & Load
+
+    validates the user's configured instance and loads it. if it cannot be
+    reached (e.g. the machine is offline at startup), we intentionally do NOT
+    overwrite the stored instanceURL or redirect to the public ntfy.sh instance;
+    doing so previously caused a private instance to be permanently forgotten
+    with no way to reconnect (issue #152).
+
+    instead we show a local offline page and keep retrying in the background.
+    once the instance becomes reachable we load it and clear statusBadURL, which
+    lets GetMessages() resume polling automatically.
+*/
+
+function resolveInstanceAndLoad()
+{
+    if ( !guiMain )
+        return;
+
+    const targetUrl = store.get( 'instanceURL' ) || defInstanceUrl;
+
+    IsValidUrl( targetUrl, maxRetries, 1000 ).then( () =>
+    {
+        stopInstanceReconnect();
+
+        statusBadURL = false;
+        statusBoolError = false;
+        statusStrMsg = '';
+        offlinePageShown = false;
+
+        Log.ok( `core`, chalk.yellow( `[instance]` ), chalk.white( `:  ` ),
+            chalk.greenBright( `<msg>` ), chalk.gray( `Specified instance successfully resolves` ),
+            chalk.greenBright( `<instance>` ), chalk.gray( `${ targetUrl }` ) );
+
+        if ( guiMain && typeof guiMain.loadURL === 'function' )
+            guiMain.loadURL( targetUrl );
+    }).catch( ( err ) =>
+    {
+        /*
+            keep the user's stored instanceURL intact so we can reconnect to it.
+        */
+
+        statusBadURL = true;                                                     // gates polling until the instance is reachable again
+        statusBoolError = true;
+        statusStrMsg = `Unable to reach ${ targetUrl } — you appear to be offline. Reconnecting automatically…`;
+
+        Log.error( `core`, chalk.redBright( `[instance]` ), chalk.white( `:  ` ),
+            chalk.redBright( `<msg>` ), chalk.gray( `Failed to resolve instance url; keeping setting and retrying (offline?)` ),
+            chalk.redBright( `<error>` ), chalk.gray( `${ err.message }` ),
+            chalk.redBright( `<instance>` ), chalk.gray( `${ targetUrl }` ) );
+
+        if ( !offlinePageShown )
+            showOfflinePage( targetUrl );
+
+        stopInstanceReconnect();
+        instanceReconnectTimer = setTimeout( resolveInstanceAndLoad, instanceReconnectDelay );
     });
 }
 
@@ -1051,33 +1161,7 @@ function ready()
     }
     else
     {
-        IsValidUrl( instanceUrl, maxRetries, 1000 ).then( ( item ) =>
-        {
-            Log.ok( `core`, chalk.yellow( `[instance]` ), chalk.white( `:  ` ),
-                chalk.greenBright( `<msg>` ), chalk.gray( `Specified instance successfully resolves` ),
-                chalk.greenBright( `<instance>` ), chalk.gray( `${ instanceUrl }` ) );
-
-            statusBadURL = false;
-            guiMain.loadURL( store.get( 'instanceURL' ) );
-        }).catch( ( err ) =>
-        {
-            Log.error( `core`, chalk.redBright( `[instance]` ), chalk.white( `:  ` ),
-                chalk.redBright( `<msg>` ), chalk.gray( `Failed to resolve instance url; switching to default` ),
-                chalk.redBright( `<error>` ), chalk.gray( `${ err.message }` ),
-                chalk.redBright( `<instanceBad>` ), chalk.gray( `${ instanceUrl }` ),
-                chalk.redBright( `<instanceDef>` ), chalk.gray( `${ defInstanceUrl }` ) );
-
-            statusBadURL = true;
-            statusStrMsg = `Failed to resolve ` + instanceUrl + `; defaulting to ${ defInstanceUrl }`;
-
-            store.set( 'instanceURL', defInstanceUrl );
-
-            // Check if guiMain is still valid before calling loadURL
-            if ( guiMain && typeof guiMain.loadURL === 'function' )
-            {
-                guiMain.loadURL( defInstanceUrl );
-            }
-        });
+        resolveInstanceAndLoad();
     }
 
 
@@ -1131,6 +1215,7 @@ function ready()
 
     guiMain.on( 'closed', () =>
     {
+        stopInstanceReconnect();
         guiMain = null;
     });
 
@@ -1458,6 +1543,12 @@ function gracefulShutdown()
         Log.info( `core`, chalk.yellow( `[shutdown]` ), chalk.white( `:  ` ),
             chalk.blueBright( `<msg>` ), chalk.gray( `Stopped message polling` ) );
     }
+
+    /**
+        stop any pending instance reconnect attempt
+    */
+
+    stopInstanceReconnect();
 
     /**
         set quit flag and exit
