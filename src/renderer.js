@@ -836,5 +836,330 @@ if ( typeof window !== 'undefined' )
     }
 }
 
+/**
+    Notification bridge
+
+    the ntfy web app receives messages for every topic it is subscribed to and calls
+    the Web Notification API to alert the user. inside electron those web notifications
+    do not reliably reach the desktop notification server, so the popup is missed even
+    though the web app plays its sound.
+
+    here we intercept the web app's own notifications (in the page's main world) and
+    forward them to the main process, which displays them through the native notifier
+    (toasted-notifier / notify-send). because this piggybacks on the web app's live
+    subscriptions, it covers every topic — including ones added in the future — with no
+    poll-topic list to maintain.
+
+    we also mirror the real window visibility (pushed from main; hidden while the app
+    sits in the tray) into document.hidden / visibilityState, so the web app actually
+    emits a notification instead of silently updating a "focused" UI.
+*/
+
+( function setupNotificationBridge()
+{
+    if ( typeof window === 'undefined' || window.__ntfyNotificationBridge )
+        return;
+
+    window.__ntfyNotificationBridge = true;
+
+    /*
+        track the real app window visibility. default to hidden because the app is
+        started in the tray; main pushes accurate updates on show/hide and after load.
+    */
+
+    let appHidden = true;
+
+    try
+    {
+        if ( typeof window.electron !== 'undefined' && window.electron.receiveFromMain )
+        {
+            window.electron.receiveFromMain( 'fromMain', ( msg ) =>
+            {
+                if ( msg && typeof msg === 'object' && msg.type === 'window-visibility' )
+                    appHidden = !!msg.hidden;
+            });
+        }
+    }
+    catch ( e ) {}
+
+    try
+    {
+        Object.defineProperty( document, 'hidden',
+        {
+            configurable: true,
+            get: () => appHidden
+        });
+
+        Object.defineProperty( document, 'visibilityState',
+        {
+            configurable: true,
+            get: () => ( appHidden ? 'hidden' : 'visible' )
+        });
+    }
+    catch ( e ) {}
+
+    /*
+        forward a notification's text to the main process, which shows it through the
+        native notifier (toasted-notifier / notify-send).
+    */
+
+    /*
+        the ntfy web app only puts the topic in the notification title when a message
+        has no title of its own; otherwise the title holds the message title. the topic
+        is always carried on the notification's data payload, so dig it out from the
+        likely shapes so main can label the popup with the topic regardless.
+    */
+
+    function extractTopic( options )
+    {
+        try
+        {
+            const data = ( options && options.data ) ? options.data : {};
+
+            return ( data.message && data.message.topic )
+                || data.topic
+                || ( data.notification && data.notification.topic )
+                || ( data.subscription && data.subscription.topic )
+                || data.subscriptionId
+                || '';
+        }
+        catch ( e )
+        {
+            return '';
+        }
+    }
+
+    /*
+        the ntfy web app lets the user assign a per-topic "display name". it is not
+        included in the notification payload — the web app keeps it in its own IndexedDB
+        ("ntfy" database, "subscriptions" store, keyed by the subscription id, which is
+        the topic url carried on the notification as data.subscriptionId). look it up
+        there so the native popup can be labelled with the display name when one is set.
+    */
+
+    function ntfyDatabaseNames()
+    {
+        return new Promise( ( resolve ) =>
+        {
+            try
+            {
+                if ( typeof indexedDB.databases === 'function' )
+                {
+                    indexedDB.databases()
+                        .then( ( dbs ) => resolve( ( dbs || [] )
+                            .map( ( d ) => d && d.name )
+                            .filter( ( n ) => n === 'ntfy' || ( typeof n === 'string' && n.indexOf( 'ntfy' ) === 0 ) ) ) )
+                        .catch( () => resolve( [ 'ntfy' ] ) );
+                }
+                else
+                {
+                    resolve( [ 'ntfy' ] );
+                }
+            }
+            catch ( e )
+            {
+                resolve( [ 'ntfy' ] );
+            }
+        });
+    }
+
+    function displayNameFromDb( dbName, subscriptionId )
+    {
+        return new Promise( ( resolve ) =>
+        {
+            try
+            {
+                const req = indexedDB.open( dbName );
+
+                req.onerror = () => resolve( '' );
+
+                req.onsuccess = () =>
+                {
+                    const dbc = req.result;
+
+                    try
+                    {
+                        if ( !dbc.objectStoreNames.contains( 'subscriptions' ) )
+                        {
+                            resolve( '' );
+                            dbc.close();
+                            return;
+                        }
+
+                        const store = dbc.transaction( 'subscriptions', 'readonly' ).objectStore( 'subscriptions' );
+                        const getReq = store.get( subscriptionId );
+
+                        getReq.onsuccess = () =>
+                        {
+                            const rec = getReq.result;
+                            resolve( ( rec && rec.displayName ) ? String( rec.displayName ) : '' );
+                            dbc.close();
+                        };
+
+                        getReq.onerror = () =>
+                        {
+                            resolve( '' );
+                            dbc.close();
+                        };
+                    }
+                    catch ( e )
+                    {
+                        resolve( '' );
+
+                        try
+                        {
+                            dbc.close();
+                        }
+                        catch ( e2 ) {}
+                    }
+                };
+            }
+            catch ( e )
+            {
+                resolve( '' );
+            }
+        });
+    }
+
+    async function lookupDisplayName( subscriptionId )
+    {
+        if ( !subscriptionId || typeof indexedDB === 'undefined' )
+            return '';
+
+        const names = await ntfyDatabaseNames();
+
+        for ( const name of names )
+        {
+            const displayName = await displayNameFromDb( name, subscriptionId );
+            if ( displayName )
+                return displayName;
+        }
+
+        return '';
+    }
+
+    function forwardToNative( title, options )
+    {
+        options = options || {};
+
+        try
+        {
+            if ( typeof window.electron === 'undefined' || !window.electron.sendToMain )
+                return;
+
+            const data = ( options && options.data ) ? options.data : {};
+            const subscriptionId = data.subscriptionId || '';
+
+            const send = ( displayName ) =>
+            {
+                try
+                {
+                    window.electron.sendToMain( 'web-notification',
+                    {
+                        title: String( title ?? '' ),
+                        body: String( options.body ?? '' ),
+                        topic: String( extractTopic( options ) ?? '' ),
+                        displayName: String( displayName ?? '' ),
+                        icon: String( ( data.message && data.message.icon ) || options.icon || '' )
+                    });
+                }
+                catch ( e ) {}
+            };
+
+            lookupDisplayName( subscriptionId ).then( send ).catch( () => send( '' ) );
+        }
+        catch ( e ) {}
+    }
+
+    /*
+        primary path: the ntfy web app displays notifications through the service worker
+        registration (registration.showNotification), not the Notification constructor.
+        patch the prototype method — this catches every registration instance, including
+        ones obtained before this script ran — forward the text to the native notifier and
+        suppress the original call (which does not surface in electron) to avoid duplicates.
+    */
+
+    try
+    {
+        const swProto = ( typeof window.ServiceWorkerRegistration !== 'undefined' )
+            ? window.ServiceWorkerRegistration.prototype
+            : null;
+
+        if ( swProto && typeof swProto.showNotification === 'function' && !swProto.__ntfyPatched )
+        {
+            swProto.__ntfyPatched = true;
+
+            swProto.showNotification = function ( title, options )
+            {
+                options = options || {};
+                forwardToNative( title, options );
+
+                return Promise.resolve();
+            };
+        }
+    }
+    catch ( e ) {}
+
+    /*
+        secondary path: also replace window.Notification with a bridge in case any code
+        uses the constructor directly. constructing forwards to native and returns a
+        minimal Notification-compatible stub, so exactly one popup is shown (the native one).
+    */
+
+    const NativeNotification = window.Notification;
+
+    function NotificationBridge( title, options )
+    {
+        options = options || {};
+        forwardToNative( title, options );
+
+        this.title = title;
+        this.body = options.body;
+        this.onclick = null;
+        this.onclose = null;
+        this.onerror = null;
+        this.onshow = null;
+    }
+
+    NotificationBridge.prototype.close = function () {};
+    NotificationBridge.prototype.addEventListener = function () {};
+    NotificationBridge.prototype.removeEventListener = function () {};
+    NotificationBridge.prototype.dispatchEvent = function () { return false; };
+
+    NotificationBridge.requestPermission = function ( cb )
+    {
+        if ( typeof cb === 'function' )
+            cb( 'granted' );
+
+        return Promise.resolve( 'granted' );
+    };
+
+    Object.defineProperty( NotificationBridge, 'permission',
+    {
+        configurable: true,
+        get: () => 'granted'
+    });
+
+    NotificationBridge.maxActions = ( NativeNotification && NativeNotification.maxActions ) || 2;
+
+    try
+    {
+        Object.defineProperty( window, 'Notification',
+        {
+            configurable: true,
+            writable: true,
+            value: NotificationBridge
+        });
+    }
+    catch ( e )
+    {
+        try
+        {
+            window.Notification = NotificationBridge;
+        }
+        catch ( e2 ) {}
+    }
+})();
+
 // Explicitly return undefined to prevent cloning issues
 undefined;

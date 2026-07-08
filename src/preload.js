@@ -42,7 +42,7 @@ contextBridge.exposeInMainWorld( 'electron',
             list of channels to allow for communication
         */
 
-        const allowChans = [ 'toMain', 'button-clicked' ];
+        const allowChans = [ 'toMain', 'button-clicked', 'web-notification' ];
         if ( allowChans.includes( chan ) )
             ipcRenderer.send( chan, data );
     },

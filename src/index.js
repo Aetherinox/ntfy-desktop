@@ -6,6 +6,8 @@
 
 import { app, BrowserWindow, dialog, ipcMain, Tray, shell, Menu, MenuItem, nativeImage } from 'electron';
 import path from 'path';
+import os from 'os';
+import crypto from 'crypto';
 import moment from 'moment';
 import chalk from 'chalk';
 import fs from 'fs';
@@ -14,7 +16,6 @@ import toasted from 'toasted-notifier';
 import prompt from 'electron-plugin-prompts';
 import Log from './classes/Log.js';
 import Storage from './classes/Storage.js';
-import Utils from './classes/Utils.js';
 import { fileURLToPath } from 'url';
 import { newMenuMain, newMenuContext, setMenuDeps } from './classes/Menu.js';
 
@@ -662,14 +663,20 @@ async function GetMessages( )
     }
 
     /**
-        will be thrown if the instance url does not return valid json (ntfy server possibly down?)
+        GetMessageData() returns an array of per-message json strings (or null on
+        failure, which is handled above). an empty array simply means this poll
+        returned no new messages, so there is nothing to process.
+
+        note: this previously called Utils.isJsonString( json ) on the array, which
+        coerced it to a comma-joined string. that only parsed as valid json when the
+        array held exactly one entry, so any poll containing two or more messages was
+        silently dropped. each entry is now validated individually in the loop below.
     */
 
-    if ( Utils.isJsonString( json ) === false )
+    if ( !Array.isArray( json ) || json.length === 0 )
     {
-        Log.error( `core`, chalk.redBright( `[messages]` ), chalk.white( `:  ` ),
-            chalk.redBright( `<msg>` ), chalk.gray( `Polling for new messages returned invalid json; skipping fetch. Change your instance URL to a valid ntfy instance.` ),
-            chalk.redBright( `<func>` ), chalk.gray( `GetMessages()` ) );
+        Log.debug( `core`, chalk.yellow( `[messages]` ), chalk.white( `:  ` ),
+            chalk.blueBright( `<msg>` ), chalk.gray( `No new messages returned by poll` ) );
 
         return;
     }
@@ -696,7 +703,21 @@ async function GetMessages( )
 
     for ( let i = 0; i < json.length; i++ )
     {
-        const object = JSON.parse( json[ i ] );
+        let object;
+        try
+        {
+            object = JSON.parse( json[ i ] );
+        }
+        catch ( err )
+        {
+            Log.warn( `core`, chalk.yellow( `[messages]` ), chalk.white( `:  ` ),
+                chalk.yellowBright( `<msg>` ), chalk.gray( `Skipping malformed message entry` ),
+                chalk.yellowBright( `<error>` ), chalk.gray( `${ err.message }` ),
+                chalk.yellowBright( `<entry>` ), chalk.gray( `${ json[ i ] }` ) );
+
+            continue;
+        }
+
         const id = object.id;
         const type = object.event;
         const time = object.time;
@@ -783,10 +804,18 @@ async function GetMessages( )
 
         if ( !msgHistory.includes( id ) )
         {
+            /*
+                use the message icon when the publisher set one; otherwise the bundled default
+            */
+
+            const icon = await resolveNotificationIcon( object.icon ? String( object.icon ) : '' );
+
             toasted.notify({
                 title: `${ topic } - ${ dateHuman }`,
                 subtitle: `${ dateHuman }`,
                 message: `${ message }`,
+                icon,
+                'app-name': `${ topic }`,
                 sound: 'Pop',
                 open: cfgInstanceURL,
                 persistent: cfgPersistent,
@@ -1135,6 +1164,27 @@ function ready()
     });
 
     /**
+        Event > Show / Hide
+
+        push the real window visibility to the injected renderer so the notification
+        bridge can mirror it into document.hidden / visibilityState. while the app sits
+        in the tray (hidden) the ntfy web app will emit notifications, which we forward
+        to the native notifier; when the window is shown we report visible so it behaves
+        normally.
+    */
+
+    const sendWindowVisibility = ( hidden ) =>
+    {
+        if ( guiMain && guiMain.webContents && !guiMain.webContents.isDestroyed() )
+            guiMain.webContents.send( 'fromMain', { type: 'window-visibility', hidden });
+    };
+
+    guiMain.on( 'show', () => sendWindowVisibility( false ) );
+    guiMain.on( 'hide', () => sendWindowVisibility( true ) );
+    guiMain.on( 'focus', () => sendWindowVisibility( false ) );
+    guiMain.on( 'minimize', () => sendWindowVisibility( true ) );
+
+    /**
         Event > New Window
 
         buttons leading to external websites should open in user browser
@@ -1153,6 +1203,13 @@ function ready()
 
     guiMain.webContents.on( 'did-finish-load', ( e, url ) =>
     {
+        /*
+            report the accurate initial window visibility to the notification bridge
+            once the renderer (and its 'fromMain' listener) has loaded.
+        */
+
+        sendWindowVisibility( !guiMain.isVisible() );
+
         if ( ( statusBoolError === true || statusBadURL === true ) && statusStrMsg !== '' )
         {
             guiMain.webContents
@@ -1567,6 +1624,152 @@ ipcMain.on( 'button-clicked', ( event, data ) =>
     Log.debug( `badge`, chalk.yellow( `[reset]` ), chalk.white( `:  ` ),
         chalk.greenBright( `<msg>` ), chalk.gray( `Badge count reset to 0` ),
         chalk.greenBright( `<trigger>` ), chalk.gray( `MuiButtonBase-root click detected` ) );
+});
+
+/**
+    ipc > renderer > native notification bridge
+
+    the injected renderer intercepts the ntfy web app's own Web Notifications and
+    forwards them here so we can display them through the native notifier
+    (toasted-notifier / notify-send), which integrates with the desktop notification
+    server. because this rides on the web app's live subscriptions, it delivers a
+    desktop popup for every topic the user is subscribed to — including topics added
+    later — without maintaining a separate poll-topics list.
+*/
+
+/**
+    resolve a notification icon to a local file path
+
+    native notifiers (notify-send on linux, SnoreToast on windows) cannot load remote
+    http(s) urls — they require a local file path. so download a remote icon url once,
+    cache it in the temp dir (keyed by a hash of the url) and reuse it on subsequent
+    notifications. anything that isn't an http(s) url, plus any failure/timeout, falls
+    back to the bundled ntfy icon so a notification is never blocked by icon resolution.
+*/
+
+async function resolveNotificationIcon( iconUrl )
+{
+    if ( !iconUrl || !/^https?:\/\//i.test( iconUrl ) )
+        return appIcon;
+
+    try
+    {
+        const cacheDir = path.join( os.tmpdir(), 'ntfy-desktop-icons' );
+        if ( !fs.existsSync( cacheDir ) )
+            fs.mkdirSync( cacheDir, { recursive: true });
+
+        const hash = crypto.createHash( 'sha1' ).update( iconUrl ).digest( 'hex' );
+        const extMatch = iconUrl.match( /\.(png|jpe?g|gif|webp|svg|ico)(?:[?#]|$)/i );
+        const ext = extMatch ? extMatch[ 1 ] : 'png';
+        const filePath = path.join( cacheDir, `${ hash }.${ ext }` );
+
+        /*
+            cache hit — reuse the previously downloaded icon
+        */
+
+        if ( fs.existsSync( filePath ) )
+            return filePath;
+
+        /*
+            download with a short timeout so a slow host never hangs the popup
+        */
+
+        const controller = new AbortController();
+        const timer = setTimeout( () => controller.abort(), 3000 );
+
+        let res;
+        try
+        {
+            res = await fetch( iconUrl, { signal: controller.signal });
+        }
+        finally
+        {
+            clearTimeout( timer );
+        }
+
+        if ( !res.ok )
+            return appIcon;
+
+        const buf = Buffer.from( await res.arrayBuffer() );
+
+        /*
+            sanity size guard (5 MB)
+        */
+
+        if ( buf.length > 5 * 1024 * 1024 )
+            return appIcon;
+
+        fs.writeFileSync( filePath, buf );
+
+        return filePath;
+    }
+    catch ( e )
+    {
+        Log.debug( `ipc`, chalk.yellow( `[web-notification]` ), chalk.white( `:  ` ),
+            chalk.blueBright( `<msg>` ), chalk.gray( `Icon download failed; using default icon` ),
+            chalk.blueBright( `<url>` ), chalk.gray( `${ iconUrl }` ),
+            chalk.blueBright( `<error>` ), chalk.red( `${ e.message }` ) );
+
+        return appIcon;
+    }
+}
+
+ipcMain.on( 'web-notification', async( event, data ) =>
+{
+    const title = ( data && data.title ) ? String( data.title ) : appTitle;
+    const message = ( data && data.body ) ? String( data.body ) : '';
+    /*
+        the forwarded topic may arrive as a full subscription url
+        (e.g. https://ntfy.example.com/tugtainer); reduce it to just the
+        topic name (the last path segment) for a clean notification label.
+    */
+
+    const topicRaw = ( data && data.topic ) ? String( data.topic ) : '';
+    const topicName = topicRaw.replace( /\/+$/, '' ).split( '/' ).pop() || topicRaw;
+
+    /*
+        label the notification with the user-assigned per-topic display name when
+        present; otherwise fall back to the plain topic name.
+    */
+
+    const displayName = ( data && data.displayName ) ? String( data.displayName ) : '';
+    const notificationTitle = displayName || topicName;
+
+    /*
+        ignore empty notifications
+    */
+
+    if ( ( !data || !data.title ) && message === '' )
+        return;
+
+    const cfgPersistent = store.getInt( 'bPersistentNoti' ) !== 0;
+
+    /*
+        use the message icon when the publisher set one; otherwise the bundled default
+    */
+
+    const iconUrl = ( data && data.icon ) ? String( data.icon ) : '';
+    const icon = await resolveNotificationIcon( iconUrl );
+
+    toasted.notify({
+        title,
+        message,
+        icon,
+        'app-name': notificationTitle,
+        sound: 'Pop',
+        open: store.get( 'instanceURL' ),
+        persistent: cfgPersistent,
+        sticky: cfgPersistent
+    });
+
+    UpdateBadge();
+
+    Log.debug( `ipc`, chalk.yellow( `[web-notification]` ), chalk.white( `:  ` ),
+        chalk.blueBright( `<msg>` ), chalk.gray( `Forwarded web app notification to native notifier` ),
+        chalk.blueBright( `<title>` ), chalk.gray( `${ title }` ),
+        chalk.blueBright( `<notificationTitle>` ), chalk.gray( `${ notificationTitle }` ),
+        chalk.blueBright( `<displayName>` ), chalk.gray( `${ displayName || '(none)' }` ),
+        chalk.blueBright( `<icon>` ), chalk.gray( `${ icon }` ) );
 });
 
 /**
