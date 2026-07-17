@@ -63,7 +63,7 @@ function newMenuMain()
                                         type: 'multiInput',
                                         resizable: false,
                                         customStylesheet: path.join( app.getAppPath(), `pages`, `css`, `prompt.css` ),
-                                        height: 640,
+                                        height: 760,
                                         icon: deps.appIcon,
                                         multiInputOptions:
                                         [
@@ -90,6 +90,12 @@ function newMenuMain()
                                                 description: 'Start app minimized in tray',
                                                 selectOptions: { 0: 'Disabled', 1: 'Enabled' },
                                                 value: deps.store.get( 'bStartHidden' )
+                                            },
+                                            {
+                                                label: 'Open Links',
+                                                description: 'Where links inside notifications and the web app open',
+                                                selectOptions: { 0: 'In-app window', 1: 'System browser' },
+                                                value: deps.store.get( 'bOpenLinksExternal' )
                                             }
                                         ]
                                     },
@@ -109,6 +115,7 @@ function newMenuMain()
                                         deps.store.set( 'bHotkeys', resp[ 1 ] );
                                         deps.store.set( 'bQuitOnClose', resp[ 2 ] );
                                         deps.store.set( 'bStartHidden', resp[ 3 ] );
+                                        deps.store.set( 'bOpenLinksExternal', resp[ 4 ] );
                                     }
                                 })
                                 .catch( ( resp ) =>
