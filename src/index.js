@@ -286,6 +286,7 @@ const store = new Storage(
         bStartHidden: 0,
         bPersistentNoti: 0,
         bLocalhost: 0,
+        bOpenLinksExternal: 0,
         datetime: defDatetime
     }
 });
@@ -1137,13 +1138,45 @@ function ready()
     /**
         Event > New Window
 
-        buttons leading to external websites should open in user browser
+        governed by the "Open Links" general setting:
+            0 (default)     links open in a new in-app window
+            1               links open in the user's default browser
+
+        the `new-window` webContents event used previously was removed in
+        Electron 22; setWindowOpenHandler is its replacement. links that
+        navigate the current window (no target=_blank) are caught by
+        `will-navigate` and sent to the browser too, as long as they lead
+        away from the configured instance.
     */
 
-    guiMain.webContents.on( 'new-window', ( e, url ) =>
+    guiMain.webContents.setWindowOpenHandler( ( { url } ) =>
     {
-        e.preventDefault();
-        shell.openExternal( url );
+        if ( store.getInt( 'bOpenLinksExternal' ) === 1 )
+        {
+            shell.openExternal( url );
+            return { action: 'deny' };
+        }
+
+        return { action: 'allow' };
+    });
+
+    guiMain.webContents.on( 'will-navigate', ( e, url ) =>
+    {
+        if ( store.getInt( 'bOpenLinksExternal' ) !== 1 )
+            return;
+
+        try
+        {
+            const instance = store.get( 'instanceURL' ) || defInstanceUrl;
+            if ( new URL( url ).origin !== new URL( instance ).origin )
+            {
+                e.preventDefault();
+                shell.openExternal( url );
+            }
+        }
+        catch ( err )
+        {
+        }
     });
 
     /**
