@@ -207,6 +207,38 @@ const __dirname = path.dirname( __filename );               // get name of the d
 chalk.level = 3;
 
 /**
+    CLI > --help / -h
+
+    print usage and exit immediately, before Electron creates any window.
+    must run before app.on('ready') fires.
+*/
+
+if ( process.argv.includes( '--help' ) || process.argv.includes( '-h' ) )
+{
+    console.log( `
+${ packageJson.title || 'ntfy-desktop' } v${ packageJson.version }
+
+Usage:
+    ntfy-desktop [options]
+
+Options:
+    --hidden          Start the app minimized to the system tray
+    --devtools        Enable developer tools in the app menu
+    --terminate       Quit the app fully when the close button is pressed
+                      (default: close button minimizes to tray)
+    --hotkeys         Enable keyboard shortcuts (Ctrl+R, Ctrl+Q, Ctrl+M, zoom, etc.)
+    --env <name>      Set runtime environment: production, development, test
+    --help, -h        Show this help message and exit
+
+Settings such as instance URL, topics, and polling rate are configured
+from within the app: App -> Settings
+` );
+
+    app.quit();
+    process.exit( 0 );
+}
+
+/**
     Debug > Print args
 */
 
@@ -294,7 +326,7 @@ const store = new Storage(
     helper > validate instance url
 
     checks a given instance url to see if it is valid.
-    this check is bypassed if the user enables localhost mode in the interface settings.
+    this check is bypassed if the user enables "Skip URL Validation" in the interface settings.
 */
 
 function IsValidUrl( uri, tries, delay )
@@ -312,16 +344,15 @@ function IsValidUrl( uri, tries, delay )
             const timeoutId = setTimeout( () => controller.abort(), 10000 );    // 10 sec timeout
 
             /**
-                determine if this is a localhost/local network url
-            */
+                fetchOptions
 
-            const isLocalUrl = uri.includes( 'localhost' ) ||
-                              uri.includes( '127.0.0.1' ) ||
-                              uri.includes( '0.0.0.0' ) ||
-                              uri.match( /^https?:\/\/(192\.168\.|10\.|172\.(1[6-9]|2[0-9]|3[01])\.)/i );
-
-            /**
-                configure fetch options based on URL type
+                @note   Do NOT set `mode` here. In Electron's main process the fetch API runs via
+                        Node.js (undici), which does NOT support browser-only modes like 'no-cors'
+                        or 'cors'. Setting either throws a TypeError immediately, causing every
+                        external/self-hosted URL to fail validation and the app to silently fall
+                        back to ntfy.sh regardless of what the user configured.
+                        Without a mode property, Node.js fetch performs a plain HTTP request with
+                        no CORS restriction — exactly what's needed for URL validation here.
             */
 
             const fetchOptions =
@@ -336,42 +367,15 @@ function IsValidUrl( uri, tries, delay )
                 }
             };
 
-            /**
-                specifically for localhost and local network urls, use different mode
-            */
-
-            if ( isLocalUrl )
-            {
-                fetchOptions.mode = 'cors';
-                fetchOptions.headers[ 'Access-Control-Request-Method' ] = 'HEAD';       // add additional headers that might be needed for local apps
-            }
-            else
-            {
-                fetchOptions.mode = 'no-cors';
-            }
-
             fetch( uri, fetchOptions )
             .then( ( response ) =>
             {
                 clearTimeout( timeoutId );
 
                 /**
-                    no-CORS mode
-
-                    we can't check status, but if we get here, the URL resolved
-                */
-
-                if ( fetchOptions.mode === 'no-cors' )
-                {
-                    success( response );
-                    return;
-                }
-
-                /**
-                    CORS mode (localhost / self-hosted)
-
-                    check if response is reasonable
-                    accept any response that isn't a clear network error
+                    Accept any response with status < 500.
+                    A 401/403 still means the server is reachable and is a valid ntfy instance.
+                    Opaque responses (type === 'opaque') are also treated as reachable.
                 */
 
                 if ( response.status < 500 || response.type === 'opaque' )
@@ -384,10 +388,10 @@ function IsValidUrl( uri, tries, delay )
                 clearTimeout( timeoutId );
 
                 /**
-                    for localhost urls, try a fallback GET request if HEAD fails
+                    fallback GET request if HEAD fails (works for all url types)
                 */
 
-                if ( isLocalUrl && fetchOptions.method === 'HEAD' && tries > 1 )
+                if ( fetchOptions.method === 'HEAD' && tries > 1 )
                 {
                     const fallbackOptions = { ...fetchOptions, method: 'GET' };
                     const fallbackController = new AbortController();
@@ -969,7 +973,18 @@ function ready()
             enableRemoteModule: false,                          // security: disable remote module
             sandbox: false,                                     // keep false for preload script functionality
             webSecurity: true,                                  // security: enable web security
-            allowRunningInsecureContent: false,                 // security: block insecure content
+            /**
+                allowRunningInsecureContent
+
+                Required for self-hosted ntfy instances running over plain HTTP (e.g. internal
+                network servers without TLS, such as http://192.168.x.x:PORT). Without this,
+                Chromium silently blocks the mixed-content request (HTTPS page context talking
+                to an HTTP endpoint) with no visible error — the "Subscribe" button in the ntfy
+                web UI appears to do nothing.
+                This does not disable webSecurity itself; it only allows already-loaded pages
+                to make insecure (HTTP) sub-requests, which is required for LAN-only ntfy servers.
+            */
+            allowRunningInsecureContent: true,
             experimentalFeatures: false                         // security: disable experimental features
         },
         backgroundColor: '#212121'
@@ -1037,11 +1052,10 @@ function ready()
 
     /**
         get instance url;
-        determine if the user has enabled localhost
+        determine if the user has enabled "Skip URL Validation"
 
-        in localhost mode, we do not validate the url
-
-        @todo:              add conditions to IsValidUrl to support localhost websites
+        With the no-cors fix, this toggle is no longer required for self-hosted
+        HTTPS/HTTP instances. It remains available to skip validation entirely.
     */
 
     const instanceUrl = store.get( 'instanceURL' ) || defInstanceUrl;
@@ -1137,13 +1151,66 @@ function ready()
     /**
         Event > New Window
 
-        buttons leading to external websites should open in user browser
+        buttons leading to external websites should open in user browser (window.open() / target=_blank)
     */
 
     guiMain.webContents.on( 'new-window', ( e, url ) =>
     {
         e.preventDefault();
         shell.openExternal( url );
+    });
+
+    /**
+        Event > Will Navigate
+
+        Catches regular <a href="..."> link clicks that navigate the CURRENT window (not just
+        window.open()/target=_blank, which 'new-window' above already handles). Without this,
+        clicking a link inside a notification or the ntfy web UI navigates the main ntfy-desktop
+        window away to that external site instead of opening the user's actual browser.
+
+        Any navigation that stays on the configured instance host (or ntfy.sh itself) is allowed
+        to proceed normally; everything else is redirected to the system browser.
+    */
+
+    guiMain.webContents.on( 'will-navigate', ( e, url ) =>
+    {
+        try
+        {
+            const targetHost = new URL( url ).hostname;
+            const instanceHost = new URL( store.get( 'instanceURL' ) || defInstanceUrl ).hostname;
+            const officialHost = new URL( defInstanceUrl ).hostname;
+
+            if ( targetHost !== instanceHost && targetHost !== officialHost )
+            {
+                e.preventDefault();
+                shell.openExternal( url );
+            }
+        }
+        catch ( error )
+        {
+            // if url parsing fails for any reason, don't block navigation
+            Log.warn( `core`, chalk.yellow( `[navigation]` ), chalk.white( `:  ` ),
+                chalk.yellowBright( `<msg>` ), chalk.gray( `Failed to parse navigation url` ),
+                chalk.yellowBright( `<url>` ), chalk.gray( `${ url }` ) );
+        }
+    });
+
+    /**
+        Event > Render Process Gone / Crashed
+
+        If the loaded page (ntfy.sh or a self-hosted instance's web UI) crashes due to a bug in
+        its own frontend code, reload instead of leaving the user with a dead/white window.
+        This does not fix bugs in the remote page itself — it only recovers from them.
+    */
+
+    guiMain.webContents.on( 'render-process-gone', ( event, details ) =>
+    {
+        Log.error( `core`, chalk.redBright( `[renderer]` ), chalk.white( `:  ` ),
+            chalk.redBright( `<msg>` ), chalk.gray( `Render process gone, reloading` ),
+            chalk.redBright( `<reason>` ), chalk.gray( `${ details.reason }` ) );
+
+        if ( details.reason !== 'clean-exit' && guiMain && !guiMain.isDestroyed() )
+            guiMain.webContents.reload();
     });
 
     /**
@@ -1312,6 +1379,9 @@ function ready()
         --terminate         quit app when close button pressed
         --hotkeys           enable keyboard shortcuts
         --env               set runtime environment (production, development, test)
+
+        --help / -h is handled earlier, before app.on('ready'), since it must exit
+        before any window is created.
     */
 
     // initialize appEnvironment from NODE_ENV if set; otherwise use production
