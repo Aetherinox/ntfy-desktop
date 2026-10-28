@@ -12,6 +12,6 @@
         "contrib:generate": "npx --yes all-contributors generate"
     },
     "devDependencies": {
-        "all-contributors-cli": "^6.26.1"
+        "all-contributors-cli": "^7.0.0"
     }
 }
